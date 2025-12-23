@@ -118,6 +118,337 @@ function compareProjects(a, b) {
   }
 }
 
+function escapeHtml(str) {
+  return String(str ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function formatMonthYear(isoDate) {
+  if (!isoDate) return "";
+  const d = new Date(isoDate);
+  if (!Number.isFinite(d.getTime())) return "";
+  return new Intl.DateTimeFormat(undefined, { year: "numeric", month: "short" }).format(d);
+}
+
+function focusConfig(focusKey) {
+  // This controls which projects show in the PDF when a focus is selected.
+  // You can expand this later (e.g., include ds+marketing together, etc.)
+  const map = {
+    all: { title: "Portfolio", categories: null },
+    ds: { title: "Data Science Portfolio", categories: ["ds"] },
+    marketing: { title: "Marketing / Business Portfolio", categories: ["marketing"] },
+    nanofab: { title: "Nanofabrication Portfolio", categories: ["nanofab"] },
+    cs: { title: "Computer Science Portfolio", categories: ["cs"] },
+  };
+  return map[focusKey] || map.all;
+}
+
+function pickProjectsForFocus(projects, focusKey) {
+  const cfg = focusConfig(focusKey);
+  if (!cfg.categories) return [...projects];
+
+  // Keep only projects that match the selected focus category
+  return projects.filter(p => (p.categories || []).some(c => cfg.categories.includes(c)));
+}
+
+function buildResumeHtml(focusKey) {
+  const cfg = focusConfig(focusKey);
+  const person = SITE.person;
+
+  const projects = pickProjectsForFocus(SITE.projects, focusKey)
+    .slice()
+    .sort((a, b) => parseDate(b.date) - parseDate(a.date)); // newest first in PDF
+
+  const research = SITE.research || [];
+  const skills = SITE.skills || [];
+  const education = SITE.education || [];
+  const coursework = SITE.coursework || [];
+
+  // Contact lines
+  const email = person.contact?.email ? `<div><strong>Email:</strong> ${escapeHtml(person.contact.email)}</div>` : "";
+  const phone = person.contact?.phone ? `<div><strong>Phone:</strong> ${escapeHtml(person.contact.phone)}</div>` : "";
+  const linkedin = person.contact?.linkedin ? `<div><strong>LinkedIn:</strong> ${escapeHtml(person.contact.linkedin)}</div>` : "";
+  const github = person.contact?.github ? `<div><strong>GitHub:</strong> ${escapeHtml(person.contact.github)}</div>` : "";
+
+  // Skills (grouped)
+  const skillsHtml = skills.map(cat => `
+    <div class="block">
+      <div class="block-title">${escapeHtml(cat.title)}</div>
+      <div class="pill-wrap">
+        ${(cat.items || []).map(s => `<span class="pill">${escapeHtml(s)}</span>`).join("")}
+      </div>
+    </div>
+  `).join("");
+
+  // Education
+  const eduHtml = education.map(e => `
+    <div class="block">
+      <div class="block-title">${escapeHtml(e.title)}</div>
+      ${e.meta ? `<div class="meta">${escapeHtml(e.meta)}</div>` : ""}
+      ${(e.bullets || []).length ? `<ul class="bullets">${e.bullets.map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul>` : ""}
+    </div>
+  `).join("");
+
+  // Coursework
+  const courseHtml = coursework.map(c => `
+    <div class="block">
+      <div class="block-title">${escapeHtml(c.title)}</div>
+      ${(c.bullets || []).length ? `<ul class="bullets">${c.bullets.map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul>` : ""}
+    </div>
+  `).join("");
+
+  // Research
+  const researchHtml = research.map(r => `
+    <div class="item">
+      <div class="item-head">
+        <div class="item-title">${escapeHtml(r.title)}</div>
+        ${r.meta ? `<div class="meta">${escapeHtml(r.meta)}</div>` : ""}
+      </div>
+      ${(r.bullets || []).length ? `<ul class="bullets">${r.bullets.map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul>` : ""}
+    </div>
+  `).join("");
+
+  // Projects
+  const projectsHtml = projects.map(p => `
+    <div class="item">
+      <div class="item-head">
+        <div class="item-title">${escapeHtml(p.title)}</div>
+        <div class="meta">${escapeHtml(formatMonthYear(p.date))}</div>
+      </div>
+      ${p.blurb ? `<div class="desc">${escapeHtml(p.blurb)}</div>` : ""}
+      ${(p.tools || []).length ? `
+        <div class="tools">
+          ${(p.tools || []).slice(0, 10).map(t => `<span class="pill pill-soft">${escapeHtml(t)}</span>`).join("")}
+        </div>
+      ` : ""}
+      ${(p.links || []).length ? `
+        <div class="links">
+          ${(p.links || []).map(l => `<div class="link">${escapeHtml(l.label)}: ${escapeHtml(l.url)}</div>`).join("")}
+        </div>
+      ` : ""}
+    </div>
+  `).join("");
+
+  // Print-optimized CSS is embedded so the PDF view is independent of your site CSS.
+  return `
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>${escapeHtml(person.name)} — ${escapeHtml(cfg.title)}</title>
+<style>
+  :root{
+    --text:#111;
+    --muted:#555;
+    --line:#e6e6e6;
+    --accent:#2563eb;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--text);
+    line-height:1.25;
+    background:#fff;
+  }
+  .page{
+    padding: 28px 30px;
+    max-width: 1050px;
+    margin: 0 auto;
+  }
+  .header{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:16px;
+    border-bottom: 2px solid var(--line);
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+  }
+  .name{
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+  }
+  .headline{
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 13.5px;
+  }
+  .focus{
+    color: var(--muted);
+    font-size: 12.5px;
+    text-align:right;
+    white-space:nowrap;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns: 1fr 2fr; /* left 1/3, right 2/3 */
+    gap: 18px;
+  }
+  .left{
+    border-right: 1px solid var(--line);
+    padding-right: 16px;
+  }
+  .section{
+    margin: 0 0 14px 0;
+  }
+  .section-title{
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 8px 0;
+  }
+  .contact{
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .block{ margin: 0 0 10px 0; }
+  .block-title{
+    font-weight: 750;
+    font-size: 12.5px;
+    margin-bottom: 6px;
+  }
+  .meta{
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .bullets{
+    margin: 6px 0 0 18px;
+    padding:0;
+    color: var(--muted);
+    font-size: 12.3px;
+  }
+  .bullets li{ margin: 0 0 4px 0; }
+  .pill-wrap{ display:flex; flex-wrap:wrap; gap:6px; }
+  .pill{
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 3px 8px;
+    font-size: 11.5px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .pill-soft{
+    border-radius: 7px;
+    white-space: normal;
+  }
+  .right .summary{
+    color: var(--muted);
+    font-size: 12.8px;
+    line-height: 1.35;
+    margin-top: 2px;
+  }
+  .item{
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin: 0 0 10px 0;
+  }
+  .item-head{
+    display:flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: baseline;
+  }
+  .item-title{
+    font-weight: 800;
+    font-size: 13px;
+  }
+  .desc{
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: 12.3px;
+    line-height: 1.35;
+  }
+  .tools{ margin-top: 8px; display:flex; flex-wrap:wrap; gap:6px; }
+  .links{ margin-top: 8px; font-size: 11.8px; color: var(--muted); }
+  .link{ margin-top: 2px; }
+
+  /* Print tuning */
+  @media print{
+    .page{ padding: 0; }
+    .item{ break-inside: avoid; page-break-inside: avoid; }
+    .section{ break-inside: avoid; page-break-inside: avoid; }
+    a{ color: inherit; text-decoration: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <div>
+        <div class="name">${escapeHtml(person.name)}</div>
+        <div class="headline">${escapeHtml(person.headline)}</div>
+      </div>
+      <div class="focus">${escapeHtml(cfg.title)}</div>
+    </div>
+
+    <div class="grid">
+      <div class="left">
+        <div class="section">
+          <div class="section-title">Contact</div>
+          <div class="contact">
+            ${email}
+            ${phone}
+            ${linkedin}
+            ${github}
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Skills</div>
+          ${skillsHtml}
+        </div>
+
+        <div class="section">
+          <div class="section-title">Education</div>
+          ${eduHtml}
+        </div>
+
+        <div class="section">
+          <div class="section-title">Coursework</div>
+          ${courseHtml}
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="section">
+          <div class="section-title">Summary</div>
+          <div class="summary">${escapeHtml(person.summary)}</div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Research</div>
+          ${researchHtml || `<div class="meta">No research items listed.</div>`}
+        </div>
+
+        <div class="section">
+          <div class="section-title">Projects</div>
+          ${projectsHtml || `<div class="meta">No projects match this focus.</div>`}
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // auto-open print dialog; user saves as PDF
+  window.addEventListener("load", () => {
+    setTimeout(() => window.print(), 150);
+  });
+</script>
+</body>
+</html>
+  `;
+}
+
 
 /** -------------------------
  * Modal + Carousel (with cleanup)
@@ -503,6 +834,19 @@ function init() {
   renderProjects();
 });
 
+  qs("#downloadPdfBtn").addEventListener("click", () => {
+    const focusKey = qs("#pdfFocus")?.value || "all";
+    const html = buildResumeHtml(focusKey);
+
+    const w = window.open("", "_blank", "noopener,noreferrer");
+    if (!w) {
+      alert("Pop-up blocked. Please allow pop-ups for this site to generate the PDF.");
+      return;
+    }
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+  });
 
   modal.closeBtn.addEventListener("click", () => modal.close());
 
