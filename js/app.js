@@ -404,11 +404,6 @@ function buildResumeHtml(focusKey) {
         </div>
 
         <div class="section">
-          <div class="section-title">Skills</div>
-          ${skillsHtml}
-        </div>
-
-        <div class="section">
           <div class="section-title">Education</div>
           ${eduHtml}
         </div>
@@ -428,6 +423,11 @@ function buildResumeHtml(focusKey) {
         <div class="section">
           <div class="section-title">Research</div>
           ${researchHtml || `<div class="meta">No research items listed.</div>`}
+        </div>
+
+        <div class="section">
+          <div class="section-title">Skills</div>
+          ${skillsHtml}
         </div>
 
         <div class="section">
@@ -834,30 +834,41 @@ function init() {
   renderProjects();
 });
 
-  qs("#downloadPdfBtn").addEventListener("click", () => {
-    const focusKey = qs("#pdfFocus")?.value || "all";
-    const html = buildResumeHtml(focusKey);
+qs("#downloadPdfBtn").addEventListener("click", () => {
+  const focusKey = qs("#pdfFocus")?.value || "all";
+  const html = buildResumeHtml(focusKey);
 
-    const w = window.open("", "_blank", "noopener,noreferrer");
-    if (!w) {
-      alert("Pop-up blocked. Please allow pop-ups for this site to generate the PDF.");
-      return;
-    }
-    w.document.open();
-    w.document.write(html);
-    w.document.close();
-  });
+  // Create hidden iframe
+  const iframe = document.createElement("iframe");
+  iframe.style.position = "fixed";
+  iframe.style.right = "0";
+  iframe.style.bottom = "0";
+  iframe.style.width = "0";
+  iframe.style.height = "0";
+  iframe.style.border = "0";
 
-  modal.closeBtn.addEventListener("click", () => modal.close());
+  document.body.appendChild(iframe);
 
-  modal.backdrop.addEventListener("click", (e) => {
-    if (e.target === modal.backdrop) modal.close();
-  });
+  const doc = iframe.contentWindow.document;
+  doc.open();
+  doc.write(html);
+  doc.close();
 
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") modal.close();
-  });
+  // Wait for styles & layout, then print
+  iframe.onload = () => {
+    iframe.contentWindow.focus();
+    iframe.contentWindow.print();
+
+    // Cleanup after print dialog opens
+    setTimeout(() => {
+      document.body.removeChild(iframe);
+    }, 1000);
+  };
+})
 }
+
+modal.closeBtn.addEventListener("click", () => modal.close());
+
 
 // small CSS helper for modal headings (kept here to avoid adding extra classes everywhere)
 const style = document.createElement("style");
