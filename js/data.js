@@ -168,7 +168,7 @@ image: "images/microfluidic_TRNG_2.jpg",
       blurb:
         "Developed a mobile app scraping NOAA data, logging GPS routes, and using SQL for real-time analytics.",
       details:
-        "Consider adding screenshots, schema diagram, and a short note on offline-first storage and sync strategy (if applicable).",
+        "Engineered a robust mobile application to track fishing performance and environmental conditions. The app features an **offline-first architecture** using **SQLite** and **Peewee ORM**, ensuring data persistence even in remote locations without cellular service.\n\n**Key Technical Implementations:**\n\n* **GPS Tracking Engine:** Built a singleton geolocation service using `plyer` to interface with Android hardware, featuring a custom simulation mode for deterministic desktop testing.\n* **Asynchronous Data Ingestion:** Implemented threaded polling of WQDataLive API endpoints to fetch real-time wave height, wind speed, and water temperature without blocking the main UI thread.\n* **Data Correlation:** Automatically links every logged catch with the precise GPS coordinates and current weather conditions to build a rich historical dataset for analysis.\n* **Configurable Architecture:** Designed a flexible unit conversion system allowing seamless toggling between Imperial and Metric standards across the UI and database.",
       image: "images/fishtracker.png",
       imageAlt: "FishTracker screenshot",
       links: [{ label: "Code", url: "https://github.com/Elijah-Andrae56/FishingTracker" }],
