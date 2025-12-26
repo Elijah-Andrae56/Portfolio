@@ -157,30 +157,42 @@ function getEffectivePdfDomains() {
   return visible.length ? visible : PDF_FALLBACK_DOMAINS;
 }
 
-
- function buildResumeHtml(domains) {
+function buildResumeHtml(domains) {
   const person = SITE.person;
 
-  const cfgTitle =
-    Array.isArray(domains) && domains.length
-      ? domains.map((d) => DOMAIN_LABELS[d] || d).join(" + ")
-      : (DOMAIN_LABELS.ds || "Data Science");
+  // 1. Helper to check if an item matches the selected domains
+  const isVisible = (item) => {
+    const tags = item.domains || item.categories;
+    if (!tags || tags.length === 0) return true; // Global item
+    return tags.some(tag => domains.includes(tag));
+  };
 
-  const projects = SITE.projects
-    .filter((p) => (p.categories || []).some((c) => (domains || []).includes(c)))
-    .slice()
+  // 2. Filter Research FIRST
+  const research = (SITE.research || [])
+    .filter(isVisible);
+
+  // 3. Create a Set of titles that are already shown in Research
+  //    This helps us "subtract" them from the Projects list below.
+  const researchTitles = new Set(research.map(r => r.title));
+
+  // 4. Filter Projects (Visible + NOT in Research)
+  const projects = (SITE.projects || [])
+    .filter(p => isVisible(p) && !researchTitles.has(p.title)) // <--- THE FIX
     .sort((a, b) => parseDate(b.date) - parseDate(a.date));
 
-  const research = SITE.research || [];
-  const skills = SITE.skills || [];
+  const skills = (SITE.skills || [])
+    .filter(isVisible);
+
+  const experience = (SITE.experience || [])
+    .filter(isVisible);
+
   const education = SITE.education || [];
   const coursework = SITE.coursework || [];
 
-  const email = person.contact?.email ? `<div><strong>Email:</strong> ${escapeHtml(person.contact.email)}</div>` : "";
-  const phone = person.contact?.phone ? `<div><strong>Phone:</strong> ${escapeHtml(person.contact.phone)}</div>` : "";
-  const linkedin = person.contact?.linkedin ? `<div><strong>LinkedIn:</strong> ${escapeHtml(person.contact.linkedin)}</div>` : "";
-  const github = person.contact?.github ? `<div><strong>GitHub:</strong> ${escapeHtml(person.contact.github)}</div>` : "";
+  // 5. Construct Title based on selection
+  const cfgTitle = domains.map((d) => DOMAIN_LABELS[d] || d).join(" + ");
 
+  // 6. HTML Generators
   const skillsHtml = skills.map(cat => `
     <div class="block">
       <div class="block-title">${escapeHtml(cat.title)}</div>
@@ -215,6 +227,16 @@ function getEffectivePdfDomains() {
     </div>
   `).join("");
 
+  const experienceHtml = experience.map(exp => `
+    <div class="item">
+      <div class="item-head">
+        <div class="item-title">${escapeHtml(exp.title)}</div>
+        ${exp.meta ? `<div class="meta">${escapeHtml(exp.meta)}</div>` : ""}
+      </div>
+      ${(exp.bullets || []).length ? `<ul class="bullets">${exp.bullets.map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul>` : ""}
+    </div>
+  `).join("");
+
   const projectsHtml = projects.map(p => `
     <div class="item">
       <div class="item-head">
@@ -224,58 +246,98 @@ function getEffectivePdfDomains() {
       ${p.blurb ? `<div class="desc">${escapeHtml(p.blurb)}</div>` : ""}
       ${(p.tools || []).length ? `
         <div class="tools">
-          ${(p.tools || []).slice(0, 10).map(t => `<span class="pill pill-soft">${escapeHtml(t)}</span>`).join("")}
-        </div>
-      ` : ""}
-      ${(p.links || []).length ? `
-        <div class="links">
-          ${(p.links || []).map(l => `<div class="link">${escapeHtml(l.label)}: ${escapeHtml(l.url)}</div>`).join("")}
+          ${(p.tools || []).slice(0, 8).map(t => `<span class="pill pill-soft">${escapeHtml(t)}</span>`).join("")}
         </div>
       ` : ""}
     </div>
   `).join("");
+
+  // Helper to strip https:// for cleaner print display
+  const stripUrl = (url) => url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
+
+  const contactHtml = `
+    ${person.contact?.email ? `<div>${escapeHtml(person.contact.email)}</div>` : ""}
+    ${person.contact?.phone ? `<div>${escapeHtml(person.contact.phone)}</div>` : ""}
+    ${person.contact?.linkedin ? `<div><a href="${person.contact.linkedin}">linkedin.com/in/elijah-andrae</a></div>` : ""}
+    ${person.contact?.github ? `<div><a href="${person.contact.github}">${stripUrl(person.contact.github)}</a></div>` : ""}
+  `;
 
   return `
 <!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>${escapeHtml(person.name)} — ${escapeHtml(cfgTitle)}</title>
 <style>
-  :root{ --text:#111; --muted:#555; --line:#e6e6e6; --accent:#2563eb; }
-  *{ box-sizing:border-box; }
-  body{ margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--text); line-height:1.25; background:#fff; }
-  .page{ padding:28px 30px; max-width:1050px; margin:0 auto; }
-  .header{ display:flex; align-items:flex-end; justify-content:space-between; gap:16px; border-bottom:2px solid var(--line); padding-bottom:12px; margin-bottom:14px; }
-  .name{ font-size:26px; font-weight:800; letter-spacing:.2px; }
-  .headline{ margin-top:4px; color:var(--muted); font-size:13.5px; }
-  .focus{ color:var(--muted); font-size:12.5px; text-align:right; white-space:nowrap; }
-  .grid{ display:grid; grid-template-columns:1fr 2fr; gap:18px; }
-  .left{ border-right:1px solid var(--line); padding-right:16px; }
-  .section{ margin:0 0 14px 0; }
-  .section-title{ font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); margin:0 0 8px 0; }
-  .contact{ font-size:12.5px; color:var(--muted); }
-  .block{ margin:0 0 10px 0; }
-  .block-title{ font-weight:750; font-size:12.5px; margin-bottom:6px; }
-  .meta{ color:var(--muted); font-size:12px; }
-  .bullets{ margin:6px 0 0 18px; padding:0; color:var(--muted); font-size:12.3px; }
-  .bullets li{ margin:0 0 4px 0; }
-  .pill-wrap{ display:flex; flex-wrap:wrap; gap:6px; }
-  .pill{ border:1px solid var(--line); border-radius:999px; padding:3px 8px; font-size:11.5px; color:var(--muted); white-space:nowrap; }
-  .pill-soft{ border-radius:7px; white-space:normal; }
-  .right .summary{ color:var(--muted); font-size:12.8px; line-height:1.35; margin-top:2px; }
-  .item{ border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin:0 0 10px 0; }
-  .item-head{ display:flex; justify-content:space-between; gap:10px; align-items:baseline; }
-  .item-title{ font-weight:800; font-size:13px; }
-  .desc{ margin-top:6px; color:var(--muted); font-size:12.3px; line-height:1.35; }
-  .tools{ margin-top:8px; display:flex; flex-wrap:wrap; gap:6px; }
-  .links{ margin-top:8px; font-size:11.8px; color:var(--muted); }
-  .link{ margin-top:2px; }
-  @media print{
-    .page{ padding:0; }
-    .item,.section{ break-inside:avoid; page-break-inside:avoid; }
-    a{ color:inherit; text-decoration:none; }
+  :root { --text: #1f2937; --muted: #6b7280; --accent: #2563eb; --line: #e5e7eb; }
+  * { box-sizing: border-box; }
+  body { 
+    margin: 0; 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+    color: var(--text); 
+    line-height: 1.4; 
+    font-size: 12px;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  .page { max-width: 900px; margin: 0 auto; padding: 40px; }
+  
+  /* Header */
+  .header { border-bottom: 2px solid var(--text); padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-start; }
+  .name { font-size: 28px; font-weight: 800; line-height: 1.1; letter-spacing: -0.5px; }
+  .headline { font-size: 14px; color: var(--muted); margin-top: 4px; font-weight: 500; }
+  .contact-info { text-align: right; font-size: 11px; line-height: 1.5; color: var(--muted); }
+  
+  /* Layout */
+  .grid { display: grid; grid-template-columns: 220px 1fr; gap: 32px; }
+  
+  /* Sections */
+  .section { margin-bottom: 24px; }
+  
+  /* Major Headers */
+  .section-title { 
+    font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; 
+    color: var(--accent); border-bottom: 2px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 12px; 
+  }
+
+  /* Sub Headers (Bold) */
+  .block-title {
+    font-weight: 800; 
+    font-size: 12.5px;
+    margin-bottom: 4px;
+    color: #111;
+  }
+  
+  /* Items */
+  .item { margin-bottom: 14px; }
+  .item-head { display: flex; justify-content: space-between; align-items: baseline; }
+  .item-title { font-weight: 700; font-size: 13px; }
+  .meta { font-size: 11px; color: var(--muted); font-style: italic; }
+  .desc { margin-top: 4px; font-size: 12px; color: #374151; }
+  
+  /* Lists */
+  .bullets { margin: 4px 0 0 16px; padding: 0; color: #4b5563; }
+  .bullets li { margin-bottom: 3px; padding-left: 2px; }
+  
+  /* Skills Pills */
+  .pill-wrap { display: flex; flex-wrap: wrap; gap: 4px; }
+  .pill { 
+    background: #f3f4f6; 
+    padding: 1px 6px; 
+    border-radius: 4px; 
+    font-size: 9.5px; 
+    color: #374151; 
+    font-weight: 500; 
+    border: 1px solid #e5e7eb;
+  }
+  .pill-soft { background: transparent; border: 1px solid var(--line); padding: 1px 5px; font-size: 9px; }
+  
+  .tools { margin-top: 6px; }
+  
+  /* Print overrides */
+  @media print {
+    body { -webkit-print-color-adjust: exact; }
+    .page { padding: 0; }
+    a { color: #111; text-decoration: underline; }
   }
 </style>
 </head>
@@ -286,18 +348,21 @@ function getEffectivePdfDomains() {
         <div class="name">${escapeHtml(person.name)}</div>
         <div class="headline">${escapeHtml(person.headline)}</div>
       </div>
+      <div class="contact-info">
+        ${contactHtml}
+      </div>
     </div>
 
     <div class="grid">
       <div class="left">
         <div class="section">
-          <div class="section-title">Contact</div>
-          <div class="contact">${email}${phone}${linkedin}${github}</div>
+          <div class="section-title">Education</div>
+          ${eduHtml}
         </div>
 
         <div class="section">
-          <div class="section-title">Education</div>
-          ${eduHtml}
+          <div class="section-title">Skills</div>
+          ${skillsHtml}
         </div>
 
         <div class="section">
@@ -309,31 +374,33 @@ function getEffectivePdfDomains() {
       <div class="right">
         <div class="section">
           <div class="section-title">Summary</div>
-          <div class="summary">${escapeHtml(person.summary)}</div>
+          <div style="font-size:12px; color:#374151;">${escapeHtml(person.summary)}</div>
         </div>
 
+        ${researchHtml ? `
         <div class="section">
           <div class="section-title">Research</div>
-          ${researchHtml || `<div class="meta">No research items listed.</div>`}
-        </div>
+          ${researchHtml}
+        </div>` : ""}
 
-        <div class="section">
-          <div class="section-title">Skills</div>
-          ${skillsHtml}
-        </div>
-
+        ${projectsHtml ? `
         <div class="section">
           <div class="section-title">Projects</div>
-          ${projectsHtml || `<div class="meta">No projects match this focus.</div>`}
-        </div>
+          ${projectsHtml}
+        </div>` : ""}
+
+        ${experienceHtml ? `
+        <div class="section">
+          <div class="section-title">Work Experience</div>
+          ${experienceHtml}
+        </div>` : ""}
       </div>
     </div>
   </div>
 </body>
 </html>
-`;
+  `;
 }
-
 
 /** -------------------------
  * Modal + Carousel (with cleanup)

@@ -90,6 +90,7 @@ export const SITE = {
 research: [
     {
         title: "Stimulus Driven Microfluidic Entropy",
+        domains: ["nanofab", "ds"],
         meta: "Nanofabrication • Experimental Design • Device Characterization",
         bullets: [
         "Designed and fabricated a lab-on-a-chip device that exploits inherently stochastic, stimuli-driven microscale bubble dynamics as a physical source of entropy for true random number generation.",
@@ -101,6 +102,7 @@ research: [
 
     {
       title: "CAHOOTS Dispatch Trend Analysis",
+      domains: ["ds", "cs"],
       meta: "Python • Data Pipelines • Program Evaluation",
       bullets: [
         "Analyzed >50,000 police CAD records to quantify temporal and spatial patterns in mental-health-related crisis calls.",
