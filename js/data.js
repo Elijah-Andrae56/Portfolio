@@ -12,6 +12,7 @@ export const SITE = {
       email: "Elijah.andrae56@outlook.com",
       linkedin: "https://www.linkedin.com/in/elijah-andrae",
       github: "https://github.com/Elijah-Andrae56",
+      Portfolio: "https://elijah-andrae56.github.io/Portfilio-Site/"
     },
     summary:
       "A multidisciplinary data scientist with integrated experience across nanofabrication, applied mathematics, and marketing analytics. Skilled in developing predictive models, experimental designs, and end-to-end analytical pipelines that translate complex data into operational and strategic decisions. Combines statistical rigor with hands-on engineering and cleanroom experience, enabling a full stack understanding of how physical systems, data pipelines, and business objectives interact. Demonstrated strength in technical communication, cross-functional collaboration, and delivering analyses that influence stakeholders and improve organizational performance.",
