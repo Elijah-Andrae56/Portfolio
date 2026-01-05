@@ -260,6 +260,7 @@ function buildResumeHtml(domains) {
     ${person.contact?.phone ? `<div>${escapeHtml(person.contact.phone)}</div>` : ""}
     ${person.contact?.linkedin ? `<div><a href="${person.contact.linkedin}">linkedin.com/in/elijah-andrae</a></div>` : ""}
     ${person.contact?.github ? `<div><a href="${person.contact.github}">${stripUrl(person.contact.github)}</a></div>` : ""}
+    ${person.contact?.portfolio ? `<div><a href="${person.contact.portfolio}">${stripUrl(person.contact.portfolio)}</a></div>` : ""}
   `;
 
   return `
