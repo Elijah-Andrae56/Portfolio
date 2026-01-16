@@ -119,6 +119,11 @@ export const SITE = {
       categories: ["nanofab", "ds"],
       tags: ["Nanofab", "DS"],
       tools: ["Photolithography", "Thin-film deposition", "Metrology", "DOE"],
+      cv: true,
+      cvBullets: [
+        "Fabricated multi-layer microfluidic TRNG device (glass/metal/dielectric + PDMS microchannels) converting stochastic bubble bifurcation dynamics into bitstream outcomes.",
+        "Designed DOE-driven characterization plan to quantify bias sources (geometry asymmetry, operating conditions, fabrication tolerances) and apply debiasing + statistical validation."
+      ],
       blurb:
         "Designed and fabricated a microfluidic true-random number generator (TRNG) that leverages inherently stochastic microscale bubble dynamics. Built a multi-layer glass/metal/dielectric/PDMS stack and planned DOE-driven characterization and debiasing.",
       details:
@@ -128,134 +133,180 @@ export const SITE = {
       imageAlt: "Microfluidic TRNG device image",
       links: [],
     },
-    {
-      title: "Google Merchandise Store Analysis",
-      date: "2025-03-18",
-      categories: ["ds", "marketing"],
-      tags: ["Data Science", "Marketing"],
-      tools: ["R", "BigQuery", "tidyverse", "Logistic regression", "SQL"],
-      blurb:
-        "Parsed 900k e-commerce sessions using R & BigQuery. Built logistic-regression models to classify high-value buyers and optimize campaign scheduling.",
-      details:
-        "End-to-end analysis of 903,000+ Google Merchandise Store sessions spanning Aug 2016–Aug 2017. Data was extracted from Google Cloud using SQL, cleaned and feature-engineered in R, and merged with a global holiday dataset to quantify temporal purchasing behavior.\n\nExploratory analysis examined revenue concentration by traffic source, browser, country, and visitor behavior.\n\nTo operationalize insights, logistic regression models were developed to predict both purchase likelihood and bounce behavior, informing recommendations for campaign timing optimization.",
-      image: "images/google_merch_store_1.png",
-      images: ["images/google_merch_store_1.png", "images/google_merch_store_2.png"],
-      imageAlt: "Google merchandise store analysis visualization",
-      links: [{ label: "Code", url: "https://github.com/Elijah-Andrae56/Google_Merch_Store_Analysis_MKTG415" }],
-    },
-    {
-      title: "Lake Erie Weather-Buoy Safety Model",
-      date: "2024-11-10",
-      categories: ["ds", "cs"],
-      tags: ["Data Science", "Python"],
-      tools: ["Python", "scikit-learn", "PCA", "Ridge regression"],
-      blurb:
-        "Integrated NOAA buoy & airport datasets to predict hazardous wave conditions. Applied Ridge Regression and PCA to reduce false negatives by 23% vs baseline heuristics.",
-      details:
-        "Goal: improve small-boat safety decisions on Lake Erie by modeling hazardous wave conditions using historical buoy observations and nearby airport weather records.\n\nData & preprocessing: ingested multi-year NOAA buoy measurements sampled at ~20-minute cadence (wind speed/direction, gusts, wave height, dominant wave period, wave direction, air/water temperature). Cleaned sentinel missing values, standardized timestamps, engineered seasonal subsets (focused on summers with consistent coverage), and created categorical direction features (cardinal wind and wave direction).\n\nExploratory findings: wave height increased strongly with wind speed and gusts, with visible direction-dependent structure. Dominant wave period (DPD) interacted with wave height in a way consistent with more hazardous ‘short-period, higher-amplitude’ conditions. A derived hazard proxy (wave height ÷ dominant period) surfaced west-wind regimes as disproportionately associated with the most dangerous observations.\n\nInference: tested whether hazard differed across wind/wave direction groups using one-way ANOVA after a variance-stabilizing transform, finding statistically significant mean differences between directional regimes. At a daily level, merged buoy aggregates with airport precipitation and used resampling to compare the proportion of ‘safe’ days under rainy vs. dry conditions; rainy days showed a materially lower fraction of days below a chosen safe-wave threshold.\n\nPrediction: built baseline and regularized regression models to estimate wave height from wind speed, gusts, dominant wave period, and directional indicators. Feature engineering included nonlinear terms and interactions (e.g., wind×gust, wind×period), with model selection using cross-validation and holdout evaluation. Ridge regression produced stable performance and identified interaction terms as dominant predictors.\n\nOutcome: produced an interpretable safety-oriented workflow that combines exploratory climatology, statistically grounded hazard comparisons, and predictive modeling to support go/no-go judgments for offshore boating.",
-      image: "images/wave_project_1.png",
-      images: ["images/wave_project_1.png", "images/wave_project_2.png", "images/wave_project_3.png"],
-      imageAlt: "Wave safety model results plot",
-      links: [{ label: "Code", url: "https://github.com/Elijah-Andrae56/Lake-Erie-Weather-Buoy-Project" }],
-    },
-    {
-      title: "FishTracker App",
-      date: "2025-09-15",
-      categories: ["cs"],
-      tags: ["CS", "App Dev"],
-      tools: ["Python", "Kivy", "SQL", "ETL"],
-      blurb:
-        "Developed a mobile app scraping NOAA data, logging GPS routes, and using SQL for real-time analytics.",
-      details:
-        "Engineered a robust mobile application to track fishing performance and environmental conditions. The app features an **offline-first architecture** using **SQLite** and **Peewee ORM**, ensuring data persistence even in remote locations without cellular service.\n\n**Key Technical Implementations:**\n\n* **GPS Tracking Engine:** Built a singleton geolocation service using `plyer` to interface with Android hardware, featuring a custom simulation mode for deterministic desktop testing.\n* **Asynchronous Data Ingestion:** Implemented threaded polling of WQDataLive API endpoints to fetch real-time wave height, wind speed, and water temperature without blocking the main UI thread.\n* **Data Correlation:** Automatically links every logged catch with the precise GPS coordinates and current weather conditions to build a rich historical dataset for analysis.\n* **Configurable Architecture:** Designed a flexible unit conversion system allowing seamless toggling between Imperial and Metric standards across the UI and database.",
-      image: "images/fishtracker.png",
-      imageAlt: "FishTracker screenshot",
-      links: [{ label: "Code", url: "https://github.com/Elijah-Andrae56/FishingTracker" }],
-    },
-    {
-      title: "CAHOOTS Dispatch Trend Analysis",
-      date: "2024-06-15",
-      categories: ["ds"],
-      tags: ["Data Science"],
-      tools: ["Python", "pandas", "Visualization", "Program evaluation"],
-      blurb:
-        "Built reproducible pipelines and trend analyses on crisis-response dispatch logs to support operational evaluation.",
-      details:
-        "You can include: time-of-day seasonality, hotspot mapping summaries, and any stakeholder-facing deliverables (slides/report).",
-      image: "images/cahoots_1.png",
-      imageAlt: "CAHOOTS dispatch analysis plot",
-      links: [],
-    },
-    {
-      title: "Resident-Assistant Shift Scheduler",
-      date: "2024-10-29",
-      categories: ["cs", "ds"],
-      tags: ["CS", "Optimization"],
-      tools: ["Python", "OR-Tools", "Constraint optimization"],
-      blurb:
-        "Developed a model to automate RA on-call scheduling under 8+ fairness constraints; designed for 12 teams with projected 750+ hours saved yearly.",
-      details:
-        "Add: constraint list, objective function, infeasibility handling, and how you validated fairness outcomes.",
-      image: "images/scheduler_1.png",
-      images: ["images/scheduler_1.png", "images/scheduler_2.png", "images/scheduler_3.png"],
-      imageAlt: "Wave safety model results plot",
-      links: [],
-    },
-    {
-      title: "Lithography Resolution & LaserWriter Characterization",
-      date: "2025-11-05",
-      categories: ["nanofab", "ds"],
-      tags: ["Nanofab", "Lithography", "DOE"],
-      tools: ["Microtech LaserWriter", "AZ1512", "Profilometry", "JMP"],
-      blurb:
-        "Characterized lithographic resolution limits using a full 2³ factorial experiment on LaserWriter parameters.",
-      details:
-        "Designed a randomized factorial experiment varying D-step, dose, and lens configuration. Measured linewidth and depth across multiple feature sizes using profilometry.",
-      image: "images/dose_test_1.png",
-      images: ["images/dose_test_1.png", "images/dose_test_2.jpg"],
-      imageAlt: "LaserWriter lithography resolution test patterns",
-      links: [],
-    },
-    {
-      title: "Thin-Film Aluminum Lift-Off Process",
-      date: "2025-11-24",
-      categories: ["nanofab"],
-      tags: ["Nanofab", "Thin Films"],
-      tools: ["Thermal Evaporation", "AZ Photoresist", "Profilometry"],
-      blurb:
-        "Executed and characterized an aluminum lift-off process for patterned thin-film fabrication.",
-      details:
-        "Patterned AZ photoresist, deposited 100 nm Al via thermal evaporation, and performed lift-off. Quantified film thickness uniformity and evaluated edge roughness.",
-      image: "images/lift_off.png",
-      links: [],
-    },
-    {
-      title: "Aluminum Etching & Mask Transfer",
-      date: "2025-11-24",
-      categories: ["nanofab"],
-      tags: ["Nanofab", "Etching"],
-      tools: ["Al Etchant", "Mask Aligner", "Profilometry"],
-      blurb:
-        "Transferred aluminum patterns via wet chemical etching and quantified etch rates and edge fidelity.",
-      details:
-        "Deposited aluminum thin films, patterned photoresist masks, and etched. Measured etch rate and compared multiple chips and process conditions.",
-      image: "images/wet_etch.png",
-      links: [],
-    },
-    {
-      title: "Multi-Layer Alignment: Mask Aligner vs LaserWriter",
-      date: "2025-12-01",
-      categories: ["nanofab"],
-      tags: ["Nanofab", "Alignment"],
-      tools: ["SUSS MJB4", "LaserWriter", "PMGI/AZ Bilayer"],
-      blurb:
-        "Performed and compared multi-layer alignment using both optical mask alignment and direct-write lithography.",
-      details:
-        "Fabricated multilayer structures, quantified alignment accuracy, and compared systematic differences between workflows.",
-      image: "images/alignment.jpg",
-      imageAlt: "Layer alignment markers and profilometry scan",
-      links: [],
-    },
+{
+  title: "Multi-Layer Alignment: Mask Aligner vs LaserWriter",
+  date: "2025-12-01",
+  categories: ["nanofab"],
+  tags: ["Nanofab", "Alignment"],
+  tools: ["SUSS MJB4", "LaserWriter", "PMGI/AZ Bilayer"],
+  cv: true,
+  cvBullets: [
+    "Executed multi-layer lithography workflows using SUSS MJB4 mask alignment and Microtech LaserWriter direct-write to build aligned multilayer patterns.",
+    "Quantified overlay error and compared workflow trade-offs (throughput, repeatability, alignment accuracy) to guide tool selection for multilayer device fabrication."
+  ],
+  blurb:
+    "Performed and compared multi-layer alignment using both optical mask alignment and direct-write lithography.",
+  details:
+    "Fabricated multilayer structures, quantified alignment accuracy, and compared systematic differences between workflows.",
+  image: "images/alignment.jpg",
+  imageAlt: "Layer alignment markers and profilometry scan",
+  links: [],
+},
+{
+  title: "Thin-Film Aluminum Lift-Off Process",
+  date: "2025-11-24",
+  categories: ["nanofab"],
+  tags: ["Nanofab", "Thin Films"],
+  tools: ["Thermal Evaporation", "AZ Photoresist", "Profilometry"],
+  cv: true,
+  cvBullets: [
+    "Patterned photoresist masks and deposited ~100 nm Al via thermal evaporation; executed lift-off to produce patterned metal features.",
+    "Characterized thickness/uniformity and edge fidelity using profilometry; identified process parameters controlling lift-off success and pattern quality."
+  ],
+  blurb:
+    "Executed and characterized an aluminum lift-off process for patterned thin-film fabrication.",
+  details:
+    "Patterned AZ photoresist, deposited 100 nm Al via thermal evaporation, and performed lift-off. Quantified film thickness uniformity and evaluated edge roughness.",
+  image: "images/lift_off.png",
+  links: [],
+},
+{
+  title: "Aluminum Etching & Mask Transfer",
+  date: "2025-11-24",
+  categories: ["nanofab"],
+  tags: ["Nanofab", "Etching"],
+  tools: ["Al Etchant", "Mask Aligner", "Profilometry"],
+  cv: true,
+  cvBullets: [
+    "Transferred aluminum patterns via wet chemical etching using photoresist masks under controlled etch conditions.",
+    "Measured etch rates and evaluated line edge fidelity/undercut across chips to assess repeatability and parameter sensitivity."
+  ],
+  blurb:
+    "Transferred aluminum patterns via wet chemical etching and quantified etch rates and edge fidelity.",
+  details:
+    "Deposited aluminum thin films, patterned photoresist masks, and etched. Measured etch rate and compared multiple chips and process conditions.",
+  image: "images/wet_etch.png",
+  links: [],
+},
+{
+  title: "Lithography Resolution & LaserWriter Characterization",
+  date: "2025-11-05",
+  categories: ["nanofab", "ds"],
+  tags: ["Nanofab", "Lithography", "DOE"],
+  tools: ["Microtech LaserWriter", "AZ1512", "Profilometry", "JMP"],
+  cv: true,
+  cvBullets: [
+    "Designed and executed randomized full 2^3 factorial DOE varying dose, D-step, and lens configuration to characterize LaserWriter resolution limits.",
+    "Measured linewidth and feature depth via profilometry; analyzed main effects/interactions in JMP to identify parameter regimes maximizing pattern fidelity."
+  ],
+  blurb:
+    "Characterized lithographic resolution limits using a full 2³ factorial experiment on LaserWriter parameters.",
+  details:
+    "Designed a randomized factorial experiment varying D-step, dose, and lens configuration. Measured linewidth and depth across multiple feature sizes using profilometry.",
+  image: "images/dose_test_1.png",
+  images: ["images/dose_test_1.png", "images/dose_test_2.jpg"],
+  imageAlt: "LaserWriter lithography resolution test patterns",
+  links: [],
+},
+{
+  title: "FishTracker App",
+  date: "2025-09-15",
+  categories: ["cs"],
+  tags: ["CS", "App Dev"],
+  tools: ["Python", "Kivy", "SQL", "ETL"],
+  cv: true,
+  cvBullets: [
+    "Developed offline-first mobile application (Python/Kivy + SQLite) integrating GPS route logging with environmental data ingestion for fishing performance analytics.",
+    "Implemented ETL + data model linking catches to location/time/weather conditions, enabling historical query, trend analysis, and decision support."
+  ],
+  blurb:
+    "Developed a mobile app scraping NOAA data, logging GPS routes, and using SQL for real-time analytics.",
+  details:
+    "Engineered a robust mobile application to track fishing performance and environmental conditions. The app features an **offline-first architecture** using **SQLite** and **Peewee ORM**, ensuring data persistence even in remote locations without cellular service.\n\n**Key Technical Implementations:**\n\n* **GPS Tracking Engine:** Built a singleton geolocation service using `plyer` to interface with Android hardware, featuring a custom simulation mode for deterministic desktop testing.\n* **Asynchronous Data Ingestion:** Implemented threaded polling of WQDataLive API endpoints to fetch real-time wave height, wind speed, and water temperature without blocking the main UI thread.\n* **Data Correlation:** Automatically links every logged catch with the precise GPS coordinates and current weather conditions to build a rich historical dataset for analysis.\n* **Configurable Architecture:** Designed a flexible unit conversion system allowing seamless toggling between Imperial and Metric standards across the UI and database.",
+  image: "images/fishtracker.png",
+  imageAlt: "FishTracker screenshot",
+  links: [{ label: "Code", url: "https://github.com/Elijah-Andrae56/FishingTracker" }],
+},
+{
+  title: "Google Merchandise Store Analysis",
+  date: "2025-03-18",
+  categories: ["ds", "marketing"],
+  tags: ["Data Science", "Marketing"],
+  tools: ["R", "BigQuery", "tidyverse", "Logistic regression", "SQL"],
+  cv: true,
+  cvBullets: [
+    "Analyzed 900k+ e-commerce sessions using SQL/BigQuery and R (tidyverse); engineered behavioral and temporal features for marketing attribution.",
+    "Built and evaluated logistic regression models to predict purchase propensity/high-value customers; translated results into campaign-timing and targeting recommendations."
+  ],
+  blurb:
+    "Parsed 900k e-commerce sessions using R & BigQuery. Built logistic-regression models to classify high-value buyers and optimize campaign scheduling.",
+  details:
+    "End-to-end analysis of 903,000+ Google Merchandise Store sessions spanning Aug 2016–Aug 2017. Data was extracted from Google Cloud using SQL, cleaned and feature-engineered in R, and merged with a global holiday dataset to quantify temporal purchasing behavior.\n\nExploratory analysis examined revenue concentration by traffic source, browser, country, and visitor behavior.\n\nTo operationalize insights, logistic regression models were developed to predict both purchase likelihood and bounce behavior, informing recommendations for campaign timing optimization.",
+  image: "images/google_merch_store_1.png",
+  images: ["images/google_merch_store_1.png", "images/google_merch_store_2.png"],
+  imageAlt: "Google merchandise store analysis visualization",
+  links: [{ label: "Code", url: "https://github.com/Elijah-Andrae56/Google_Merch_Store_Analysis_MKTG415" }],
+},
+{
+  title: "Lake Erie Weather-Buoy Safety Model",
+  date: "2024-11-10",
+  categories: ["ds", "cs"],
+  tags: ["Data Science", "Python"],
+  tools: ["Python", "scikit-learn", "PCA", "Ridge regression"],
+  cv: true,
+  cvBullets: [
+    "Integrated NOAA buoy and airport datasets; engineered directional and seasonal features to model hazardous wave regimes and safe/unsafe classifications.",
+    "Built Ridge regression model with PCA-based dimensionality reduction; reduced false negatives by 23% vs baseline heuristics and produced interpretable safety workflow."
+  ],
+  blurb:
+    "Integrated NOAA buoy & airport datasets to predict hazardous wave conditions. Applied Ridge Regression and PCA to reduce false negatives by 23% vs baseline heuristics.",
+  details:
+    "Goal: improve small-boat safety decisions on Lake Erie by modeling hazardous wave conditions using historical buoy observations and nearby airport weather records.\n\nData & preprocessing: ingested multi-year NOAA buoy measurements sampled at ~20-minute cadence (wind speed/direction, gusts, wave height, dominant wave period, wave direction, air/water temperature). Cleaned sentinel missing values, standardized timestamps, engineered seasonal subsets (focused on summers with consistent coverage), and created categorical direction features (cardinal wind and wave direction).\n\nExploratory findings: wave height increased strongly with wind speed and gusts, with visible direction-dependent structure. Dominant wave period (DPD) interacted with wave height in a way consistent with more hazardous ‘short-period, higher-amplitude’ conditions. A derived hazard proxy (wave height ÷ dominant period) surfaced west-wind regimes as disproportionately associated with the most dangerous observations.\n\nInference: tested whether hazard differed across wind/wave direction groups using one-way ANOVA after a variance-stabilizing transform, finding statistically significant mean differences between directional regimes. At a daily level, merged buoy aggregates with airport precipitation and used resampling to compare the proportion of ‘safe’ days under rainy vs. dry conditions; rainy days showed a materially lower fraction of days below a chosen safe-wave threshold.\n\nPrediction: built baseline and regularized regression models to estimate wave height from wind speed, gusts, dominant wave period, and directional indicators. Feature engineering included nonlinear terms and interactions (e.g., wind×gust, wind×period), with model selection using cross-validation and holdout evaluation. Ridge regression produced stable performance and identified interaction terms as dominant predictors.\n\nOutcome: produced an interpretable safety-oriented workflow that combines exploratory climatology, statistically grounded hazard comparisons, and predictive modeling to support go/no-go judgments for offshore boating.",
+  image: "images/wave_project_1.png",
+  images: ["images/wave_project_1.png", "images/wave_project_2.png", "images/wave_project_3.png"],
+  imageAlt: "Wave safety model results plot",
+  links: [{ label: "Code", url: "https://github.com/Elijah-Andrae56/Lake-Erie-Weather-Buoy-Project" }],
+},
+{
+  title: "Resident-Assistant Shift Scheduler",
+  date: "2024-10-29",
+  categories: ["cs", "ds"],
+  tags: ["CS", "Optimization"],
+  tools: ["Python", "OR-Tools", "Constraint optimization"],
+  cv: true,
+  cvBullets: [
+    "Built constraint optimization model (Python + OR-Tools) automating RA on-call scheduling under 8+ fairness and coverage constraints.",
+    "Produced feasible schedules for 12 teams; estimated 750+ administrative hours saved annually while maintaining policy compliance and equitable assignments."
+  ],
+  blurb:
+    "Developed a model to automate RA on-call scheduling under 8+ fairness constraints; designed for 12 teams with projected 750+ hours saved yearly.",
+  details:
+    "Add: constraint list, objective function, infeasibility handling, and how you validated fairness outcomes.",
+  image: "images/scheduler_1.png",
+  images: ["images/scheduler_1.png", "images/scheduler_2.png", "images/scheduler_3.png"],
+  imageAlt: "Wave safety model results plot",
+  links: [],
+},
+{
+  title: "CAHOOTS Dispatch Trend Analysis",
+  date: "2024-06-15",
+  categories: ["ds"],
+  tags: ["Data Science"],
+  tools: ["Python", "pandas", "Visualization", "Program evaluation"],
+  cv: true,
+  cvBullets: [
+    "Built reproducible Python/pandas pipeline for cleaning and analyzing 50k+ police CAD dispatch records related to mental health crisis response.",
+    "Quantified temporal/spatial trends and produced stakeholder-facing visualizations supporting operational program evaluation (Eugene, OR)."
+  ],
+  blurb:
+    "Built reproducible pipelines and trend analyses on crisis-response dispatch logs to support operational evaluation.",
+  details:
+    "You can include: time-of-day seasonality, hotspot mapping summaries, and any stakeholder-facing deliverables (slides/report).",
+  image: "images/cahoots_1.png",
+  imageAlt: "CAHOOTS dispatch analysis plot",
+  links: [],
+},
+
   ],
 
   experience: [

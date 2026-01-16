@@ -232,8 +232,13 @@ function buildResumeHtml(config) {
   const domains = isCV ? getAllDomains() : domainsFromSlider(config?.domain);
   const audience = isCV ? "all" : (config?.audience || "industry");
 
+  // ======= CV formatting controls (single place) =======
+  const CV_PROJECT_BULLETS_MAX = 2;   // <-- set 1 or 2 (you asked for “set number of bullets”)
+  const CV_SHOW_PROJECT_TOOLS = true; // tools appear as comma-line under each CV project
+  // ====================================================
+
   // CV shows everything; Resume is selective.
-  const showCoursework = isCV ? true : (audience === "academic");
+  const showCoursework = isCV ? false : (audience === "academic");
   const showResearch = isCV ? true : (audience === "academic");
   const showExperience = isCV ? true : (audience === "industry");
   const showProjects = true;
@@ -276,7 +281,10 @@ function buildResumeHtml(config) {
     ${person.contact?.portfolio ? `<div><a href="${person.contact.portfolio}">${escapeHtml(stripUrl(person.contact.portfolio))}</a></div>` : ""}
   `;
 
-  // Shared “blocks”
+  // Shared helpers
+  const commaLine = (arr) => (Array.isArray(arr) ? arr.filter(Boolean).join(", ") : "");
+
+  // ===== Shared “blocks” =====
   const eduHtml = education.map((e) => `
     <div class="entry">
       <div class="entry-head">
@@ -289,14 +297,22 @@ function buildResumeHtml(config) {
     </div>
   `).join("");
 
-  const skillsHtml = skills.map((cat) => `
-    <div class="skillblock">
-      <div class="skillblock-title">${escapeHtml(cat.title)}</div>
-      <div class="pillwrap">
-        ${(cat.items || []).map((s) => `<span class="pill">${escapeHtml(s)}</span>`).join("")}
-      </div>
-    </div>
-  `).join("");
+  // ===== Skills: pills for Resume, comma-lines for CV =====
+  const skillsHtml = isCV
+    ? skills.map((cat) => `
+        <div class="skillrow">
+          <span class="skillrow-title">${escapeHtml(cat.title)}:</span>
+          <span class="skillrow-items">${escapeHtml(commaLine(cat.items))}</span>
+        </div>
+      `).join("")
+    : skills.map((cat) => `
+        <div class="skillblock">
+          <div class="skillblock-title">${escapeHtml(cat.title)}</div>
+          <div class="pillwrap">
+            ${(cat.items || []).map((s) => `<span class="pill">${escapeHtml(s)}</span>`).join("")}
+          </div>
+        </div>
+      `).join("");
 
   const courseHtml = coursework.map((c) => `
     <div class="entry">
@@ -331,25 +347,33 @@ function buildResumeHtml(config) {
     </div>
   `).join("");
 
-  // For CV, projects should not be paragraph heavy.
-  const projectsHtmlCv = projects.map((p) => {
-    const bullets = synthProjectBullets(p, 3);
+  // ===== Projects: CV uses cvBullets + comma tools; Resume uses blurb + pills =====
+  const projectsHtml = projects.map((p) => {
+    const cvBullets = Array.isArray(p.cvBullets) ? p.cvBullets.filter(Boolean) : [];
+    const showBullets = isCV && cvBullets.length > 0;
+
+    const toolsComma = commaLine(p.tools);
+    const toolsLine = (isCV && CV_SHOW_PROJECT_TOOLS && toolsComma)
+      ? `<div class="tools-commas"><span class="tools-label">Tools:</span> ${escapeHtml(toolsComma)}</div>`
+      : "";
+
     return `
       <div class="entry">
         <div class="entry-head">
           <div class="entry-title">${escapeHtml(p.title)}</div>
           <div class="entry-meta">${escapeHtml(formatMonthYear(p.date))}</div>
         </div>
-        ${p.tools?.length ? `
-          <div class="toolsline">
-            ${(p.tools || []).slice(0, 10).map((t) => `<span class="pill pill-soft">${escapeHtml(t)}</span>`).join("")}
-          </div>` : ""}
-        ${bullets.length ? `<ul class="bullets">${bullets.map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>` : ""}
+
+        ${showBullets
+          ? `<ul class="bullets">${cvBullets.slice(0, CV_PROJECT_BULLETS_MAX).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
+          : (p.blurb ? `<div class="desc">${escapeHtml(p.blurb)}</div>` : "")
+        }
+
+        ${isCV ? toolsLine : ""}
       </div>
     `;
   }).join("");
 
-  // For Resume, keep 1–2 line blurb.
   const projectsHtmlResume = projects.map((p) => `
     <div class="entry">
       <div class="entry-head">
@@ -386,30 +410,6 @@ function buildResumeHtml(config) {
     line-height: 1.35;
   }
 
-    .cv-footer {
-    margin-top: 16px;
-    padding-top: 10px;
-    border-top: 1px solid var(--line);
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 10px;
-    color: var(--muted);
-    font-size: 10px;
-  }
-  .qr {
-    width: 72px;
-    height: 72px;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    padding: 4px;
-    background: #fff;
-  }
-  .qr-label {
-    text-align: right;
-    line-height: 1.25;
-  }
-
   a { color: var(--text); text-decoration: underline; }
   .page { width: 100%; max-width: 8.5in; margin: 0 auto; }
 
@@ -432,7 +432,6 @@ function buildResumeHtml(config) {
     margin-bottom: 8px;
   }
 
-  .summary { color: #111827; margin-top: 2px; }
   .entry { margin: 0 0 10px 0; break-inside: avoid; page-break-inside: avoid; }
   .entry-head { display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
   .entry-title { font-weight: 800; font-size: 12px; }
@@ -442,22 +441,36 @@ function buildResumeHtml(config) {
   .bullets { margin: 4px 0 0 16px; padding: 0; color:#374151; }
   .bullets li { margin: 0 0 2px 0; }
 
-  .pillwrap { display:flex; flex-wrap:wrap; gap:4px; }
-  .pill {
-    background:#f3f4f6;
-    border: 1px solid var(--line);
-    border-radius: 4px;
-    padding: 1px 6px;
-    font-size: 9.4px;
-    color:#374151;
-    font-weight: 600;
-  }
-  .pill-soft { background: transparent; }
-  .skillblock { margin-bottom: 10px; break-inside: avoid; page-break-inside: avoid; }
-  .skillblock-title { font-weight: 900; font-size: 11px; margin-bottom: 4px; color:#111; }
-  .toolsline { margin-top: 5px; }
+  /* CV Skills (comma lines) */
+  .skillrow { margin: 0 0 6px 0; }
+  .skillrow-title { font-weight: 900; color: #111; }
+  .skillrow-items { color: #374151; }
 
-  /* Print hardening */
+  /* CV Project tools (comma line) */
+  .tools-commas { margin-top: 3px; color: var(--muted); font-size: 10.4px; }
+  .tools-label { font-weight: 800; color: #4b5563; }
+
+  .cv-footer {
+    margin-top: 16px;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    color: var(--muted);
+    font-size: 10px;
+  }
+  .qr {
+    width: 72px;
+    height: 72px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 4px;
+    background: #fff;
+  }
+  .qr-label { text-align: right; line-height: 1.25; }
+
   @media print {
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .page { max-width: none; }
@@ -491,17 +504,16 @@ function buildResumeHtml(config) {
       </ul>
     </div>
 
-
     ${researchHtml ? `
     <div class="section">
       <div class="stitle">Research</div>
       ${researchHtml}
     </div>` : ""}
 
-    ${projectsHtmlCv ? `
+    ${projectsHtml ? `
     <div class="section">
       <div class="stitle">Projects</div>
-      ${projectsHtmlCv}
+      ${projectsHtml}
     </div>` : ""}
 
     ${experienceHtml ? `
@@ -520,18 +532,18 @@ function buildResumeHtml(config) {
       <div class="stitle">Coursework</div>
       ${courseHtml}
     </div>` : ""}
-    <div class="cv-footer">
-  <div class="qr-label">
-    <div><strong>Portfolio</strong></div>
-    <div>${escapeHtml(stripUrl(person.contact?.portfolio || ""))}</div>
-  </div>
-  ${
-    person.contact?.portfolio
-      ? `<img class="qr" alt="Portfolio QR code" src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(person.contact.portfolio)}" />`
-      : ""
-  }
-</div>
 
+    <div class="cv-footer">
+      <div class="qr-label">
+        <div><strong>Portfolio</strong></div>
+        <div>${escapeHtml(stripUrl(person.contact?.portfolio || ""))}</div>
+      </div>
+      ${
+        person.contact?.portfolio
+          ? `<img class="qr" alt="Portfolio QR code" src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(person.contact.portfolio)}" />`
+          : ""
+      }
+    </div>
   </div>
 </body>
 </html>
@@ -616,7 +628,6 @@ function buildResumeHtml(config) {
   @media print {
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .page { max-width: none; }
-    /* Prevent any “wide layout => landscape” heuristics */
     .grid { width: 100%; }
   }
 </style>
@@ -680,6 +691,7 @@ function buildResumeHtml(config) {
 </html>
   `;
 }
+
 
 /** -------------------------
  * Modal + Carousel (with cleanup)
