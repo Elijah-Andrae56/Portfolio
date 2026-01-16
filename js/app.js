@@ -1,5 +1,4 @@
 // app.js
-
 import { SITE, CATEGORY_LABELS } from "./data.js";
 
 /** -------------------------
@@ -17,10 +16,7 @@ function el(tag, attrs = {}, children = []) {
     else node.setAttribute(k, v);
   }
 
-  for (const c of children) {
-    node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
-  }
-
+  for (const c of children) node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
   return node;
 }
 
@@ -31,6 +27,12 @@ const state = {
   activeCategory: "all",
   searchQuery: "",
   sortMode: "relevance",
+
+  pdfConfig: {
+    domain: "ds",         // "nanotech" | "ds"
+    audience: "industry", // "academic" | "industry"
+    doctype: "resume",    // "resume" | "cv"
+  },
 };
 
 function normalize(text) {
@@ -47,8 +49,7 @@ function tokenize(query) {
 /**
  * Relevance rules:
  * - Score matches by where they occur (title > tags/tools > blurb > details)
- * - Works automatically "within subcategories" because category filtering already happens before sorting.
- * - If no search query, relevance falls back to date_desc (so it is stable and sensible).
+ * - If no search query, relevance falls back to date_desc (stable).
  */
 function relevanceScore(project, query) {
   const tokens = tokenize(query);
@@ -61,7 +62,6 @@ function relevanceScore(project, query) {
   const tools = normalize((project.tools || []).join(" "));
 
   let score = 0;
-
   for (const tok of tokens) {
     if (title.includes(tok)) score += 50;
     if (tags.includes(tok)) score += 25;
@@ -70,17 +70,13 @@ function relevanceScore(project, query) {
     if (details.includes(tok)) score += 6;
   }
 
-  // Bonus: exact phrase match in title
   const q = normalize(query).trim();
   if (q && title.includes(q)) score += 40;
 
   return score;
 }
 
-
 function parseDate(value) {
-  // ISO strings compare lexicographically, but Date parsing is fine too.
-  // If missing/invalid, treat as very old (0).
   const t = Date.parse(value);
   return Number.isFinite(t) ? t : 0;
 }
@@ -90,31 +86,21 @@ function compareProjects(a, b) {
     case "relevance": {
       const sa = relevanceScore(a, state.searchQuery);
       const sb = relevanceScore(b, state.searchQuery);
-
-      // Higher score first
       if (sb !== sa) return sb - sa;
 
-      // Tie-breakers for stable ordering:
-      // 1) Newest first if scores equal (or query empty => all scores 0)
       const dt = parseDate(b.date) - parseDate(a.date);
       if (dt !== 0) return dt;
 
-      // 2) Title A-Z
       return a.title.localeCompare(b.title);
     }
-
     case "date_asc":
       return parseDate(a.date) - parseDate(b.date);
-
     case "date_desc":
       return parseDate(b.date) - parseDate(a.date);
-
     case "title_asc":
       return a.title.localeCompare(b.title);
-
     case "title_desc":
       return b.title.localeCompare(a.title);
-
     default:
       return 0;
   }
@@ -143,126 +129,418 @@ const DOMAIN_LABELS = {
   cs: "Computer Science",
 };
 
-// Invisible fallback if user clears everything (used only at download time)
-const PDF_FALLBACK_DOMAINS = ["ds"];
+/** -------------------------
+ * PDF logic: domains + academic/industry + resume/cv
+ * -------------------------- */
 
-function getVisiblePdfDomains() {
-  const menu = qs("#pdfDdMenu");
-  if (!menu) return [];
-  return [...menu.querySelectorAll('input[type="checkbox"]:checked')].map(cb => cb.value);
+function getAllDomains() {
+  return ["ds", "marketing", "nanofab", "cs"];
 }
 
-function getEffectivePdfDomains() {
-  const visible = getVisiblePdfDomains();
-  return visible.length ? visible : PDF_FALLBACK_DOMAINS;
+function domainsFromSlider(domainMode) {
+  if (domainMode === "nanotech") return ["nanofab"];
+  return ["ds", "cs", "marketing"];
 }
 
-function buildResumeHtml(domains) {
+function inferTrack(item, section) {
+  if (item && typeof item.track === "string") return item.track;
+
+  if (section === "research" || section === "education" || section === "coursework") return "academic";
+
+  if (section === "experience") {
+    const t = normalize(item?.title);
+    if (t.includes("assistant") || t.includes("teaching") || t.includes("learning") || t.includes("marker") || t.includes("grader")) {
+      return "academic";
+    }
+    return "industry";
+  }
+
+  if (section === "projects") {
+    const cats = item?.categories || [];
+    if (cats.includes("nanofab")) return "academic";
+    return "industry";
+  }
+
+  return "industry";
+}
+
+function trackMatches(item, section, audience) {
+  if (!audience || audience === "all") return true;
+  const tr = inferTrack(item, section);
+  if (tr === "both") return true;
+  return tr === audience;
+}
+
+function domainMatches(item, domains) {
+  const tags = item?.domains || item?.categories;
+  if (!tags || tags.length === 0) return true;
+  return tags.some((tag) => domains.includes(tag));
+}
+
+function limitBullets(bullets, maxCount) {
+  const arr = Array.isArray(bullets) ? bullets : [];
+  if (!Number.isFinite(maxCount) || maxCount <= 0) return arr;
+  return arr.slice(0, maxCount);
+}
+
+/**
+ * CV/Resume content shaping:
+ * - CV wants bullets and scanable lines; avoid paragraphs.
+ * - If no explicit bullets exist for projects, synthesize from the blurb.
+ */
+function synthProjectBullets(p, max = 3) {
+  // If user later adds p.cvBullets or p.resumeBullets, prefer them automatically.
+  const explicit =
+    Array.isArray(p?.cvBullets) && p.cvBullets.length ? p.cvBullets :
+    Array.isArray(p?.resumeBullets) && p.resumeBullets.length ? p.resumeBullets :
+    null;
+
+  if (explicit) return limitBullets(explicit, max);
+
+  const blurb = String(p?.blurb || "").trim();
+  if (!blurb) return [];
+
+  // Split into clauses; keep it conservative.
+  const parts = blurb
+    .replace(/\s+/g, " ")
+    .split(/(?:\.\s+|;\s+|,\s+(?=[A-Z]))/g)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  // Convert to action-ish bullets without inventing facts.
+  const bullets = parts.map((s) => {
+    // If already verb-led, keep. Otherwise, prefix with “Developed/Analyzed/Designed” would be fabrication.
+    // Safer: keep original wording but remove leading “I”.
+    return s.replace(/^I\s+/i, "").replace(/\.$/, "");
+  });
+
+  return bullets.slice(0, max);
+}
+
+function stripUrl(url) {
+  return String(url || "").replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
+}
+
+/** -------------------------
+ * PDF templates
+ * -------------------------- */
+
+function buildResumeHtml(config) {
   const person = SITE.person;
 
-  // 1. Helper to check if an item matches the selected domains
-  const isVisible = (item) => {
-    const tags = item.domains || item.categories;
-    if (!tags || tags.length === 0) return true; // Global item
-    return tags.some(tag => domains.includes(tag));
-  };
+  const isCV = config?.doctype === "cv";
+  const domains = isCV ? getAllDomains() : domainsFromSlider(config?.domain);
+  const audience = isCV ? "all" : (config?.audience || "industry");
 
-  // 2. Filter Research FIRST
+  // CV shows everything; Resume is selective.
+  const showCoursework = isCV ? true : (audience === "academic");
+  const showResearch = isCV ? true : (audience === "academic");
+  const showExperience = isCV ? true : (audience === "industry");
+  const showProjects = true;
+
+  const BULLETS_MAX_RESEARCH = isCV ? 999 : 3;
+  const BULLETS_MAX_EXP = isCV ? 999 : 3;
+  const BULLETS_MAX_EDU = isCV ? 999 : 3;
+  const BULLETS_MAX_COURSE = isCV ? 999 : 10;
+
+  const education = (SITE.education || []).filter((e) => domainMatches(e, domains));
+  const coursework = (SITE.coursework || []).filter((c) => domainMatches(c, domains));
+  const skills = (SITE.skills || []).filter((s) => domainMatches(s, domains));
+
   const research = (SITE.research || [])
-    .filter(isVisible);
+    .filter((r) => domainMatches(r, domains))
+    .filter((r) => trackMatches(r, "research", audience));
 
-  // 3. Create a Set of titles that are already shown in Research
-  //    This helps us "subtract" them from the Projects list below.
-  const researchTitles = new Set(research.map(r => r.title));
+  const researchTitles = new Set(research.map((r) => r.title));
 
-  // 4. Filter Projects (Visible + NOT in Research)
   const projects = (SITE.projects || [])
-    .filter(p => isVisible(p) && !researchTitles.has(p.title)) // <--- THE FIX
+    .filter((p) => domainMatches(p, domains))
+    .filter((p) => trackMatches(p, "projects", audience))
+    .filter((p) => (isCV ? true : !researchTitles.has(p.title)))
     .sort((a, b) => parseDate(b.date) - parseDate(a.date));
 
-  const skills = (SITE.skills || [])
-    .filter(isVisible);
-
   const experience = (SITE.experience || [])
-    .filter(isVisible);
+    .filter((x) => domainMatches(x, domains))
+    .filter((x) => trackMatches(x, "experience", audience));
 
-  const education = SITE.education || [];
-  const coursework = SITE.coursework || [];
-
-  // 5. Construct Title based on selection
-  const cfgTitle = domains.map((d) => DOMAIN_LABELS[d] || d).join(" + ");
-
-  // 6. HTML Generators
-  const skillsHtml = skills.map(cat => `
-    <div class="block">
-      <div class="block-title">${escapeHtml(cat.title)}</div>
-      <div class="pill-wrap">
-        ${(cat.items || []).map(s => `<span class="pill">${escapeHtml(s)}</span>`).join("")}
-      </div>
-    </div>
-  `).join("");
-
-  const eduHtml = education.map(e => `
-    <div class="block">
-      <div class="block-title">${escapeHtml(e.title)}</div>
-      ${e.meta ? `<div class="meta">${escapeHtml(e.meta)}</div>` : ""}
-      ${(e.bullets || []).length ? `<ul class="bullets">${e.bullets.map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul>` : ""}
-    </div>
-  `).join("");
-
-  const courseHtml = coursework.map(c => `
-    <div class="block">
-      <div class="block-title">${escapeHtml(c.title)}</div>
-      ${(c.bullets || []).length ? `<ul class="bullets">${c.bullets.map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul>` : ""}
-    </div>
-  `).join("");
-
-  const researchHtml = research.map(r => `
-    <div class="item">
-      <div class="item-head">
-        <div class="item-title">${escapeHtml(r.title)}</div>
-        ${r.meta ? `<div class="meta">${escapeHtml(r.meta)}</div>` : ""}
-      </div>
-      ${(r.bullets || []).length ? `<ul class="bullets">${r.bullets.map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul>` : ""}
-    </div>
-  `).join("");
-
-  const experienceHtml = experience.map(exp => `
-    <div class="item">
-      <div class="item-head">
-        <div class="item-title">${escapeHtml(exp.title)}</div>
-        ${exp.meta ? `<div class="meta">${escapeHtml(exp.meta)}</div>` : ""}
-      </div>
-      ${(exp.bullets || []).length ? `<ul class="bullets">${exp.bullets.map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul>` : ""}
-    </div>
-  `).join("");
-
-  const projectsHtml = projects.map(p => `
-    <div class="item">
-      <div class="item-head">
-        <div class="item-title">${escapeHtml(p.title)}</div>
-        <div class="meta">${escapeHtml(formatMonthYear(p.date))}</div>
-      </div>
-      ${p.blurb ? `<div class="desc">${escapeHtml(p.blurb)}</div>` : ""}
-      ${(p.tools || []).length ? `
-        <div class="tools">
-          ${(p.tools || []).slice(0, 8).map(t => `<span class="pill pill-soft">${escapeHtml(t)}</span>`).join("")}
-        </div>
-      ` : ""}
-    </div>
-  `).join("");
-
-  // Helper to strip https:// for cleaner print display
-  const stripUrl = (url) => url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
+  const cfgTitleParts = [];
+  cfgTitleParts.push(isCV ? "CV" : "Resume");
+  if (!isCV) cfgTitleParts.push(audience === "academic" ? "Academic" : "Industry");
+  if (!isCV) cfgTitleParts.push(config?.domain === "nanotech" ? "Nanotech" : "Data Science");
+  const cfgTitle = cfgTitleParts.join(" — ");
 
   const contactHtml = `
     ${person.contact?.email ? `<div>${escapeHtml(person.contact.email)}</div>` : ""}
-    ${person.contact?.phone ? `<div>${escapeHtml(person.contact.phone)}</div>` : ""}
-    ${person.contact?.linkedin ? `<div><a href="${person.contact.linkedin}">linkedin.com/in/elijah-andrae</a></div>` : ""}
-    ${person.contact?.github ? `<div><a href="${person.contact.github}">${stripUrl(person.contact.github)}</a></div>` : ""}
-    ${person.contact?.portfolio ? `<div><a href="${person.contact.portfolio}">${stripUrl(person.contact.portfolio)}</a></div>` : ""}
+    ${person.contact?.linkedin ? `<div><a href="${person.contact.linkedin}">${escapeHtml(stripUrl(person.contact.linkedin))}</a></div>` : ""}
+    ${person.contact?.github ? `<div><a href="${person.contact.github}">${escapeHtml(stripUrl(person.contact.github))}</a></div>` : ""}
+    ${person.contact?.portfolio ? `<div><a href="${person.contact.portfolio}">${escapeHtml(stripUrl(person.contact.portfolio))}</a></div>` : ""}
   `;
 
+  // Shared “blocks”
+  const eduHtml = education.map((e) => `
+    <div class="entry">
+      <div class="entry-head">
+        <div class="entry-title">${escapeHtml(e.title)}</div>
+        ${e.meta ? `<div class="entry-meta">${escapeHtml(e.meta)}</div>` : ""}
+      </div>
+      ${(e.bullets || []).length
+        ? `<ul class="bullets">${limitBullets(e.bullets, BULLETS_MAX_EDU).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
+        : ""}
+    </div>
+  `).join("");
+
+  const skillsHtml = skills.map((cat) => `
+    <div class="skillblock">
+      <div class="skillblock-title">${escapeHtml(cat.title)}</div>
+      <div class="pillwrap">
+        ${(cat.items || []).map((s) => `<span class="pill">${escapeHtml(s)}</span>`).join("")}
+      </div>
+    </div>
+  `).join("");
+
+  const courseHtml = coursework.map((c) => `
+    <div class="entry">
+      <div class="entry-title">${escapeHtml(c.title)}</div>
+      ${(c.bullets || []).length
+        ? `<ul class="bullets">${limitBullets(c.bullets, BULLETS_MAX_COURSE).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
+        : ""}
+    </div>
+  `).join("");
+
+  const researchHtml = research.map((r) => `
+    <div class="entry">
+      <div class="entry-head">
+        <div class="entry-title">${escapeHtml(r.title)}</div>
+        ${r.meta ? `<div class="entry-meta">${escapeHtml(r.meta)}</div>` : ""}
+      </div>
+      ${(r.bullets || []).length
+        ? `<ul class="bullets">${limitBullets(r.bullets, BULLETS_MAX_RESEARCH).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
+        : ""}
+    </div>
+  `).join("");
+
+  const experienceHtml = experience.map((exp) => `
+    <div class="entry">
+      <div class="entry-head">
+        <div class="entry-title">${escapeHtml(exp.title)}</div>
+        ${exp.meta ? `<div class="entry-meta">${escapeHtml(exp.meta)}</div>` : ""}
+      </div>
+      ${(exp.bullets || []).length
+        ? `<ul class="bullets">${limitBullets(exp.bullets, BULLETS_MAX_EXP).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
+        : ""}
+    </div>
+  `).join("");
+
+  // For CV, projects should not be paragraph heavy.
+  const projectsHtmlCv = projects.map((p) => {
+    const bullets = synthProjectBullets(p, 3);
+    return `
+      <div class="entry">
+        <div class="entry-head">
+          <div class="entry-title">${escapeHtml(p.title)}</div>
+          <div class="entry-meta">${escapeHtml(formatMonthYear(p.date))}</div>
+        </div>
+        ${p.tools?.length ? `
+          <div class="toolsline">
+            ${(p.tools || []).slice(0, 10).map((t) => `<span class="pill pill-soft">${escapeHtml(t)}</span>`).join("")}
+          </div>` : ""}
+        ${bullets.length ? `<ul class="bullets">${bullets.map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>` : ""}
+      </div>
+    `;
+  }).join("");
+
+  // For Resume, keep 1–2 line blurb.
+  const projectsHtmlResume = projects.map((p) => `
+    <div class="entry">
+      <div class="entry-head">
+        <div class="entry-title">${escapeHtml(p.title)}</div>
+        <div class="entry-meta">${escapeHtml(formatMonthYear(p.date))}</div>
+      </div>
+      ${p.blurb ? `<div class="desc">${escapeHtml(p.blurb)}</div>` : ""}
+      ${p.tools?.length ? `
+        <div class="toolsline">
+          ${(p.tools || []).slice(0, 7).map((t) => `<span class="pill pill-soft">${escapeHtml(t)}</span>`).join("")}
+        </div>` : ""}
+    </div>
+  `).join("");
+
+  // =========================
+  // TEMPLATE: CV (single column)
+  // =========================
+  if (isCV) {
+    return `
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>${escapeHtml(person.name)} — ${escapeHtml(cfgTitle)}</title>
+<style>
+  :root { --text:#111827; --muted:#6b7280; --accent:#2563eb; --line:#e5e7eb; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; }
+  @page { size: letter portrait; margin: 0.65in; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    color: var(--text);
+    font-size: 11.2px;
+    line-height: 1.35;
+  }
+
+    .cv-footer {
+    margin-top: 16px;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    color: var(--muted);
+    font-size: 10px;
+  }
+  .qr {
+    width: 72px;
+    height: 72px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 4px;
+    background: #fff;
+  }
+  .qr-label {
+    text-align: right;
+    line-height: 1.25;
+  }
+
+  a { color: var(--text); text-decoration: underline; }
+  .page { width: 100%; max-width: 8.5in; margin: 0 auto; }
+
+  /* Header */
+  .hdr { display:flex; justify-content:space-between; gap:18px; align-items:flex-start; padding-bottom: 10px; border-bottom: 2px solid #111; margin-bottom: 14px; }
+  .hdr-left .name { font-size: 22px; font-weight: 900; letter-spacing: -0.3px; line-height: 1.1; }
+  .hdr-left .headline { margin-top: 4px; color: var(--muted); font-size: 12px; font-weight: 600; }
+  .hdr-right { text-align:right; color: var(--muted); font-size: 10.6px; line-height: 1.45; }
+
+  /* Sections */
+  .section { margin: 12px 0 14px 0; }
+  .stitle {
+    font-size: 10.8px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+  }
+
+  .summary { color: #111827; margin-top: 2px; }
+  .entry { margin: 0 0 10px 0; break-inside: avoid; page-break-inside: avoid; }
+  .entry-head { display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
+  .entry-title { font-weight: 800; font-size: 12px; }
+  .entry-meta { color: var(--muted); font-style: italic; font-size: 10.5px; text-align:right; }
+  .desc { margin-top: 3px; color:#374151; }
+
+  .bullets { margin: 4px 0 0 16px; padding: 0; color:#374151; }
+  .bullets li { margin: 0 0 2px 0; }
+
+  .pillwrap { display:flex; flex-wrap:wrap; gap:4px; }
+  .pill {
+    background:#f3f4f6;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 9.4px;
+    color:#374151;
+    font-weight: 600;
+  }
+  .pill-soft { background: transparent; }
+  .skillblock { margin-bottom: 10px; break-inside: avoid; page-break-inside: avoid; }
+  .skillblock-title { font-weight: 900; font-size: 11px; margin-bottom: 4px; color:#111; }
+  .toolsline { margin-top: 5px; }
+
+  /* Print hardening */
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page { max-width: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="hdr">
+      <div class="hdr-left">
+        <div class="name">${escapeHtml(person.name)}</div>
+        <div class="headline">${escapeHtml(person.headline)}</div>
+      </div>
+      <div class="hdr-right">
+        ${contactHtml}
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="stitle">Education</div>
+      ${eduHtml}
+    </div>
+
+    <div class="section">
+      <div class="stitle">Selected Highlights</div>
+      <ul class="bullets">
+        <li>Cleanroom microfabrication: photolithography, thin films, multilayer alignment, metrology (Dektak/ellipsometry)</li>
+        <li>DOE-driven lithography characterization (2³ factorial); analysis in JMP</li>
+        <li>Reproducible data pipelines (Python/pandas) for program evaluation and operational analytics</li>
+        <li>Teaching/mentorship: Learning Assistant (Applied DS) and mathematics grader (proof + LA)</li>
+      </ul>
+    </div>
+
+
+    ${researchHtml ? `
+    <div class="section">
+      <div class="stitle">Research</div>
+      ${researchHtml}
+    </div>` : ""}
+
+    ${projectsHtmlCv ? `
+    <div class="section">
+      <div class="stitle">Projects</div>
+      ${projectsHtmlCv}
+    </div>` : ""}
+
+    ${experienceHtml ? `
+    <div class="section">
+      <div class="stitle">Teaching & Leadership</div>
+      ${experienceHtml}
+    </div>` : ""}
+
+    <div class="section">
+      <div class="stitle">Skills</div>
+      ${skillsHtml}
+    </div>
+
+    ${showCoursework && courseHtml ? `
+    <div class="section">
+      <div class="stitle">Coursework</div>
+      ${courseHtml}
+    </div>` : ""}
+    <div class="cv-footer">
+  <div class="qr-label">
+    <div><strong>Portfolio</strong></div>
+    <div>${escapeHtml(stripUrl(person.contact?.portfolio || ""))}</div>
+  </div>
+  ${
+    person.contact?.portfolio
+      ? `<img class="qr" alt="Portfolio QR code" src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(person.contact.portfolio)}" />`
+      : ""
+  }
+</div>
+
+  </div>
+</body>
+</html>
+    `;
+  }
+
+  // =========================
+  // TEMPLATE: Resume (two-column)
+  // =========================
   return `
 <!doctype html>
 <html lang="en">
@@ -270,75 +548,76 @@ function buildResumeHtml(domains) {
 <meta charset="utf-8"/>
 <title>${escapeHtml(person.name)} — ${escapeHtml(cfgTitle)}</title>
 <style>
-  :root { --text: #1f2937; --muted: #6b7280; --accent: #2563eb; --line: #e5e7eb; }
+  :root { --text:#111827; --muted:#6b7280; --accent:#2563eb; --line:#e5e7eb; }
   * { box-sizing: border-box; }
-  body { 
-    margin: 0; 
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-    color: var(--text); 
-    line-height: 1.4; 
-    font-size: 12px;
-  }
-  a { color: var(--accent); text-decoration: none; }
-  .page { max-width: 900px; margin: 0 auto; padding: 40px; }
-  
-  /* Header */
-  .header { border-bottom: 2px solid var(--text); padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-start; }
-  .name { font-size: 28px; font-weight: 800; line-height: 1.1; letter-spacing: -0.5px; }
-  .headline { font-size: 14px; color: var(--muted); margin-top: 4px; font-weight: 500; }
-  .contact-info { text-align: right; font-size: 11px; line-height: 1.5; color: var(--muted); }
-  
-  /* Layout */
-  .grid { display: grid; grid-template-columns: 220px 1fr; gap: 32px; }
-  
-  /* Sections */
-  .section { margin-bottom: 24px; }
-  
-  /* Major Headers */
-  .section-title { 
-    font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; 
-    color: var(--accent); border-bottom: 2px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 12px; 
+  html, body { margin:0; padding:0; }
+  @page { size: letter portrait; margin: 0.55in; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    color: var(--text);
+    font-size: 11.2px;
+    line-height: 1.35;
   }
 
-  /* Sub Headers (Bold) */
-  .block-title {
-    font-weight: 800; 
-    font-size: 12.5px;
-    margin-bottom: 4px;
-    color: #111;
+  a { color: var(--accent); text-decoration: none; }
+  .page { width: 100%; max-width: 8.5in; margin: 0 auto; }
+
+  .header {
+    border-bottom: 2px solid #111;
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: flex-start;
   }
-  
-  /* Items */
-  .item { margin-bottom: 14px; }
-  .item-head { display: flex; justify-content: space-between; align-items: baseline; }
-  .item-title { font-weight: 700; font-size: 13px; }
-  .meta { font-size: 11px; color: var(--muted); font-style: italic; }
-  .desc { margin-top: 4px; font-size: 12px; color: #374151; }
-  
-  /* Lists */
-  .bullets { margin: 4px 0 0 16px; padding: 0; color: #4b5563; }
-  .bullets li { margin-bottom: 3px; padding-left: 2px; }
-  
-  /* Skills Pills */
-  .pill-wrap { display: flex; flex-wrap: wrap; gap: 4px; }
-  .pill { 
-    background: #f3f4f6; 
-    padding: 1px 6px; 
-    border-radius: 4px; 
-    font-size: 9.5px; 
-    color: #374151; 
-    font-weight: 500; 
-    border: 1px solid #e5e7eb;
+  .name { font-size: 22px; font-weight: 900; line-height: 1.1; letter-spacing: -0.3px; }
+  .headline { font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 600; }
+  .contact { text-align: right; font-size: 10.6px; line-height: 1.45; color: var(--muted); }
+
+  .grid { display: grid; grid-template-columns: 2.35in 1fr; gap: 0.35in; align-items: start; }
+  .section { margin: 0 0 12px 0; break-inside: avoid; page-break-inside: avoid; }
+  .stitle {
+    font-size: 10.8px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 4px;
+    margin-bottom: 8px;
   }
-  .pill-soft { background: transparent; border: 1px solid var(--line); padding: 1px 5px; font-size: 9px; }
-  
-  .tools { margin-top: 6px; }
-  
-  /* Print overrides */
+
+  .entry { margin: 0 0 10px 0; break-inside: avoid; page-break-inside: avoid; }
+  .entry-head { display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
+  .entry-title { font-weight: 800; font-size: 12px; }
+  .entry-meta { color: var(--muted); font-style: italic; font-size: 10.5px; text-align:right; }
+  .desc { margin-top: 3px; color:#374151; }
+
+  .bullets { margin: 4px 0 0 16px; padding: 0; color:#374151; }
+  .bullets li { margin: 0 0 2px 0; }
+
+  .pillwrap { display:flex; flex-wrap:wrap; gap:4px; }
+  .pill {
+    background:#f3f4f6;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 9.4px;
+    color:#374151;
+    font-weight: 600;
+  }
+  .pill-soft { background: transparent; }
+  .skillblock { margin-bottom: 10px; }
+  .skillblock-title { font-weight: 900; font-size: 11px; margin-bottom: 4px; color:#111; }
+  .toolsline { margin-top: 5px; }
+
   @media print {
-    body { -webkit-print-color-adjust: exact; }
-    .page { padding: 0; }
-    a { color: #111; text-decoration: underline; }
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page { max-width: none; }
+    /* Prevent any “wide layout => landscape” heuristics */
+    .grid { width: 100%; }
   }
 </style>
 </head>
@@ -349,50 +628,49 @@ function buildResumeHtml(domains) {
         <div class="name">${escapeHtml(person.name)}</div>
         <div class="headline">${escapeHtml(person.headline)}</div>
       </div>
-      <div class="contact-info">
-        ${contactHtml}
-      </div>
+      <div class="contact">${contactHtml}</div>
     </div>
 
     <div class="grid">
       <div class="left">
         <div class="section">
-          <div class="section-title">Education</div>
+          <div class="stitle">Education</div>
           ${eduHtml}
         </div>
 
         <div class="section">
-          <div class="section-title">Skills</div>
+          <div class="stitle">Skills</div>
           ${skillsHtml}
         </div>
 
+        ${showCoursework && courseHtml ? `
         <div class="section">
-          <div class="section-title">Coursework</div>
+          <div class="stitle">Coursework</div>
           ${courseHtml}
-        </div>
+        </div>` : ""}
       </div>
 
       <div class="right">
         <div class="section">
-          <div class="section-title">Summary</div>
-          <div style="font-size:12px; color:#374151;">${escapeHtml(person.summary)}</div>
+          <div class="stitle">Summary</div>
+          <div class="desc">${escapeHtml(person.summary)}</div>
         </div>
 
-        ${researchHtml ? `
+        ${showResearch && researchHtml ? `
         <div class="section">
-          <div class="section-title">Research</div>
+          <div class="stitle">Research</div>
           ${researchHtml}
         </div>` : ""}
 
-        ${projectsHtml ? `
+        ${showProjects && projectsHtmlResume ? `
         <div class="section">
-          <div class="section-title">Projects</div>
-          ${projectsHtml}
+          <div class="stitle">Projects</div>
+          ${projectsHtmlResume}
         </div>` : ""}
 
-        ${experienceHtml ? `
+        ${showExperience && experienceHtml ? `
         <div class="section">
-          <div class="section-title">Work Experience</div>
+          <div class="stitle">Work Experience</div>
           ${experienceHtml}
         </div>` : ""}
       </div>
@@ -420,7 +698,6 @@ const modal = {
     this.title.textContent = title;
     this.body.innerHTML = "";
 
-    // cleanup any prior listeners
     if (typeof this.cleanup === "function") this.cleanup();
     this.cleanup = null;
 
@@ -430,7 +707,6 @@ const modal = {
     this.backdrop.style.display = "flex";
     this.backdrop.setAttribute("aria-hidden", "false");
 
-    // focus close for accessibility
     this.closeBtn.focus();
   },
 
@@ -441,7 +717,6 @@ const modal = {
     this.backdrop.style.display = "none";
     this.backdrop.setAttribute("aria-hidden", "true");
 
-    // restore focus
     if (this.lastFocus) this.lastFocus.focus();
     this.lastFocus = null;
   },
@@ -530,17 +805,14 @@ function mountCarousel(container, project) {
   }
 
   const onKeyDown = (e) => {
-    // only while modal is open
     if (modal.backdrop.style.display !== "flex") return;
     if (imgList.length <= 1) return;
-
     if (e.key === "ArrowLeft") prevBtn.click();
     if (e.key === "ArrowRight") nextBtn.click();
   };
 
   document.addEventListener("keydown", onKeyDown);
 
-  // cleanup function
   return () => {
     document.removeEventListener("keydown", onKeyDown);
   };
@@ -614,6 +886,9 @@ function renderTimeline(targetId, items) {
   });
 }
 
+/** -------------------------
+ * Project filters
+ * -------------------------- */
 function renderFilters() {
   const wrap = qs("#filterContainer");
   wrap.innerHTML = "";
@@ -626,12 +901,9 @@ function renderFilters() {
         text: label,
         onclick: () => {
           state.activeCategory = key;
-
-          // Requirement: switching category automatically uses relevance sort
           state.sortMode = "relevance";
           const sortSelect = qs("#projectSort");
           if (sortSelect) sortSelect.value = "relevance";
-
           renderFilters();
           renderProjects();
         },
@@ -652,9 +924,7 @@ function projectMatches(project) {
     ...(project.tags || []),
     ...(project.tools || []),
     ...(project.categories || []),
-  ]
-    .join(" ")
-    .toLowerCase();
+  ].join(" ").toLowerCase();
 
   return inCategory && haystack.includes(q);
 }
@@ -665,7 +935,6 @@ function openProjectModal(project, triggerEl) {
   modal.open({
     title: project.title,
     buildBody: (body) => {
-      // carousel (returns cleanup)
       const cleanupCarousel = mountCarousel(body, project);
 
       body.appendChild(el("p", { class: "muted", text: project.blurb }));
@@ -693,10 +962,7 @@ function openProjectModal(project, triggerEl) {
         );
       }
 
-      // cleanup returned to modal
-      return () => {
-        cleanupCarousel();
-      };
+      return () => cleanupCarousel();
     },
   });
 }
@@ -718,9 +984,7 @@ function renderProjects() {
       : null;
 
     const tagLine = el("div", { class: "card-tags" }, (p.tags || []).map((t) => el("span", { class: "tag", text: t })));
-    const dateLine = p.date
-      ? el("p", { class: "project-date", text: new Date(p.date).toLocaleDateString() })
-      : null;
+    const dateLine = p.date ? el("p", { class: "project-date", text: new Date(p.date).toLocaleDateString() }) : null;
 
     const viewBtn = el("button", {
       class: "btn-secondary",
@@ -759,74 +1023,84 @@ function renderProjects() {
 }
 
 /** -------------------------
- * Init + wiring
+ * PDF Controls
  * -------------------------- */
-function init() {
-  renderHeader();
-  renderSkills();
-  renderTimeline("researchList", SITE.research);
-  renderTimeline("experienceList", SITE.experience);
-  renderTimeline("courseworkList", SITE.coursework);
-  renderTimeline("educationList", SITE.education);
+function setSeg(group, value) {
+  state.pdfConfig[group] = value;
+  renderPdfControls();
+}
 
-  renderFilters();
-  renderProjects();
+function renderPdfControls() {
+  const cfg = state.pdfConfig;
 
-  qs("#projectSearch").addEventListener("input", (e) => {
-    state.searchQuery = e.target.value || "";
-    renderProjects();
+  const hint = qs("#pdfHint");
+  const controls = qs("#pdfDdMenu");
+  if (!controls) return;
+
+  const btns = controls.querySelectorAll(".seg-btn");
+  btns.forEach((b) => {
+    const g = b.getAttribute("data-group");
+    const v = b.getAttribute("data-value");
+    const active = cfg[g] === v;
+
+    b.classList.toggle("active", active);
+    b.setAttribute("aria-checked", active ? "true" : "false");
   });
 
-  qs("#projectSort").addEventListener("change", (e) => {
-    state.sortMode = e.target.value;
-    renderProjects();
+  const isCV = cfg.doctype === "cv";
+  const disableGroups = isCV ? new Set(["domain", "audience"]) : new Set();
+
+  btns.forEach((b) => {
+    const g = b.getAttribute("data-group");
+    const shouldDisable = disableGroups.has(g);
+    b.disabled = shouldDisable;
+    b.classList.toggle("disabled", shouldDisable);
   });
 
-  // Modal close
-  modal.closeBtn.addEventListener("click", () => modal.close());
-  modal.backdrop.addEventListener("click", (e) => {
-    if (e.target === modal.backdrop) modal.close();
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") modal.close();
-  });
+  if (hint) {
+    if (isCV) hint.textContent = "CV mode: single-column academic CV output; Focus/Target sliders disabled.";
+    else {
+      const focus = cfg.domain === "nanotech" ? "Nanotech" : "Data Science";
+      const target = cfg.audience === "academic" ? "Academic" : "Industry";
+      hint.textContent = `Resume mode: ${target} • ${focus}.`;
+    }
+  }
+}
 
-  // PDF dropdown (single button)
-  const ddBtn = qs("#pdfDdBtn");
+function closePdfDropdown() {
   const ddMenu = qs("#pdfDdMenu");
-  const ddWrap = qs("#pdfDropdown");
+  const ddBtn = qs("#pdfDdBtn");
+  if (!ddMenu || !ddBtn) return;
+  ddMenu.classList.add("hidden");
+  ddBtn.setAttribute("aria-expanded", "false");
+}
 
-  function openPdfMenu() {
-    ddMenu.classList.remove("hidden");
-    ddBtn.setAttribute("aria-expanded", "true");
-  }
+function wirePdfControls() {
+  const controls = qs("#pdfDdMenu");
+  if (!controls) return;
 
-  function closePdfMenu() {
-    ddMenu.classList.add("hidden");
-    ddBtn.setAttribute("aria-expanded", "false");
-  }
+  // Segmented control clicks
+  controls.addEventListener("click", (e) => {
+    const t = e.target;
+    if (!(t instanceof HTMLElement)) return;
 
-  ddBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    const isOpen = !ddMenu.classList.contains("hidden");
-    if (isOpen) closePdfMenu();
-    else openPdfMenu();
+    if (t.classList.contains("seg-btn")) {
+      const g = t.getAttribute("data-group");
+      const v = t.getAttribute("data-value");
+      if (!g || !v) return;
+      if (t.disabled) return;
+      setSeg(g, v);
+    }
   });
 
-  ddMenu.addEventListener("change", () => {});
+  // Download button
+  const dl = qs("#pdfDownloadBtn");
+  if (!dl) return;
 
-
-    qs("#pdfDdClear").addEventListener("click", (e) => {
-    e.preventDefault();
-    ddMenu.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-    });
-
-
-  qs("#pdfDdDownload").addEventListener("click", (e) => {
+  dl.addEventListener("click", async (e) => {
     e.preventDefault();
 
-    const domains = getEffectivePdfDomains();
-    const html = buildResumeHtml(domains);
+    const html = buildResumeHtml(state.pdfConfig);
 
     const iframe = document.createElement("iframe");
     iframe.style.position = "fixed";
@@ -844,10 +1118,13 @@ function init() {
     doc.write(html);
     doc.close();
 
-    let printed = false;
-    iframe.onload = () => {
-      if (printed) return;
-      printed = true;
+    // Hardening: fonts/layout settle before print (fixes occasional blank/landscape oddities)
+    const safePrint = async () => {
+      try {
+        if (win.document?.fonts?.ready) await win.document.fonts.ready;
+      } catch {}
+      // One more tick for layout
+      await new Promise((r) => setTimeout(r, 30));
 
       win.onafterprint = () => {
         setTimeout(() => {
@@ -860,23 +1137,107 @@ function init() {
       win.print();
     };
 
-    closePdfMenu();
-  });
+    // Some browsers never fire iframe.onload after doc.write; handle both.
+    let fired = false;
+    iframe.onload = () => {
+      if (fired) return;
+      fired = true;
+      safePrint();
+    };
+    // Fallback if onload does not fire.
+    setTimeout(() => {
+      if (fired) return;
+      fired = true;
+      safePrint();
+    }, 60);
 
-  document.addEventListener("click", (e) => {
-    if (!ddWrap.contains(e.target)) closePdfMenu();
+    closePdfDropdown();
   });
-
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closePdfMenu();
-  });
-
 }
+
+/** -------------------------
+ * Init + wiring
+ * -------------------------- */
+function init() {
+  renderHeader();
+  renderSkills();
+  renderTimeline("researchList", SITE.research);
+  renderTimeline("experienceList", SITE.experience);
+  renderTimeline("courseworkList", SITE.coursework);
+  renderTimeline("educationList", SITE.education);
+
+  renderFilters();
+  renderProjects();
+
+  const projectSearch = qs("#projectSearch");
+  if (projectSearch) {
+    projectSearch.addEventListener("input", (e) => {
+      state.searchQuery = e.target.value || "";
+      renderProjects();
+    });
+  }
+
+  const projectSort = qs("#projectSort");
+  if (projectSort) {
+    projectSort.addEventListener("change", (e) => {
+      state.sortMode = e.target.value;
+      renderProjects();
+    });
+  }
+
+  // Modal close
+  modal.closeBtn.addEventListener("click", () => modal.close());
+  modal.backdrop.addEventListener("click", (e) => {
+    if (e.target === modal.backdrop) modal.close();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") modal.close();
+  });
+
+  // PDF controls defaults
+  state.pdfConfig.domain = "ds";
+  state.pdfConfig.audience = "industry";
+  state.pdfConfig.doctype = "resume";
+
+  wirePdfControls();
+  renderPdfControls();
+
+  // PDF dropdown open/close (guarded)
+  const ddBtn = qs("#pdfDdBtn");
+  const ddMenu = qs("#pdfDdMenu");
+  const ddWrap = qs("#pdfDropdown");
+
+  if (ddBtn && ddMenu && ddWrap) {
+    function openPdfMenu() {
+      ddMenu.classList.remove("hidden");
+      ddBtn.setAttribute("aria-expanded", "true");
+    }
+
+    function closePdfMenu() {
+      ddMenu.classList.add("hidden");
+      ddBtn.setAttribute("aria-expanded", "false");
+    }
+
+    ddBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const isOpen = !ddMenu.classList.contains("hidden");
+      if (isOpen) closePdfMenu();
+      else openPdfMenu();
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!ddWrap.contains(e.target)) closePdfMenu();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closePdfMenu();
+    });
+  }
+}
+
 // small CSS helper for modal headings
 const style = document.createElement("style");
-style.textContent = `
-  .modal-section-title { margin-top: 12px; font-weight: 700; color: #111; }
-`;
+style.textContent = `.modal-section-title { margin-top: 12px; font-weight: 700; color: #111; }`;
 document.head.appendChild(style);
 
 init();

@@ -8,11 +8,10 @@ export const SITE = {
     photoAlt: "Eli Andrae headshot",
     domains: ["Python & R", "Predictive Modeling", "Cleanroom Ops", "Experimental Design"],
     contact: {
-      phone: "(814) 923-1280",
       email: "Elijah.andrae56@outlook.com",
       linkedin: "https://www.linkedin.com/in/elijah-andrae",
       github: "https://github.com/Elijah-Andrae56",
-      portfolio: "https://elijah-andrae56.github.io/Portfilio-Site/"
+      portfolio: "https://elijah-andrae56.github.io/Portfolio/"
     },
     summary:
       "A multidisciplinary data scientist with integrated experience across nanofabrication, applied mathematics, and marketing analytics. Skilled in developing predictive models, experimental designs, and end-to-end analytical pipelines that translate complex data into operational and strategic decisions. Combines statistical rigor with hands-on engineering and cleanroom experience, enabling a full stack understanding of how physical systems, data pipelines, and business objectives interact. Demonstrated strength in technical communication, cross-functional collaboration, and delivering analyses that influence stakeholders and improve organizational performance.",
@@ -88,17 +87,17 @@ export const SITE = {
     },
   ],
 
-research: [
+  research: [
     {
-        title: "Stimulus Driven Microfluidic Entropy",
-        domains: ["nanofab", "ds"],
-        meta: "Nanofabrication • Experimental Design • Device Characterization",
-        bullets: [
+      title: "Stimulus Driven Microfluidic Entropy",
+      domains: ["nanofab", "ds"],
+      meta: "Nanofabrication • Experimental Design • Device Characterization",
+      bullets: [
         "Designed and fabricated a lab-on-a-chip device that exploits inherently stochastic, stimuli-driven microscale bubble dynamics as a physical source of entropy for true random number generation.",
         "Executed a multi-layer microfabrication workflow including photolithographic patterning, thin-film deposition, dielectric insulation, PDMS soft lithography, and optical metrology.",
         "Developed a structured experimental framework using factorial design methods to evaluate sensitivity to geometric asymmetries, operating conditions, and fabrication tolerances.",
         "Status: active experimental iteration and validation; results intended to support formal statistical characterization and potential intellectual property disclosure.",
-        ],
+      ],
     },
 
     {
@@ -121,10 +120,10 @@ research: [
       tags: ["Nanofab", "DS"],
       tools: ["Photolithography", "Thin-film deposition", "Metrology", "DOE"],
       blurb:
-  "Designed and fabricated a microfluidic true-random number generator (TRNG) that leverages inherently stochastic microscale bubble dynamics. Built a multi-layer glass/metal/dielectric/PDMS stack and planned DOE-driven characterization and debiasing.",
+        "Designed and fabricated a microfluidic true-random number generator (TRNG) that leverages inherently stochastic microscale bubble dynamics. Built a multi-layer glass/metal/dielectric/PDMS stack and planned DOE-driven characterization and debiasing.",
       details:
-  "Objective: translate a physical, microscale stochastic process into measurable randomness signals, then quantify bias and stability across device geometry and operating conditions.\n\nSystem design: a multi-layer lab-on-a-chip stack (glass substrate with patterned metal features and dielectric insulation, bonded to PDMS microchannels) that produces repeatable bubble events and converts bubble path outcomes into bitstreams.\n\nPlanned validation: automated bit extraction (direction → 0/1), Von Neumann debiasing, and statistical checks including binomial fit/uniformity tests and DOE/ANOVA to separate physics-driven variability from fabrication artifacts.\n\nStatus: prototype fabrication and assembly completed; initial run highlighted alignment, bonding, and defect-sensitivity as primary failure modes, guiding the next iteration and control experiments.",
-image: "images/microfluidic_TRNG_2.jpg",
+        "Objective: translate a physical, microscale stochastic process into measurable randomness signals, then quantify bias and stability across device geometry and operating conditions.\n\nSystem design: a multi-layer lab-on-a-chip stack (glass substrate with patterned metal features and dielectric insulation, bonded to PDMS microchannels) that produces repeatable bubble events and converts bubble path outcomes into bitstreams.\n\nPlanned validation: automated bit extraction (direction → 0/1), Von Neumann debiasing, and statistical checks including binomial fit/uniformity tests and DOE/ANOVA to separate physics-driven variability from fabrication artifacts.\n\nStatus: prototype fabrication and assembly completed; initial run highlighted alignment, bonding, and defect-sensitivity as primary failure modes, guiding the next iteration and control experiments.",
+      image: "images/microfluidic_TRNG_2.jpg",
       images: ["images/microfluidic_TRNG_2.jpg", "images/microfluidic_TRNG_3.png", "images/microfluidic_TRNG_4.png"],
       imageAlt: "Microfluidic TRNG device image",
       links: [],
@@ -154,7 +153,6 @@ image: "images/microfluidic_TRNG_2.jpg",
         "Integrated NOAA buoy & airport datasets to predict hazardous wave conditions. Applied Ridge Regression and PCA to reduce false negatives by 23% vs baseline heuristics.",
       details:
         "Goal: improve small-boat safety decisions on Lake Erie by modeling hazardous wave conditions using historical buoy observations and nearby airport weather records.\n\nData & preprocessing: ingested multi-year NOAA buoy measurements sampled at ~20-minute cadence (wind speed/direction, gusts, wave height, dominant wave period, wave direction, air/water temperature). Cleaned sentinel missing values, standardized timestamps, engineered seasonal subsets (focused on summers with consistent coverage), and created categorical direction features (cardinal wind and wave direction).\n\nExploratory findings: wave height increased strongly with wind speed and gusts, with visible direction-dependent structure. Dominant wave period (DPD) interacted with wave height in a way consistent with more hazardous ‘short-period, higher-amplitude’ conditions. A derived hazard proxy (wave height ÷ dominant period) surfaced west-wind regimes as disproportionately associated with the most dangerous observations.\n\nInference: tested whether hazard differed across wind/wave direction groups using one-way ANOVA after a variance-stabilizing transform, finding statistically significant mean differences between directional regimes. At a daily level, merged buoy aggregates with airport precipitation and used resampling to compare the proportion of ‘safe’ days under rainy vs. dry conditions; rainy days showed a materially lower fraction of days below a chosen safe-wave threshold.\n\nPrediction: built baseline and regularized regression models to estimate wave height from wind speed, gusts, dominant wave period, and directional indicators. Feature engineering included nonlinear terms and interactions (e.g., wind×gust, wind×period), with model selection using cross-validation and holdout evaluation. Ridge regression produced stable performance and identified interaction terms as dominant predictors.\n\nOutcome: produced an interpretable safety-oriented workflow that combines exploratory climatology, statistically grounded hazard comparisons, and predictive modeling to support go/no-go judgments for offshore boating.",
-
       image: "images/wave_project_1.png",
       images: ["images/wave_project_1.png", "images/wave_project_2.png", "images/wave_project_3.png"],
       imageAlt: "Wave safety model results plot",
@@ -263,6 +261,7 @@ image: "images/microfluidic_TRNG_2.jpg",
   experience: [
     {
       title: "Resident Assistant",
+      track: "industry",
       meta: "University of Oregon Housing — Eugene, OR | Sept 2023–Present",
       bullets: [
         "Mentored and supported 150+ students in dormitory housing; provided conflict mediation, academic guidance, and day-to-day support.",
@@ -273,7 +272,8 @@ image: "images/microfluidic_TRNG_2.jpg",
     },
     {
       title: "Learning Assistant — Applied Data Science for Social Justice",
-      domains: ['ds', 'cs', 'nanofab'],
+      track: "academic",
+      domains: ["ds", "cs", "nanofab"],
       meta: "University of Oregon | Apr 2025–Jun 2025",
       bullets: [
         "Facilitated lab sessions and office hours; guided students through cleaning, visualization, and analysis of CAHOOTS dispatch logs.",
@@ -283,6 +283,7 @@ image: "images/microfluidic_TRNG_2.jpg",
     },
     {
       title: "Social Media Analytics & Marketing Intern",
+      track: "industry",
       domains: ["ds", "marketing"],
       meta: "Humes — Waterford, PA",
       bullets: [
@@ -292,6 +293,7 @@ image: "images/microfluidic_TRNG_2.jpg",
     },
     {
       title: "Mathematics Paper Marker",
+      track: "academic",
       domains: ["ds", "cs", "nanofab"],
       meta: "Intro to Mathematical Cryptography; Linear Algebra",
       bullets: [

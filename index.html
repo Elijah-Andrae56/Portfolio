@@ -19,40 +19,73 @@
 
       <div class="social-links" id="socialLinks"></div>
 
-      <div class="pdf-controls pdf-floating">
-        <div class="pdf-dd" id="pdfDropdown">
-      <button id="pdfDdBtn" class="pdf-dd-btn" type="button" aria-haspopup="menu" aria-expanded="false">
+  <!-- PDF Controls (button + dropdown) -->
+  <div class="pdf-controls pdf-floating">
+    <div class="pdf-dd" id="pdfDropdown">
+      <button
+        id="pdfDdBtn"
+        class="pdf-dd-btn"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="false"
+      >
         Download PDF <span aria-hidden="true">▾</span>
       </button>
 
+      <div
+        id="pdfDdMenu"
+        class="pdf-dd-menu hidden"
+        role="menu"
+        aria-label="PDF download options"
+      >
+        <div class="pdf-dd-title">PDF Options</div>
 
-          <div id="pdfDdMenu" class="pdf-dd-menu hidden" role="menu" aria-label="Select PDF domains">
-            <div class="pdf-dd-title">Select domains</div>
-
-            <label class="pdf-dd-item">
-              <input type="checkbox" value="ds" />
-              <span>Data Science</span>
-            </label>
-            <label class="pdf-dd-item">
-              <input type="checkbox" value="marketing" />
-              <span>Marketing / Business</span>
-            </label>
-            <label class="pdf-dd-item">
-              <input type="checkbox" value="nanofab" />
-              <span>Nanofabrication</span>
-            </label>
-            <label class="pdf-dd-item">
-              <input type="checkbox" value="cs" />
-              <span>Computer Science</span>
-            </label>
-
-            <div class="pdf-dd-actions">
-              <button id="pdfDdClear" class="pdf-dd-action" type="button">Clear</button>
-              <button id="pdfDdDownload" class="pdf-dd-action primary" type="button">Download</button>
-            </div>
+        <div class="pdf-control-row">
+          <div class="pdf-control-label">Focus</div>
+          <div class="seg" role="radiogroup" aria-label="Nanotech or Data Science">
+            <button class="seg-btn" type="button" data-group="domain" data-value="nanotech" aria-checked="false" role="radio">
+              Nanotech
+            </button>
+            <button class="seg-btn" type="button" data-group="domain" data-value="ds" aria-checked="false" role="radio">
+              Data Science
+            </button>
           </div>
         </div>
+
+        <div class="pdf-control-row">
+          <div class="pdf-control-label">Target</div>
+          <div class="seg" role="radiogroup" aria-label="Academic or Industry">
+            <button class="seg-btn" type="button" data-group="audience" data-value="academic" aria-checked="false" role="radio">
+              Academic
+            </button>
+            <button class="seg-btn" type="button" data-group="audience" data-value="industry" aria-checked="false" role="radio">
+              Industry
+            </button>
+          </div>
+        </div>
+
+        <div class="pdf-control-row">
+          <div class="pdf-control-label">Type</div>
+          <div class="seg" role="radiogroup" aria-label="Resume or CV">
+            <button class="seg-btn" type="button" data-group="doctype" data-value="resume" aria-checked="false" role="radio">
+              Resume
+            </button>
+            <button class="seg-btn" type="button" data-group="doctype" data-value="cv" aria-checked="false" role="radio">
+              CV
+            </button>
+          </div>
+        </div>
+
+        <div class="pdf-actions">
+          <button id="pdfDownloadBtn" class="pdf-action primary" type="button">
+            Download PDF
+          </button>
+        </div>
+
+        <div class="pdf-hint" id="pdfHint" aria-live="polite"></div>
       </div>
+    </div>
+  </div>
 
 
       <nav class="topnav" aria-label="Primary">
