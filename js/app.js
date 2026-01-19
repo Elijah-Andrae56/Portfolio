@@ -1,87 +1,108 @@
 // app.js
 import { SITE, CATEGORY_LABELS } from "./data.js";
 
-/** -------------------------
- * Small DOM helpers
- * -------------------------- */
+/* -------------------------
+   Helpers
+-------------------------- */
 const qs = (sel, root = document) => root.querySelector(sel);
 
 function el(tag, attrs = {}, children = []) {
   const node = document.createElement(tag);
-
   for (const [k, v] of Object.entries(attrs)) {
     if (k === "class") node.className = v;
     else if (k === "text") node.textContent = v;
+    else if (k === "html") node.innerHTML = v;
     else if (k.startsWith("on") && typeof v === "function") node.addEventListener(k.slice(2), v);
     else node.setAttribute(k, v);
   }
-
   for (const c of children) node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
   return node;
 }
 
-/** -------------------------
- * State
- * -------------------------- */
+function normalize(x) { return String(x || "").toLowerCase(); }
+function parseDate(x) { const t = Date.parse(x); return Number.isFinite(t) ? t : 0; }
+
+function escapeHtml(str) {
+  return String(str ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function formatMonthYear(isoDate) {
+  if (!isoDate) return "";
+  const d = new Date(isoDate);
+  if (!Number.isFinite(d.getTime())) return "";
+  return new Intl.DateTimeFormat(undefined, { year: "numeric", month: "short" }).format(d);
+}
+
+function stripUrl(url) {
+  return String(url || "").replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
+}
+
+function commaLine(arr) {
+  return Array.isArray(arr) ? arr.filter(Boolean).join(", ") : "";
+}
+
+function flattenText(card) {
+  const parts = [
+    card.title, card.blurb, card.details || "",
+    ...(card.tags || []),
+    ...(card.tools || []),
+    ...(card.categories || []),
+    card.kind || ""
+  ];
+  if (Array.isArray(card.modules)) {
+    for (const m of card.modules) {
+      parts.push(m.title, m.blurb, ...(m.tools || []), ...(m.bullets || []));
+    }
+  }
+  return normalize(parts.join(" "));
+}
+
+/* -------------------------
+   State
+-------------------------- */
 const state = {
-  activeCategory: "all",
+  activeCategories: new Set(["all"]), // default: show everything
   searchQuery: "",
   sortMode: "relevance",
-
   pdfConfig: {
-    domain: "ds",         // "nanotech" | "ds"
-    audience: "industry", // "academic" | "industry"
-    doctype: "resume",    // "resume" | "cv"
+    domain: "ds",
+    audience: "industry",
+    doctype: "resume",
   },
 };
 
-function normalize(text) {
-  return String(text || "").toLowerCase();
-}
+/* -------------------------
+   Sorting
+-------------------------- */
+function relevanceScore(card, query) {
+  const q = normalize(query).trim();
+  if (!q) return 0;
 
-function tokenize(query) {
-  return normalize(query)
-    .split(/\s+/)
-    .map((t) => t.trim())
-    .filter(Boolean);
-}
+  const hay = flattenText(card);
+  if (!hay.includes(q)) return 0;
 
-/**
- * Relevance rules:
- * - Score matches by where they occur (title > tags/tools > blurb > details)
- * - If no search query, relevance falls back to date_desc (stable).
- */
-function relevanceScore(project, query) {
-  const tokens = tokenize(query);
-  if (tokens.length === 0) return 0;
-
-  const title = normalize(project.title);
-  const blurb = normalize(project.blurb);
-  const details = normalize(project.details);
-  const tags = normalize((project.tags || []).join(" "));
-  const tools = normalize((project.tools || []).join(" "));
+  const title = normalize(card.title);
+  const tags = normalize((card.tags || []).join(" "));
+  const tools = normalize((card.tools || []).join(" "));
+  const blurb = normalize(card.blurb);
+  const details = normalize(card.details);
 
   let score = 0;
-  for (const tok of tokens) {
-    if (title.includes(tok)) score += 50;
-    if (tags.includes(tok)) score += 25;
-    if (tools.includes(tok)) score += 22;
-    if (blurb.includes(tok)) score += 12;
-    if (details.includes(tok)) score += 6;
-  }
-
-  const q = normalize(query).trim();
-  if (q && title.includes(q)) score += 40;
+  if (title.includes(q)) score += 80;
+  if (tags.includes(q)) score += 35;
+  if (tools.includes(q)) score += 30;
+  if (blurb.includes(q)) score += 18;
+  if (details.includes(q)) score += 10;
 
   return score;
 }
 
-function parseDate(value) {
-  const t = Date.parse(value);
-  return Number.isFinite(t) ? t : 0;
-}
-
-function compareProjects(a, b) {
+function compareCards(a, b) {
   switch (state.sortMode) {
     case "relevance": {
       const sa = relevanceScore(a, state.searchQuery);
@@ -106,596 +127,51 @@ function compareProjects(a, b) {
   }
 }
 
-function escapeHtml(str) {
-  return String(str ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
+/* -------------------------
+   Filters
+-------------------------- */
+function categoryMatches(card) {
+  const selected = state.activeCategories;
 
-function formatMonthYear(isoDate) {
-  if (!isoDate) return "";
-  const d = new Date(isoDate);
-  if (!Number.isFinite(d.getTime())) return "";
-  return new Intl.DateTimeFormat(undefined, { year: "numeric", month: "short" }).format(d);
-}
+  // "All" means no filtering
+  if (selected.has("all") || selected.size === 0) return true;
 
-const DOMAIN_LABELS = {
-  ds: "Data Science",
-  marketing: "Marketing / Business",
-  nanofab: "Nanofabrication",
-  cs: "Computer Science",
-};
+  // Support kind filters: research/lab/project
+  const kindSelected = ["research", "lab", "project"].filter((k) => selected.has(k));
+  if (kindSelected.length && !kindSelected.includes(card.kind)) return false;
 
-/** -------------------------
- * PDF logic: domains + academic/industry + resume/cv
- * -------------------------- */
-
-function getAllDomains() {
-  return ["ds", "marketing", "nanofab", "cs"];
-}
-
-function domainsFromSlider(domainMode) {
-  if (domainMode === "nanotech") return ["nanofab"];
-  return ["ds", "cs", "marketing"];
-}
-
-function inferTrack(item, section) {
-  if (item && typeof item.track === "string") return item.track;
-
-  if (section === "research" || section === "education" || section === "coursework") return "academic";
-
-  if (section === "experience") {
-    const t = normalize(item?.title);
-    if (t.includes("assistant") || t.includes("teaching") || t.includes("learning") || t.includes("marker") || t.includes("grader")) {
-      return "academic";
-    }
-    return "industry";
+  // Support tag/category filters (ds/cs/marketing/nanofab/etc.)
+  const tagSelected = [...selected].filter((k) => !["research", "lab", "project"].includes(k));
+  if (tagSelected.length) {
+    const cats = Array.isArray(card.categories) ? card.categories : [];
+    if (!tagSelected.some((t) => cats.includes(t))) return false;
   }
 
-  if (section === "projects") {
-    const cats = item?.categories || [];
-    if (cats.includes("nanofab")) return "academic";
-    return "industry";
-  }
-
-  return "industry";
-}
-
-function trackMatches(item, section, audience) {
-  if (!audience || audience === "all") return true;
-  const tr = inferTrack(item, section);
-  if (tr === "both") return true;
-  return tr === audience;
-}
-
-function domainMatches(item, domains) {
-  const tags = item?.domains || item?.categories;
-  if (!tags || tags.length === 0) return true;
-  return tags.some((tag) => domains.includes(tag));
-}
-
-function limitBullets(bullets, maxCount) {
-  const arr = Array.isArray(bullets) ? bullets : [];
-  if (!Number.isFinite(maxCount) || maxCount <= 0) return arr;
-  return arr.slice(0, maxCount);
-}
-
-/**
- * CV/Resume content shaping:
- * - CV wants bullets and scanable lines; avoid paragraphs.
- * - If no explicit bullets exist for projects, synthesize from the blurb.
- */
-function synthProjectBullets(p, max = 3) {
-  // If user later adds p.cvBullets or p.resumeBullets, prefer them automatically.
-  const explicit =
-    Array.isArray(p?.cvBullets) && p.cvBullets.length ? p.cvBullets :
-    Array.isArray(p?.resumeBullets) && p.resumeBullets.length ? p.resumeBullets :
-    null;
-
-  if (explicit) return limitBullets(explicit, max);
-
-  const blurb = String(p?.blurb || "").trim();
-  if (!blurb) return [];
-
-  // Split into clauses; keep it conservative.
-  const parts = blurb
-    .replace(/\s+/g, " ")
-    .split(/(?:\.\s+|;\s+|,\s+(?=[A-Z]))/g)
-    .map((s) => s.trim())
-    .filter(Boolean);
-
-  // Convert to action-ish bullets without inventing facts.
-  const bullets = parts.map((s) => {
-    // If already verb-led, keep. Otherwise, prefix with “Developed/Analyzed/Designed” would be fabrication.
-    // Safer: keep original wording but remove leading “I”.
-    return s.replace(/^I\s+/i, "").replace(/\.$/, "");
-  });
-
-  return bullets.slice(0, max);
-}
-
-function stripUrl(url) {
-  return String(url || "").replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
-}
-
-/** -------------------------
- * PDF templates
- * -------------------------- */
-
-function buildResumeHtml(config) {
-  const person = SITE.person;
-
-  const isCV = config?.doctype === "cv";
-  const domains = isCV ? getAllDomains() : domainsFromSlider(config?.domain);
-  const audience = isCV ? "all" : (config?.audience || "industry");
-
-  // ======= CV formatting controls (single place) =======
-  const CV_PROJECT_BULLETS_MAX = 2;   // <-- set 1 or 2 (you asked for “set number of bullets”)
-  const CV_SHOW_PROJECT_TOOLS = true; // tools appear as comma-line under each CV project
-  // ====================================================
-
-  // CV shows everything; Resume is selective.
-  const showCoursework = isCV ? false : (audience === "academic");
-  const showResearch = isCV ? true : (audience === "academic");
-  const showExperience = isCV ? true : (audience === "industry");
-  const showProjects = true;
-
-  const BULLETS_MAX_RESEARCH = isCV ? 999 : 3;
-  const BULLETS_MAX_EXP = isCV ? 999 : 3;
-  const BULLETS_MAX_EDU = isCV ? 999 : 3;
-  const BULLETS_MAX_COURSE = isCV ? 999 : 10;
-
-  const education = (SITE.education || []).filter((e) => domainMatches(e, domains));
-  const coursework = (SITE.coursework || []).filter((c) => domainMatches(c, domains));
-  const skills = (SITE.skills || []).filter((s) => domainMatches(s, domains));
-
-  const research = (SITE.research || [])
-    .filter((r) => domainMatches(r, domains))
-    .filter((r) => trackMatches(r, "research", audience));
-
-  const researchTitles = new Set(research.map((r) => r.title));
-
-  const projects = (SITE.projects || [])
-    .filter((p) => domainMatches(p, domains))
-    .filter((p) => trackMatches(p, "projects", audience))
-    .filter((p) => (isCV ? true : !researchTitles.has(p.title)))
-    .sort((a, b) => parseDate(b.date) - parseDate(a.date));
-
-  const experience = (SITE.experience || [])
-    .filter((x) => domainMatches(x, domains))
-    .filter((x) => trackMatches(x, "experience", audience));
-
-  const cfgTitleParts = [];
-  cfgTitleParts.push(isCV ? "CV" : "Resume");
-  if (!isCV) cfgTitleParts.push(audience === "academic" ? "Academic" : "Industry");
-  if (!isCV) cfgTitleParts.push(config?.domain === "nanotech" ? "Nanotech" : "Data Science");
-  const cfgTitle = cfgTitleParts.join(" — ");
-
-  const contactHtml = `
-    ${person.contact?.email ? `<div>${escapeHtml(person.contact.email)}</div>` : ""}
-    ${person.contact?.linkedin ? `<div><a href="${person.contact.linkedin}">${escapeHtml(stripUrl(person.contact.linkedin))}</a></div>` : ""}
-    ${person.contact?.github ? `<div><a href="${person.contact.github}">${escapeHtml(stripUrl(person.contact.github))}</a></div>` : ""}
-    ${person.contact?.portfolio ? `<div><a href="${person.contact.portfolio}">${escapeHtml(stripUrl(person.contact.portfolio))}</a></div>` : ""}
-  `;
-
-  // Shared helpers
-  const commaLine = (arr) => (Array.isArray(arr) ? arr.filter(Boolean).join(", ") : "");
-
-  // ===== Shared “blocks” =====
-  const eduHtml = education.map((e) => `
-    <div class="entry">
-      <div class="entry-head">
-        <div class="entry-title">${escapeHtml(e.title)}</div>
-        ${e.meta ? `<div class="entry-meta">${escapeHtml(e.meta)}</div>` : ""}
-      </div>
-      ${(e.bullets || []).length
-        ? `<ul class="bullets">${limitBullets(e.bullets, BULLETS_MAX_EDU).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
-        : ""}
-    </div>
-  `).join("");
-
-  // ===== Skills: pills for Resume, comma-lines for CV =====
-  const skillsHtml = isCV
-    ? skills.map((cat) => `
-        <div class="skillrow">
-          <span class="skillrow-title">${escapeHtml(cat.title)}:</span>
-          <span class="skillrow-items">${escapeHtml(commaLine(cat.items))}</span>
-        </div>
-      `).join("")
-    : skills.map((cat) => `
-        <div class="skillblock">
-          <div class="skillblock-title">${escapeHtml(cat.title)}</div>
-          <div class="pillwrap">
-            ${(cat.items || []).map((s) => `<span class="pill">${escapeHtml(s)}</span>`).join("")}
-          </div>
-        </div>
-      `).join("");
-
-  const courseHtml = coursework.map((c) => `
-    <div class="entry">
-      <div class="entry-title">${escapeHtml(c.title)}</div>
-      ${(c.bullets || []).length
-        ? `<ul class="bullets">${limitBullets(c.bullets, BULLETS_MAX_COURSE).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
-        : ""}
-    </div>
-  `).join("");
-
-  const researchHtml = research.map((r) => `
-    <div class="entry">
-      <div class="entry-head">
-        <div class="entry-title">${escapeHtml(r.title)}</div>
-        ${r.meta ? `<div class="entry-meta">${escapeHtml(r.meta)}</div>` : ""}
-      </div>
-      ${(r.bullets || []).length
-        ? `<ul class="bullets">${limitBullets(r.bullets, BULLETS_MAX_RESEARCH).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
-        : ""}
-    </div>
-  `).join("");
-
-  const experienceHtml = experience.map((exp) => `
-    <div class="entry">
-      <div class="entry-head">
-        <div class="entry-title">${escapeHtml(exp.title)}</div>
-        ${exp.meta ? `<div class="entry-meta">${escapeHtml(exp.meta)}</div>` : ""}
-      </div>
-      ${(exp.bullets || []).length
-        ? `<ul class="bullets">${limitBullets(exp.bullets, BULLETS_MAX_EXP).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
-        : ""}
-    </div>
-  `).join("");
-
-  // ===== Projects: CV uses cvBullets + comma tools; Resume uses blurb + pills =====
-  const projectsHtml = projects.map((p) => {
-    const cvBullets = Array.isArray(p.cvBullets) ? p.cvBullets.filter(Boolean) : [];
-    const showBullets = isCV && cvBullets.length > 0;
-
-    const toolsComma = commaLine(p.tools);
-    const toolsLine = (isCV && CV_SHOW_PROJECT_TOOLS && toolsComma)
-      ? `<div class="tools-commas"><span class="tools-label">Tools:</span> ${escapeHtml(toolsComma)}</div>`
-      : "";
-
-    return `
-      <div class="entry">
-        <div class="entry-head">
-          <div class="entry-title">${escapeHtml(p.title)}</div>
-          <div class="entry-meta">${escapeHtml(formatMonthYear(p.date))}</div>
-        </div>
-
-        ${showBullets
-          ? `<ul class="bullets">${cvBullets.slice(0, CV_PROJECT_BULLETS_MAX).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
-          : (p.blurb ? `<div class="desc">${escapeHtml(p.blurb)}</div>` : "")
-        }
-
-        ${isCV ? toolsLine : ""}
-      </div>
-    `;
-  }).join("");
-
-  const projectsHtmlResume = projects.map((p) => `
-    <div class="entry">
-      <div class="entry-head">
-        <div class="entry-title">${escapeHtml(p.title)}</div>
-        <div class="entry-meta">${escapeHtml(formatMonthYear(p.date))}</div>
-      </div>
-      ${p.blurb ? `<div class="desc">${escapeHtml(p.blurb)}</div>` : ""}
-      ${p.tools?.length ? `
-        <div class="toolsline">
-          ${(p.tools || []).slice(0, 7).map((t) => `<span class="pill pill-soft">${escapeHtml(t)}</span>`).join("")}
-        </div>` : ""}
-    </div>
-  `).join("");
-
-  // =========================
-  // TEMPLATE: CV (single column)
-  // =========================
-  if (isCV) {
-    return `
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8"/>
-<title>${escapeHtml(person.name)} — ${escapeHtml(cfgTitle)}</title>
-<style>
-  :root { --text:#111827; --muted:#6b7280; --accent:#2563eb; --line:#e5e7eb; }
-  * { box-sizing: border-box; }
-  html, body { margin:0; padding:0; }
-  @page { size: letter portrait; margin: 0.65in; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    color: var(--text);
-    font-size: 11.2px;
-    line-height: 1.35;
-  }
-
-  a { color: var(--text); text-decoration: underline; }
-  .page { width: 100%; max-width: 8.5in; margin: 0 auto; }
-
-  /* Header */
-  .hdr { display:flex; justify-content:space-between; gap:18px; align-items:flex-start; padding-bottom: 10px; border-bottom: 2px solid #111; margin-bottom: 14px; }
-  .hdr-left .name { font-size: 22px; font-weight: 900; letter-spacing: -0.3px; line-height: 1.1; }
-  .hdr-left .headline { margin-top: 4px; color: var(--muted); font-size: 12px; font-weight: 600; }
-  .hdr-right { text-align:right; color: var(--muted); font-size: 10.6px; line-height: 1.45; }
-
-  /* Sections */
-  .section { margin: 12px 0 14px 0; }
-  .stitle {
-    font-size: 10.8px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--accent);
-    border-bottom: 1px solid var(--line);
-    padding-bottom: 4px;
-    margin-bottom: 8px;
-  }
-
-  .entry { margin: 0 0 10px 0; break-inside: avoid; page-break-inside: avoid; }
-  .entry-head { display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
-  .entry-title { font-weight: 800; font-size: 12px; }
-  .entry-meta { color: var(--muted); font-style: italic; font-size: 10.5px; text-align:right; }
-  .desc { margin-top: 3px; color:#374151; }
-
-  .bullets { margin: 4px 0 0 16px; padding: 0; color:#374151; }
-  .bullets li { margin: 0 0 2px 0; }
-
-  /* CV Skills (comma lines) */
-  .skillrow { margin: 0 0 6px 0; }
-  .skillrow-title { font-weight: 900; color: #111; }
-  .skillrow-items { color: #374151; }
-
-  /* CV Project tools (comma line) */
-  .tools-commas { margin-top: 3px; color: var(--muted); font-size: 10.4px; }
-  .tools-label { font-weight: 800; color: #4b5563; }
-
-  .cv-footer {
-    margin-top: 16px;
-    padding-top: 10px;
-    border-top: 1px solid var(--line);
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 10px;
-    color: var(--muted);
-    font-size: 10px;
-  }
-  .qr {
-    width: 72px;
-    height: 72px;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    padding: 4px;
-    background: #fff;
-  }
-  .qr-label { text-align: right; line-height: 1.25; }
-
-  @media print {
-    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .page { max-width: none; }
-  }
-</style>
-</head>
-<body>
-  <div class="page">
-    <div class="hdr">
-      <div class="hdr-left">
-        <div class="name">${escapeHtml(person.name)}</div>
-        <div class="headline">${escapeHtml(person.headline)}</div>
-      </div>
-      <div class="hdr-right">
-        ${contactHtml}
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="stitle">Education</div>
-      ${eduHtml}
-    </div>
-
-    <div class="section">
-      <div class="stitle">Selected Highlights</div>
-      <ul class="bullets">
-        <li>Cleanroom microfabrication: photolithography, thin films, multilayer alignment, metrology (Dektak/ellipsometry)</li>
-        <li>DOE-driven lithography characterization (2³ factorial); analysis in JMP</li>
-        <li>Reproducible data pipelines (Python/pandas) for program evaluation and operational analytics</li>
-        <li>Teaching/mentorship: Learning Assistant (Applied DS) and mathematics grader (proof + LA)</li>
-      </ul>
-    </div>
-
-    ${researchHtml ? `
-    <div class="section">
-      <div class="stitle">Research</div>
-      ${researchHtml}
-    </div>` : ""}
-
-    ${projectsHtml ? `
-    <div class="section">
-      <div class="stitle">Projects</div>
-      ${projectsHtml}
-    </div>` : ""}
-
-    ${experienceHtml ? `
-    <div class="section">
-      <div class="stitle">Teaching & Leadership</div>
-      ${experienceHtml}
-    </div>` : ""}
-
-    <div class="section">
-      <div class="stitle">Skills</div>
-      ${skillsHtml}
-    </div>
-
-    ${showCoursework && courseHtml ? `
-    <div class="section">
-      <div class="stitle">Coursework</div>
-      ${courseHtml}
-    </div>` : ""}
-
-    <div class="cv-footer">
-      <div class="qr-label">
-        <div><strong>Portfolio</strong></div>
-        <div>${escapeHtml(stripUrl(person.contact?.portfolio || ""))}</div>
-      </div>
-      ${
-        person.contact?.portfolio
-          ? `<img class="qr" alt="Portfolio QR code" src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(person.contact.portfolio)}" />`
-          : ""
-      }
-    </div>
-  </div>
-</body>
-</html>
-    `;
-  }
-
-  // =========================
-  // TEMPLATE: Resume (two-column)
-  // =========================
-  return `
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8"/>
-<title>${escapeHtml(person.name)} — ${escapeHtml(cfgTitle)}</title>
-<style>
-  :root { --text:#111827; --muted:#6b7280; --accent:#2563eb; --line:#e5e7eb; }
-  * { box-sizing: border-box; }
-  html, body { margin:0; padding:0; }
-  @page { size: letter portrait; margin: 0.55in; }
-
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    color: var(--text);
-    font-size: 11.2px;
-    line-height: 1.35;
-  }
-
-  a { color: var(--accent); text-decoration: none; }
-  .page { width: 100%; max-width: 8.5in; margin: 0 auto; }
-
-  .header {
-    border-bottom: 2px solid #111;
-    padding-bottom: 10px;
-    margin-bottom: 12px;
-    display: flex;
-    justify-content: space-between;
-    gap: 18px;
-    align-items: flex-start;
-  }
-  .name { font-size: 22px; font-weight: 900; line-height: 1.1; letter-spacing: -0.3px; }
-  .headline { font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 600; }
-  .contact { text-align: right; font-size: 10.6px; line-height: 1.45; color: var(--muted); }
-
-  .grid { display: grid; grid-template-columns: 2.35in 1fr; gap: 0.35in; align-items: start; }
-  .section { margin: 0 0 12px 0; break-inside: avoid; page-break-inside: avoid; }
-  .stitle {
-    font-size: 10.8px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--accent);
-    border-bottom: 1px solid var(--line);
-    padding-bottom: 4px;
-    margin-bottom: 8px;
-  }
-
-  .entry { margin: 0 0 10px 0; break-inside: avoid; page-break-inside: avoid; }
-  .entry-head { display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
-  .entry-title { font-weight: 800; font-size: 12px; }
-  .entry-meta { color: var(--muted); font-style: italic; font-size: 10.5px; text-align:right; }
-  .desc { margin-top: 3px; color:#374151; }
-
-  .bullets { margin: 4px 0 0 16px; padding: 0; color:#374151; }
-  .bullets li { margin: 0 0 2px 0; }
-
-  .pillwrap { display:flex; flex-wrap:wrap; gap:4px; }
-  .pill {
-    background:#f3f4f6;
-    border: 1px solid var(--line);
-    border-radius: 4px;
-    padding: 1px 6px;
-    font-size: 9.4px;
-    color:#374151;
-    font-weight: 600;
-  }
-  .pill-soft { background: transparent; }
-  .skillblock { margin-bottom: 10px; }
-  .skillblock-title { font-weight: 900; font-size: 11px; margin-bottom: 4px; color:#111; }
-  .toolsline { margin-top: 5px; }
-
-  @media print {
-    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .page { max-width: none; }
-    .grid { width: 100%; }
-  }
-</style>
-</head>
-<body>
-  <div class="page">
-    <div class="header">
-      <div>
-        <div class="name">${escapeHtml(person.name)}</div>
-        <div class="headline">${escapeHtml(person.headline)}</div>
-      </div>
-      <div class="contact">${contactHtml}</div>
-    </div>
-
-    <div class="grid">
-      <div class="left">
-        <div class="section">
-          <div class="stitle">Education</div>
-          ${eduHtml}
-        </div>
-
-        <div class="section">
-          <div class="stitle">Skills</div>
-          ${skillsHtml}
-        </div>
-
-        ${showCoursework && courseHtml ? `
-        <div class="section">
-          <div class="stitle">Coursework</div>
-          ${courseHtml}
-        </div>` : ""}
-      </div>
-
-      <div class="right">
-        <div class="section">
-          <div class="stitle">Summary</div>
-          <div class="desc">${escapeHtml(person.summary)}</div>
-        </div>
-
-        ${showResearch && researchHtml ? `
-        <div class="section">
-          <div class="stitle">Research</div>
-          ${researchHtml}
-        </div>` : ""}
-
-        ${showProjects && projectsHtmlResume ? `
-        <div class="section">
-          <div class="stitle">Projects</div>
-          ${projectsHtmlResume}
-        </div>` : ""}
-
-        ${showExperience && experienceHtml ? `
-        <div class="section">
-          <div class="stitle">Work Experience</div>
-          ${experienceHtml}
-        </div>` : ""}
-      </div>
-    </div>
-  </div>
-</body>
-</html>
-  `;
+  return true;
 }
 
 
-/** -------------------------
- * Modal + Carousel (with cleanup)
- * -------------------------- */
+function searchMatches(card) {
+  const q = normalize(state.searchQuery).trim();
+  if (!q) return true;
+  return flattenText(card).includes(q);
+}
+
+function getGridCards() {
+  // Do not repeat featured items in the main grid
+  return getVisibleCards().filter((c) => !c.featured);
+}
+
+function getVisibleCards() {
+  return (SITE.cards || [])
+    .filter(categoryMatches)
+    .filter(searchMatches)
+    .sort(compareCards);
+}
+
+/* -------------------------
+   Modal + Carousel
+-------------------------- */
 const modal = {
   backdrop: qs("#modalBackdrop"),
   title: qs("#modalTitle"),
@@ -718,7 +194,6 @@ const modal = {
 
     this.backdrop.style.display = "flex";
     this.backdrop.setAttribute("aria-hidden", "false");
-
     this.closeBtn.focus();
   },
 
@@ -734,10 +209,10 @@ const modal = {
   },
 };
 
-function mountCarousel(container, project) {
-  const imgList = Array.isArray(project.images) && project.images.length
-    ? project.images
-    : (project.image ? [project.image] : []);
+function mountCarousel(container, obj) {
+  const imgList = Array.isArray(obj.images) && obj.images.length
+    ? obj.images
+    : (obj.image ? [obj.image] : []);
 
   if (!imgList.length) return () => {};
 
@@ -747,13 +222,9 @@ function mountCarousel(container, project) {
     "div",
     { class: "carousel-track" },
     imgList.map((src, i) => {
-      const alt = project.imageAlt
-        ? `${project.imageAlt} (${i + 1}/${imgList.length})`
-        : `${project.title} (${i + 1}/${imgList.length})`;
-
-      return el("div", { class: "carousel-slide" }, [
-        el("img", { src, alt, loading: "lazy" }),
-      ]);
+      const altBase = obj.imageAlt || obj.title || "Image";
+      const alt = `${altBase} (${i + 1}/${imgList.length})`;
+      return el("div", { class: "carousel-slide" }, [el("img", { src, alt, loading: "lazy" })]);
     })
   );
 
@@ -767,10 +238,7 @@ function mountCarousel(container, project) {
         class: `carousel-dot ${i === 0 ? "active" : ""}`,
         type: "button",
         "aria-label": `Go to image ${i + 1}`,
-        onclick: () => {
-          slideIndex = i;
-          update();
-        },
+        onclick: () => { slideIndex = i; update(); },
       })
     )
   );
@@ -781,10 +249,7 @@ function mountCarousel(container, project) {
       class: "carousel-btn prev",
       type: "button",
       "aria-label": "Previous image",
-      onclick: () => {
-        slideIndex = (slideIndex - 1 + imgList.length) % imgList.length;
-        update();
-      },
+      onclick: () => { slideIndex = (slideIndex - 1 + imgList.length) % imgList.length; update(); },
     },
     ["‹"]
   );
@@ -795,10 +260,7 @@ function mountCarousel(container, project) {
       class: "carousel-btn next",
       type: "button",
       "aria-label": "Next image",
-      onclick: () => {
-        slideIndex = (slideIndex + 1) % imgList.length;
-        update();
-      },
+      onclick: () => { slideIndex = (slideIndex + 1) % imgList.length; update(); },
     },
     ["›"]
   );
@@ -822,17 +284,92 @@ function mountCarousel(container, project) {
     if (e.key === "ArrowLeft") prevBtn.click();
     if (e.key === "ArrowRight") nextBtn.click();
   };
-
   document.addEventListener("keydown", onKeyDown);
 
-  return () => {
-    document.removeEventListener("keydown", onKeyDown);
-  };
+  return () => document.removeEventListener("keydown", onKeyDown);
 }
 
-/** -------------------------
- * Renderers
- * -------------------------- */
+function openCardModal(card, triggerEl) {
+  modal.lastFocus = triggerEl instanceof HTMLElement ? triggerEl : document.activeElement;
+
+  modal.open({
+    title: card.title,
+    buildBody: (body) => {
+      const cleanupCarousel = mountCarousel(body, card);
+
+      if (card.blurb) body.appendChild(el("p", { class: "muted", text: card.blurb }));
+
+      if (card.tools?.length) {
+        body.appendChild(el("p", { class: "modal-section-title", text: "Tools / Methods" }));
+        body.appendChild(el("div", { class: "skill-list" }, card.tools.map((t) => el("span", { class: "skill-pill", text: t }))));
+      }
+
+      if (card.details) {
+        body.appendChild(el("p", { class: "modal-section-title", text: "Details" }));
+        body.appendChild(el("p", { class: "muted", text: card.details }));
+      }
+
+      // Modules: render as scroll-snap cards (interactive without JS)
+      if (Array.isArray(card.modules) && card.modules.length) {
+        body.appendChild(el("p", { class: "modal-section-title", text: "Modules" }));
+
+        const strip = el("div", { class: "module-strip" });
+        for (const m of card.modules) {
+          const moduleCard = el("div", { class: "module-card" });
+
+          moduleCard.appendChild(el("p", { class: "module-title", text: m.title }));
+          moduleCard.appendChild(el("p", { class: "module-meta muted", text: formatMonthYear(m.date) }));
+
+          const cleanup = mountCarousel(moduleCard, { ...m, title: m.title });
+          // cleanup is not strictly necessary because modules are within modal and close triggers global cleanup,
+          // but we keep it to avoid dangling listeners.
+          // eslint-disable-next-line no-unused-vars
+          void cleanup;
+
+          if (m.blurb) moduleCard.appendChild(el("p", { class: "muted", text: m.blurb }));
+
+          if (Array.isArray(m.bullets) && m.bullets.length) {
+            moduleCard.appendChild(
+              el("ul", { class: "clean" }, m.bullets.map((b) => el("li", {}, [b])))
+            );
+          }
+
+          if (m.tools?.length) {
+            moduleCard.appendChild(
+              el("p", { class: "module-tools" }, [
+                el("strong", { text: "Tools: " }),
+                document.createTextNode(m.tools.join(", "))
+              ])
+            );
+          }
+
+          strip.appendChild(moduleCard);
+        }
+
+        body.appendChild(strip);
+      }
+
+      if (card.links?.length) {
+        body.appendChild(el("p", { class: "modal-section-title", text: "Links" }));
+        body.appendChild(
+          el(
+            "div",
+            { class: "project-actions" },
+            card.links.map((l) =>
+              el("a", { class: "project-link", href: l.url, target: "_blank", rel: "noreferrer", text: `${l.label} →` })
+            )
+          )
+        );
+      }
+
+      return () => cleanupCarousel();
+    },
+  });
+}
+
+/* -------------------------
+   Renderers
+-------------------------- */
 function renderHeader() {
   qs("#name").textContent = SITE.person.name;
   qs("#headline").textContent = SITE.person.headline;
@@ -865,17 +402,24 @@ function renderHeader() {
 }
 
 function renderSkills() {
-  const grid = qs("#skillsGrid");
-  grid.innerHTML = "";
+  const wrap = qs("#skillsGrid");
+  wrap.innerHTML = "";
 
-  SITE.skills.forEach((cat) => {
-    const pills = el("div", { class: "skill-list" }, cat.items.map((s) => el("span", { class: "skill-pill", text: s })));
-    grid.appendChild(
-      el("div", { class: "skill-category" }, [
-        el("h3", { text: cat.title }),
-        pills,
+  (SITE.skills || []).forEach((cat, idx) => {
+    const det = el("details", { class: "skill-acc" });
+
+    det.appendChild(
+      el("summary", {}, [
+        el("span", { text: cat.title }),
+        el("span", { class: "chev", text: "▾" }),
       ])
     );
+
+    det.appendChild(
+      el("div", { class: "skill-list" }, (cat.items || []).map((s) => el("span", { class: "skill-pill", text: s })))
+    );
+
+    wrap.appendChild(det);
   });
 }
 
@@ -898,116 +442,129 @@ function renderTimeline(targetId, items) {
   });
 }
 
-/** -------------------------
- * Project filters
- * -------------------------- */
+function renderFeatured() {
+  const wrap = qs("#featuredWrap");
+  if (!wrap) return;
+
+  const featured = (SITE.cards || []).filter((c) => c.featured);
+  wrap.innerHTML = "";
+
+  if (!featured.length) {
+    wrap.classList.remove("show");
+    return;
+  }
+
+  wrap.classList.add("show");
+
+  featured
+    .sort((a, b) => parseDate(b.date) - parseDate(a.date))
+    .forEach((c) => {
+      const thumb = c.image ? el("img", { class: "project-thumb", src: c.image, alt: c.imageAlt || c.title, loading: "lazy" }) : null;
+
+      const card = el("div", { class: "project-card" }, [
+        ...(thumb ? [thumb] : []),
+        el("div", { class: "card-tags" }, [
+          el("span", { class: "tag", text: "Featured" }),
+          ...(c.tags || []).slice(0, 2).map((t) => el("span", { class: "tag", text: t })),
+        ]),
+        el("h3", { class: "project-title", text: c.title }),
+        ...(c.date ? [el("p", { class: "project-date", text: new Date(c.date).toLocaleDateString() })] : []),
+        el("p", { class: "project-desc", text: c.blurb || "" }),
+        el("div", { class: "project-actions" }, [
+          el("button", { class: "btn-secondary", type: "button", text: "View Details", onclick: (e) => openCardModal(c, e.currentTarget) }),
+        ]),
+      ]);
+
+      wrap.appendChild(card);
+    });
+}
+
+function toggleCategory(key) {
+  const s = state.activeCategories;
+
+  if (key === "all") {
+    s.clear();
+    s.add("all");
+    return;
+  }
+
+  // If selecting anything else, drop "all"
+  if (s.has("all")) s.delete("all");
+
+  // Toggle
+  if (s.has(key)) s.delete(key);
+  else s.add(key);
+
+  // If nothing selected, fall back to All
+  if (s.size === 0) s.add("all");
+}
+
 function renderFilters() {
   const wrap = qs("#filterContainer");
   wrap.innerHTML = "";
 
   Object.entries(CATEGORY_LABELS).forEach(([key, label]) => {
+    const active = state.activeCategories.has(key);
+
     wrap.appendChild(
       el("button", {
-        class: `filter-btn ${key === state.activeCategory ? "active" : ""}`,
+        class: `filter-btn ${active ? "active" : ""}`,
         type: "button",
         text: label,
-        onclick: () => {
-          state.activeCategory = key;
+        onclick: (e) => {
+          e.preventDefault();
+          e.stopPropagation(); // keep Refine menu open for multi-select
+
+          toggleCategory(key);
           state.sortMode = "relevance";
           const sortSelect = qs("#projectSort");
           if (sortSelect) sortSelect.value = "relevance";
+
           renderFilters();
           renderProjects();
+          renderRefineHint();
         },
       })
     );
   });
 }
 
-function projectMatches(project) {
-  const inCategory = state.activeCategory === "all" || project.categories.includes(state.activeCategory);
-  const q = state.searchQuery.trim().toLowerCase();
-  if (!q) return inCategory;
 
-  const haystack = [
-    project.title,
-    project.blurb,
-    project.details || "",
-    ...(project.tags || []),
-    ...(project.tools || []),
-    ...(project.categories || []),
-  ].join(" ").toLowerCase();
-
-  return inCategory && haystack.includes(q);
-}
-
-function openProjectModal(project, triggerEl) {
-  modal.lastFocus = triggerEl instanceof HTMLElement ? triggerEl : document.activeElement;
-
-  modal.open({
-    title: project.title,
-    buildBody: (body) => {
-      const cleanupCarousel = mountCarousel(body, project);
-
-      body.appendChild(el("p", { class: "muted", text: project.blurb }));
-
-      if (project.tools?.length) {
-        body.appendChild(el("p", { class: "modal-section-title", text: "Tools / Methods" }));
-        body.appendChild(el("div", { class: "skill-list" }, project.tools.map((t) => el("span", { class: "skill-pill", text: t }))));
-      }
-
-      if (project.details) {
-        body.appendChild(el("p", { class: "modal-section-title", text: "Details" }));
-        body.appendChild(el("p", { class: "muted", text: project.details }));
-      }
-
-      if (project.links?.length) {
-        body.appendChild(el("p", { class: "modal-section-title", text: "Links" }));
-        body.appendChild(
-          el(
-            "div",
-            { class: "project-actions" },
-            project.links.map((l) =>
-              el("a", { class: "project-link", href: l.url, target: "_blank", rel: "noreferrer", text: `${l.label} →` })
-            )
-          )
-        );
-      }
-
-      return () => cleanupCarousel();
-    },
-  });
+function renderRefineHint() {
+  const hint = qs("#refineHint");
+  if (!hint) return;
+  const count = getGridCards().length;
+  hint.textContent = `${count} item${count === 1 ? "" : "s"} shown.`;
 }
 
 function renderProjects() {
   const grid = qs("#projectsGrid");
   grid.innerHTML = "";
 
-  const visible = SITE.projects.filter(projectMatches).sort(compareProjects);
+  const visible = getGridCards();
 
-  visible.forEach((p) => {
-    const thumb = p.image
-      ? el("img", {
-          class: "project-thumb",
-          src: p.image,
-          alt: p.imageAlt || p.title,
-          loading: "lazy",
-        })
+  visible.forEach((c) => {
+    const thumb = c.image
+      ? el("img", { class: "project-thumb", src: c.image, alt: c.imageAlt || c.title, loading: "lazy" })
       : null;
 
-    const tagLine = el("div", { class: "card-tags" }, (p.tags || []).map((t) => el("span", { class: "tag", text: t })));
-    const dateLine = p.date ? el("p", { class: "project-date", text: new Date(p.date).toLocaleDateString() }) : null;
+    const tagLine = el("div", { class: "card-tags" }, [
+      ...(c.kind ? [el("span", { class: "tag", text: c.kind })] : []),
+      ...(c.tags || []).map((t) => el("span", { class: "tag", text: t })),
+    ]);
+
+    const dateLine = c.date ? el("p", { class: "project-date", text: new Date(c.date).toLocaleDateString() }) : null;
 
     const viewBtn = el("button", {
       class: "btn-secondary",
       type: "button",
       text: "View Details",
-      onclick: (e) => openProjectModal(p, e.currentTarget),
+      onclick: (e) => openCardModal(c, e.currentTarget),
     });
 
     const actions = el("div", { class: "project-actions" }, [
       viewBtn,
-      ...(p.links || []).slice(0, 2).map((l) =>
+      ...(c.links || []).slice(0, 2).map((l) =>
         el("a", { class: "project-link", href: l.url, target: "_blank", rel: "noreferrer", text: `${l.label} →` })
       ),
     ]);
@@ -1015,10 +572,24 @@ function renderProjects() {
     const card = el("div", { class: "project-card" }, [
       ...(thumb ? [thumb] : []),
       tagLine,
-      el("h3", { class: "project-title", text: p.title }),
+      el("h3", { class: "project-title", text: c.title }),
       ...(dateLine ? [dateLine] : []),
-      el("p", { class: "project-desc", text: p.blurb }),
+      el("p", { class: "project-desc", text: c.blurb || "" }),
+
+      // Show module previews directly on the card (stronger nanofab visibility)
+      ...(Array.isArray(c.modules) && c.modules.length
+        ? [
+            el("p", { class: "card-subtle", text: `Modules: ${c.modules.length}` }),
+            el(
+              "div",
+              { class: "mini-pills" },
+              c.modules.slice(0, 4).map((m) => el("span", { class: "mini-pill", text: m.title }))
+            ),
+          ]
+        : []),
+
       actions,
+
     ]);
 
     grid.appendChild(card);
@@ -1027,16 +598,475 @@ function renderProjects() {
   if (visible.length === 0) {
     grid.appendChild(
       el("div", { class: "project-card" }, [
-        el("h3", { class: "project-title", text: "No projects match your filters." }),
-        el("p", { class: "project-desc", text: "Try a different category or remove the search term." }),
+        el("h3", { class: "project-title", text: "No items match your filters." }),
+        el("p", { class: "project-desc", text: "Try another category or remove the search term." }),
       ])
     );
   }
 }
 
-/** -------------------------
- * PDF Controls
- * -------------------------- */
+/* -------------------------
+   Refine dropdown wiring
+-------------------------- */
+function wireRefineDropdown() {
+  const btn = qs("#refineBtn");
+  const menu = qs("#refineMenu");
+  const wrap = qs("#refineDropdown");
+  if (!btn || !menu || !wrap) return;
+
+  function open() { menu.classList.remove("hidden"); btn.setAttribute("aria-expanded", "true"); }
+  function close() { menu.classList.add("hidden"); btn.setAttribute("aria-expanded", "false"); }
+
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    const isOpen = !menu.classList.contains("hidden");
+    if (isOpen) close();
+    else open();
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!wrap.contains(e.target)) close();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") close();
+  });
+}
+
+/* -------------------------
+   PDF generation
+-------------------------- */
+function getAllDomains() { return ["ds", "marketing", "nanofab", "cs"]; }
+function domainsFromSlider(domainMode) { return domainMode === "nanotech" ? ["nanofab"] : ["ds", "cs", "marketing"]; }
+
+function domainMatches(item, domains) {
+  const tags = item?.domains || item?.categories;
+  if (!tags || tags.length === 0) return true;
+  return tags.some((tag) => domains.includes(tag));
+}
+
+function inferTrack(item, section) {
+  if (item && typeof item.track === "string") return item.track;
+  if (section === "education" || section === "coursework" || section === "research" || section === "labs") return "academic";
+
+  if (section === "experience") {
+    const t = normalize(item?.title);
+    if (t.includes("assistant") || t.includes("teaching") || t.includes("learning") || t.includes("marker") || t.includes("grader")) return "academic";
+    return "industry";
+  }
+
+  // projects are mixed; default industry unless nanofab
+  if (section === "projects") {
+    const cats = item?.categories || [];
+    if (cats.includes("nanofab")) return "academic";
+    return "industry";
+  }
+
+  return "industry";
+}
+
+function trackMatches(item, section, audience) {
+  if (!audience || audience === "all") return true;
+  const tr = inferTrack(item, section);
+  if (tr === "both") return true;
+  return tr === audience;
+}
+
+function limitBullets(arr, max) {
+  const a = Array.isArray(arr) ? arr : [];
+  if (!Number.isFinite(max) || max <= 0) return a;
+  return a.slice(0, max);
+}
+
+function labToCvBullets(lab) {
+  // Prefer explicit cvBullets; otherwise synthesize from module bullets, but do not invent details.
+  if (Array.isArray(lab.cvBullets) && lab.cvBullets.length) return lab.cvBullets;
+
+  const out = [];
+  if (Array.isArray(lab.modules)) {
+    for (const m of lab.modules) {
+      if (Array.isArray(m.bullets) && m.bullets.length) {
+        out.push(...m.bullets.map((b) => `${m.title}: ${b}`));
+      } else if (m.blurb) {
+        out.push(`${m.title}: ${m.blurb}`);
+      }
+    }
+  }
+  return out;
+}
+
+function buildResumeHtml(config) {
+  const person = SITE.person;
+
+  const isCV = config?.doctype === "cv";
+  const domains = isCV ? getAllDomains() : domainsFromSlider(config?.domain);
+  const audience = isCV ? "all" : (config?.audience || "industry");
+
+  const showCoursework = isCV ? false : (audience === "academic");
+  const showResearch = isCV ? true : (audience === "academic");
+  const showLabs = isCV ? true : (audience === "academic" || config?.domain === "nanotech");
+  const showExperience = isCV ? true : (audience === "industry");
+  const showProjects = true;
+
+  const BUL_RESEARCH = isCV ? 999 : 3;
+  const BUL_LABS = isCV ? 999 : 4;
+  const BUL_EXP = isCV ? 999 : 3;
+  const BUL_EDU = isCV ? 999 : 3;
+  const BUL_COURSE = isCV ? 999 : 10;
+  const CV_PROJECT_BUL = 2;
+
+  const highlights = Array.isArray(SITE.highlights) ? SITE.highlights.filter(Boolean) : [];
+  const highlightsHtml = highlights.length
+    ? `<ul class="bullets">${highlights.map((h) => `<li>${escapeHtml(h)}</li>`).join("")}</ul>`
+    : "";
+
+
+  const education = (SITE.education || []).filter((e) => domainMatches(e, domains));
+  const coursework = (SITE.coursework || []).filter((c) => domainMatches(c, domains));
+  const skills = (SITE.skills || []).filter((s) => domainMatches(s, domains));
+  const experience = (SITE.experience || []).filter((x) => domainMatches(x, domains)).filter((x) => trackMatches(x, "experience", audience));
+
+  const researchCards = (SITE.cards || [])
+    .filter((c) => c.kind === "research")
+    .filter((c) => domainMatches(c, domains))
+    .filter((c) => trackMatches(c, "research", audience))
+    .sort((a, b) => parseDate(b.date) - parseDate(a.date));
+
+  const labCards = (SITE.cards || [])
+    .filter((c) => c.kind === "lab")
+    .filter((c) => domainMatches(c, domains))
+    .filter((c) => trackMatches(c, "labs", audience))
+    .sort((a, b) => parseDate(b.date) - parseDate(a.date));
+
+  const projectCards = (SITE.cards || [])
+    .filter((c) => c.kind === "project")
+    .filter((c) => domainMatches(c, domains))
+    .filter((c) => trackMatches(c, "projects", audience))
+    .sort((a, b) => parseDate(b.date) - parseDate(a.date));
+
+  const cfgTitleParts = [];
+  cfgTitleParts.push(isCV ? "CV" : "Resume");
+  if (!isCV) cfgTitleParts.push(audience === "academic" ? "Academic" : "Industry");
+  if (!isCV) cfgTitleParts.push(config?.domain === "nanotech" ? "Nanotech" : "Data Science");
+  const cfgTitle = cfgTitleParts.join(" - ");
+
+  const contactHtml = `
+    ${person.contact?.email ? `<div>${escapeHtml(person.contact.email)}</div>` : ""}
+    ${person.contact?.linkedin ? `<div><a href="${person.contact.linkedin}">${escapeHtml(stripUrl(person.contact.linkedin))}</a></div>` : ""}
+    ${person.contact?.github ? `<div><a href="${person.contact.github}">${escapeHtml(stripUrl(person.contact.github))}</a></div>` : ""}
+    ${person.contact?.portfolio ? `<div><a href="${person.contact.portfolio}">${escapeHtml(stripUrl(person.contact.portfolio))}</a></div>` : ""}
+  `;
+
+  const eduHtml = education.map((e) => `
+    <div class="entry">
+      <div class="entry-head">
+        <div class="entry-title">${escapeHtml(e.title)}</div>
+        ${e.meta ? `<div class="entry-meta">${escapeHtml(e.meta)}</div>` : ""}
+      </div>
+      ${(e.bullets || []).length
+        ? `<ul class="bullets">${limitBullets(e.bullets, BUL_EDU).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
+        : ""}
+    </div>
+  `).join("");
+
+  const skillsHtml = isCV
+    ? skills.map((cat) => `
+        <div class="skillrow">
+          <span class="skillrow-title">${escapeHtml(cat.title)}:</span>
+          <span class="skillrow-items">${escapeHtml(commaLine(cat.items))}</span>
+        </div>
+      `).join("")
+    : skills.map((cat) => `
+        <div class="skillblock">
+          <div class="skillblock-title">${escapeHtml(cat.title)}</div>
+          <div class="pillwrap">
+            ${(cat.items || []).map((s) => `<span class="pill">${escapeHtml(s)}</span>`).join("")}
+          </div>
+        </div>
+      `).join("");
+
+  const courseHtml = coursework.map((c) => `
+    <div class="entry">
+      <div class="entry-title">${escapeHtml(c.title)}</div>
+      ${(c.bullets || []).length
+        ? `<ul class="bullets">${limitBullets(c.bullets, BUL_COURSE).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
+        : ""}
+    </div>
+  `).join("");
+
+  const researchHtml = researchCards.map((r) => `
+    <div class="entry">
+      <div class="entry-head">
+        <div class="entry-title">${escapeHtml(r.title)}</div>
+        <div class="entry-meta">${escapeHtml(formatMonthYear(r.date))}</div>
+      </div>
+      ${(r.cvBullets || r.bullets || []).length
+        ? `<ul class="bullets">${limitBullets(r.cvBullets || r.bullets, BUL_RESEARCH).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
+        : (r.blurb ? `<div class="desc">${escapeHtml(r.blurb)}</div>` : "")}
+    </div>
+  `).join("");
+
+  const labsHtml = labCards.map((l) => {
+    const bullets = labToCvBullets(l);
+    const tools = commaLine(l.tools);
+
+    return `
+    <div class="entry">
+      <div class="entry-head">
+        <div class="entry-title">${escapeHtml(l.title)}</div>
+        <div class="entry-meta">${escapeHtml(formatMonthYear(l.date))}</div>
+      </div>
+      ${bullets.length
+        ? `<ul class="bullets">${limitBullets(bullets, BUL_LABS).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
+        : (l.blurb ? `<div class="desc">${escapeHtml(l.blurb)}</div>` : "")
+      }
+      ${tools ? `<div class="tools-commas"><span class="tools-label">Tools:</span> ${escapeHtml(tools)}</div>` : ""}
+    </div>
+    `;
+  }).join("");
+
+  const experienceHtml = experience.map((exp) => `
+    <div class="entry">
+      <div class="entry-head">
+        <div class="entry-title">${escapeHtml(exp.title)}</div>
+        ${exp.meta ? `<div class="entry-meta">${escapeHtml(exp.meta)}</div>` : ""}
+      </div>
+      ${(exp.bullets || []).length
+        ? `<ul class="bullets">${limitBullets(exp.bullets, BUL_EXP).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
+        : ""}
+    </div>
+  `).join("");
+
+  const projectsHtmlCv = projectCards.map((p) => {
+    const bullets = Array.isArray(p.cvBullets) ? p.cvBullets : [];
+    const tools = commaLine(p.tools);
+
+    return `
+      <div class="entry">
+        <div class="entry-head">
+          <div class="entry-title">${escapeHtml(p.title)}</div>
+          <div class="entry-meta">${escapeHtml(formatMonthYear(p.date))}</div>
+        </div>
+
+        ${bullets.length
+          ? `<ul class="bullets">${bullets.slice(0, CV_PROJECT_BUL).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
+          : (p.blurb ? `<div class="desc">${escapeHtml(p.blurb)}</div>` : "")
+        }
+
+        ${tools ? `<div class="tools-commas"><span class="tools-label">Tools:</span> ${escapeHtml(tools)}</div>` : ""}
+      </div>
+    `;
+  }).join("");
+
+  const projectsHtmlResume = projectCards.map((p) => `
+    <div class="entry">
+      <div class="entry-head">
+        <div class="entry-title">${escapeHtml(p.title)}</div>
+        <div class="entry-meta">${escapeHtml(formatMonthYear(p.date))}</div>
+      </div>
+      ${p.blurb ? `<div class="desc">${escapeHtml(p.blurb)}</div>` : ""}
+      ${p.tools?.length ? `
+        <div class="toolsline">
+          ${(p.tools || []).slice(0, 7).map((t) => `<span class="pill pill-soft">${escapeHtml(t)}</span>`).join("")}
+        </div>` : ""}
+    </div>
+  `).join("");
+
+  if (isCV) {
+    return `
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>${escapeHtml(person.name)} - ${escapeHtml(cfgTitle)}</title>
+<style>
+  :root { --text:#111827; --muted:#6b7280; --accent:#2563eb; --line:#e5e7eb; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; }
+  @page { size: letter portrait; margin: 0.65in; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    color: var(--text);
+    font-size: 11.2px;
+    line-height: 1.35;
+  }
+  a { color: var(--text); text-decoration: underline; }
+  .page { width: 100%; max-width: 8.5in; margin: 0 auto; }
+  .hdr { display:flex; justify-content:space-between; gap:18px; align-items:flex-start; padding-bottom: 10px; border-bottom: 2px solid #111; margin-bottom: 14px; }
+  .hdr-left .name { font-size: 22px; font-weight: 900; letter-spacing: -0.3px; line-height: 1.1; }
+  .hdr-left .headline { margin-top: 4px; color: var(--muted); font-size: 12px; font-weight: 600; }
+  .hdr-right { text-align:right; color: var(--muted); font-size: 10.6px; line-height: 1.45; }
+  .section { margin: 12px 0 14px 0; }
+  .stitle {
+    font-size: 10.8px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+  }
+  .entry { margin: 0 0 10px 0; break-inside: avoid; page-break-inside: avoid; }
+  .entry-head { display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
+  .entry-title { font-weight: 800; font-size: 12px; }
+  .entry-meta { color: var(--muted); font-style: italic; font-size: 10.5px; text-align:right; }
+  .desc { margin-top: 3px; color:#374151; }
+  .bullets { margin: 4px 0 0 16px; padding: 0; color:#374151; }
+  .bullets li { margin: 0 0 2px 0; }
+  .skillrow { margin: 0 0 6px 0; }
+  .skillrow-title { font-weight: 900; color: #111; }
+  .skillrow-items { color: #374151; }
+  .tools-commas { margin-top: 3px; color: var(--muted); font-size: 10.4px; }
+  .tools-label { font-weight: 800; color: #4b5563; }
+  .cv-footer { margin-top: 16px; padding-top: 10px; border-top: 1px solid var(--line); display:flex; justify-content:flex-end; gap:10px; color: var(--muted); font-size: 10px; }
+  .qr { width: 72px; height: 72px; border: 1px solid var(--line); border-radius: 6px; padding: 4px; background: #fff; }
+  .qr-label { text-align: right; line-height: 1.25; }
+  @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } .page { max-width: none; } }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="hdr">
+      <div class="hdr-left">
+        <div class="name">${escapeHtml(person.name)}</div>
+        <div class="headline">${escapeHtml(person.headline)}</div>
+      </div>
+      <div class="hdr-right">${contactHtml}</div>
+    </div>
+    ${highlightsHtml ? `<div class="section"><div class="stitle">Selected Highlights</div>${highlightsHtml}</div>` : ""}
+
+    <div class="section">
+      <div class="stitle">Education</div>
+      ${eduHtml}
+    </div>
+
+    ${researchHtml ? `<div class="section"><div class="stitle">Research</div>${researchHtml}</div>` : ""}
+
+    ${labsHtml ? `<div class="section"><div class="stitle">Technical Experience</div>${labsHtml}</div>` : ""}
+
+    ${projectsHtmlCv ? `<div class="section"><div class="stitle">Projects</div>${projectsHtmlCv}</div>` : ""}
+
+    ${experienceHtml ? `<div class="section"><div class="stitle">Teaching and Leadership</div>${experienceHtml}</div>` : ""}
+
+    <div class="section">
+      <div class="stitle">Skills</div>
+      ${skillsHtml}
+    </div>
+
+    ${showCoursework && courseHtml ? `<div class="section"><div class="stitle">Coursework</div>${courseHtml}</div>` : ""}
+
+    <div class="cv-footer">
+      <div class="qr-label">
+        <div><strong>Portfolio</strong></div>
+        <div>${escapeHtml(stripUrl(person.contact?.portfolio || ""))}</div>
+      </div>
+      ${
+        person.contact?.portfolio
+          ? `<img class="qr" alt="Portfolio QR code" src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(person.contact.portfolio)}" />`
+          : ""
+      }
+    </div>
+  </div>
+</body>
+</html>
+    `;
+  }
+
+  return `
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>${escapeHtml(person.name)} - ${escapeHtml(cfgTitle)}</title>
+<style>
+  :root { --text:#111827; --muted:#6b7280; --accent:#2563eb; --line:#e5e7eb; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; }
+  @page { size: letter portrait; margin: 0.55in; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    color: var(--text);
+    font-size: 11.2px;
+    line-height: 1.35;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  .page { width: 100%; max-width: 8.5in; margin: 0 auto; }
+  .header { border-bottom: 2px solid #111; padding-bottom: 10px; margin-bottom: 12px; display:flex; justify-content:space-between; gap:18px; align-items:flex-start; }
+  .name { font-size: 22px; font-weight: 900; line-height: 1.1; letter-spacing: -0.3px; }
+  .headline { font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 600; }
+  .contact { text-align: right; font-size: 10.6px; line-height: 1.45; color: var(--muted); }
+  .grid { display: grid; grid-template-columns: 2.35in 1fr; gap: 0.35in; align-items: start; }
+  .section { margin: 0 0 12px 0; break-inside: avoid; page-break-inside: avoid; }
+  .stitle {
+    font-size: 10.8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--accent); border-bottom: 1px solid var(--line); padding-bottom: 4px; margin-bottom: 8px;
+  }
+  .entry { margin: 0 0 10px 0; break-inside: avoid; page-break-inside: avoid; }
+  .entry-head { display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
+  .entry-title { font-weight: 800; font-size: 12px; }
+  .entry-meta { color: var(--muted); font-style: italic; font-size: 10.5px; text-align:right; }
+  .desc { margin-top: 3px; color:#374151; }
+  .bullets { margin: 4px 0 0 16px; padding: 0; color:#374151; }
+  .bullets li { margin: 0 0 2px 0; }
+  .pillwrap { display:flex; flex-wrap:wrap; gap:4px; }
+  .pill { background:#f3f4f6; border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; font-size: 9.4px; color:#374151; font-weight: 600; }
+  .pill-soft { background: transparent; }
+  .skillblock { margin-bottom: 10px; }
+  .skillblock-title { font-weight: 900; font-size: 11px; margin-bottom: 4px; color:#111; }
+  .toolsline { margin-top: 5px; }
+  @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } .page { max-width: none; } }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <div>
+        <div class="name">${escapeHtml(person.name)}</div>
+        <div class="headline">${escapeHtml(person.headline)}</div>
+      </div>
+      <div class="contact">${contactHtml}</div>
+    </div>
+
+    <div class="grid">
+      <div class="left">
+        <div class="section">
+          <div class="stitle">Education</div>
+          ${eduHtml}
+        </div>
+
+        <div class="section">
+          <div class="stitle">Skills</div>
+          ${skillsHtml}
+        </div>
+
+        ${showCoursework && courseHtml ? `<div class="section"><div class="stitle">Coursework</div>${courseHtml}</div>` : ""}
+      </div>
+
+      <div class="right">
+        <div class="section">
+          <div class="stitle">Summary</div>
+          <div class="desc">${escapeHtml(person.summary)}</div>
+        </div>
+
+        ${showResearch && researchHtml ? `<div class="section"><div class="stitle">Research</div>${researchHtml}</div>` : ""}
+
+        ${showLabs && labsHtml ? `<div class="section"><div class="stitle">Technical Experience</div>${labsHtml}</div>` : ""}
+
+        ${showProjects && projectsHtmlResume ? `<div class="section"><div class="stitle">Projects</div>${projectsHtmlResume}</div>` : ""}
+
+        ${showExperience && experienceHtml ? `<div class="section"><div class="stitle">Work Experience</div>${experienceHtml}</div>` : ""}
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+}
+
+/* -------------------------
+   PDF controls wiring (existing)
+-------------------------- */
 function setSeg(group, value) {
   state.pdfConfig[group] = value;
   renderPdfControls();
@@ -1044,7 +1074,6 @@ function setSeg(group, value) {
 
 function renderPdfControls() {
   const cfg = state.pdfConfig;
-
   const hint = qs("#pdfHint");
   const controls = qs("#pdfDdMenu");
   if (!controls) return;
@@ -1070,28 +1099,27 @@ function renderPdfControls() {
   });
 
   if (hint) {
-    if (isCV) hint.textContent = "CV mode: single-column academic CV output; Focus/Target sliders disabled.";
+    if (isCV) hint.textContent = "CV mode: single-column output; Focus/Target disabled.";
     else {
       const focus = cfg.domain === "nanotech" ? "Nanotech" : "Data Science";
       const target = cfg.audience === "academic" ? "Academic" : "Industry";
-      hint.textContent = `Resume mode: ${target} • ${focus}.`;
+      hint.textContent = `Resume mode: ${target} - ${focus}.`;
     }
   }
 }
 
-function closePdfDropdown() {
-  const ddMenu = qs("#pdfDdMenu");
-  const ddBtn = qs("#pdfDdBtn");
-  if (!ddMenu || !ddBtn) return;
-  ddMenu.classList.add("hidden");
-  ddBtn.setAttribute("aria-expanded", "false");
+function closeDropdown(ddMenuId, ddBtnId) {
+  const menu = qs(ddMenuId);
+  const btn = qs(ddBtnId);
+  if (!menu || !btn) return;
+  menu.classList.add("hidden");
+  btn.setAttribute("aria-expanded", "false");
 }
 
 function wirePdfControls() {
   const controls = qs("#pdfDdMenu");
   if (!controls) return;
 
-  // Segmented control clicks
   controls.addEventListener("click", (e) => {
     const t = e.target;
     if (!(t instanceof HTMLElement)) return;
@@ -1105,7 +1133,6 @@ function wirePdfControls() {
     }
   });
 
-  // Download button
   const dl = qs("#pdfDownloadBtn");
   if (!dl) return;
 
@@ -1130,12 +1157,10 @@ function wirePdfControls() {
     doc.write(html);
     doc.close();
 
-    // Hardening: fonts/layout settle before print (fixes occasional blank/landscape oddities)
     const safePrint = async () => {
       try {
         if (win.document?.fonts?.ready) await win.document.fonts.ready;
       } catch {}
-      // One more tick for layout
       await new Promise((r) => setTimeout(r, 30));
 
       win.onafterprint = () => {
@@ -1149,43 +1174,71 @@ function wirePdfControls() {
       win.print();
     };
 
-    // Some browsers never fire iframe.onload after doc.write; handle both.
     let fired = false;
     iframe.onload = () => {
       if (fired) return;
       fired = true;
       safePrint();
     };
-    // Fallback if onload does not fire.
     setTimeout(() => {
       if (fired) return;
       fired = true;
       safePrint();
     }, 60);
 
-    closePdfDropdown();
+    closeDropdown("#pdfDdMenu", "#pdfDdBtn");
   });
+
+  // PDF dropdown open/close
+  const ddBtn = qs("#pdfDdBtn");
+  const ddMenu = qs("#pdfDdMenu");
+  const ddWrap = qs("#pdfDropdown");
+
+  if (ddBtn && ddMenu && ddWrap) {
+    function openMenu() { ddMenu.classList.remove("hidden"); ddBtn.setAttribute("aria-expanded", "true"); }
+    function closeMenu() { ddMenu.classList.add("hidden"); ddBtn.setAttribute("aria-expanded", "false"); }
+
+    ddBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const isOpen = !ddMenu.classList.contains("hidden");
+      if (isOpen) closeMenu();
+      else openMenu();
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!ddWrap.contains(e.target)) closeMenu();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeMenu();
+    });
+  }
 }
 
-/** -------------------------
- * Init + wiring
- * -------------------------- */
+/* -------------------------
+   Init
+-------------------------- */
 function init() {
   renderHeader();
   renderSkills();
-  renderTimeline("researchList", SITE.research);
   renderTimeline("experienceList", SITE.experience);
   renderTimeline("courseworkList", SITE.coursework);
   renderTimeline("educationList", SITE.education);
 
+  renderFeatured();
   renderFilters();
   renderProjects();
+  renderRefineHint();
 
   const projectSearch = qs("#projectSearch");
   if (projectSearch) {
     projectSearch.addEventListener("input", (e) => {
       state.searchQuery = e.target.value || "";
+      state.sortMode = "relevance";
+      const sortSelect = qs("#projectSort");
+      if (sortSelect) sortSelect.value = "relevance";
       renderProjects();
+      renderRefineHint();
     });
   }
 
@@ -1194,62 +1247,25 @@ function init() {
     projectSort.addEventListener("change", (e) => {
       state.sortMode = e.target.value;
       renderProjects();
+      renderRefineHint();
     });
   }
 
+
   // Modal close
   modal.closeBtn.addEventListener("click", () => modal.close());
-  modal.backdrop.addEventListener("click", (e) => {
-    if (e.target === modal.backdrop) modal.close();
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") modal.close();
-  });
+  modal.backdrop.addEventListener("click", (e) => { if (e.target === modal.backdrop) modal.close(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") modal.close(); });
 
   // PDF controls defaults
   state.pdfConfig.domain = "ds";
   state.pdfConfig.audience = "industry";
   state.pdfConfig.doctype = "resume";
-
   wirePdfControls();
   renderPdfControls();
 
-  // PDF dropdown open/close (guarded)
-  const ddBtn = qs("#pdfDdBtn");
-  const ddMenu = qs("#pdfDdMenu");
-  const ddWrap = qs("#pdfDropdown");
-
-  if (ddBtn && ddMenu && ddWrap) {
-    function openPdfMenu() {
-      ddMenu.classList.remove("hidden");
-      ddBtn.setAttribute("aria-expanded", "true");
-    }
-
-    function closePdfMenu() {
-      ddMenu.classList.add("hidden");
-      ddBtn.setAttribute("aria-expanded", "false");
-    }
-
-    ddBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      const isOpen = !ddMenu.classList.contains("hidden");
-      if (isOpen) closePdfMenu();
-      else openPdfMenu();
-    });
-
-    document.addEventListener("click", (e) => {
-      if (!ddWrap.contains(e.target)) closePdfMenu();
-    });
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closePdfMenu();
-    });
-  }
+  // Refine dropdown
+  wireRefineDropdown();
 }
-
-// small CSS helper for modal headings
-const style = document.createElement("style");
-style.textContent = `.modal-section-title { margin-top: 12px; font-weight: 700; color: #111; }`;
-document.head.appendChild(style);
 
 init();
