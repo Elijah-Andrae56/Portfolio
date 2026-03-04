@@ -312,7 +312,7 @@ export const SITE = {
       track: "industry",
       meta: "University of Oregon Housing - Eugene, OR | Sept 2023 to Present",
       bullets: [
-        "Mentored and supported 150+ students in dormitory housing; provided conflict mediation, academic guidance, and day-to-day support.",
+        "Mentored and supported 180+ students in dormitory housing; provided conflict mediation, academic guidance, and day-to-day support.",
         "Delivered on-call first-response assistance during medical, wellness, and facilities incidents; coordinated with professional staff and emergency services.",
         "Conducted safety inspections, policy education, and incident documentation to ensure adherence to university standards.",
         "Led community programming focused on engagement, well-being, and resource accessibility.",
@@ -322,7 +322,7 @@ export const SITE = {
       title: "Learning Assistant - Applied Data Science for Social Justice",
       track: "academic",
       domains: ["ds", "cs", "nanofab"],
-      meta: "University of Oregon | Apr 2025 to Jun 2025",
+      meta: "University of Oregon - Eugene, OR | Apr 2025 to Jun 2025",
       bullets: [
         "Facilitated lab sessions and office hours; guided students through cleaning, visualization, and analysis of CAHOOTS dispatch logs.",
         "Coached analytical storytelling and partner-facing presentations for community stakeholders (White Bird Clinic).",
@@ -333,7 +333,7 @@ export const SITE = {
       title: "Social Media Analytics and Marketing Intern",
       track: "industry",
       domains: ["ds", "marketing"],
-      meta: "Humes - Waterford, PA",
+      meta: "Humes - Waterford, PA | Jun 2023 to Aug 2023",
       bullets: [
         "Increased organic reach by 117% within three weeks by analyzing engagement metrics and optimizing cadence in Meta Business Suite.",
         "Conducted competitive content analysis and audience segmentation to refine messaging strategy and improve engagement consistency.",
@@ -344,6 +344,7 @@ export const SITE = {
       track: "academic",
       domains: ["ds", "cs", "nanofab"],
       meta: "Intro to Mathematical Cryptography; Linear Algebra",
+      meta: "University of Oregon - Eugene, OR | Jun 2025 to Present",
       bullets: [
         "Evaluated assignments and provided detailed feedback to support proof-writing, matrix methods, and cryptographic reasoning.",
         "Collaborated with instructors to maintain grading accuracy, rubric adherence, and timely feedback delivery.",
