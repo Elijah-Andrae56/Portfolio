@@ -126,12 +126,14 @@ export const SITE = {
       "Research platform centered on electrochemical microbubble generation in microfluidic devices, spanning full-stack fabrication, semiconductor-style electrical characterization, automated measurement design, and stochastic modeling for actuation, neuromorphic, and entropy-source applications.",
     details:
       "This project has been reframed from a single application-specific random-number generator build into a broader device-physics and characterization effort focused on electrochemical microbubble generation in microfluidic systems.\n\nSubsection 1: Device Design and Fabrication\nBuilt a multilayer glass-based microfluidic device stack combining patterned aluminum electrodes, dielectric insulation, and PDMS channel structures formed from SU-8 molds. The fabrication workflow includes substrate cleaning, lithographic patterning, metal deposition and lift-off, insulating layer definition, mold fabrication, and PDMS integration. Design work emphasizes electrode geometry, gap spacing, alignment strategy, insulation openings, and channel architecture so that bubble generation can be studied as a controlled physical phenomenon rather than a one-off demonstration.\n\nSubsection 2: Characterization, Instrumentation, and Modeling\nCurrent work focuses on building rigorous characterization methods for nucleation and gas-generation behavior using a Keithley 2450, semiconductor probe station, and microscope-based video measurement. Developed structured trial protocols for identifying safe operating windows, threshold behavior, gap dependence, drift / conditioning effects, and optional current-controlled operation. Measurement workflows log voltage, compliance, baseline current, steady current, reaction class, and first-event time, with video-linked trial records for reproducibility. Parallel analysis work models bubble nucleation as a stochastic first-event process, connecting current-voltage behavior to nucleation probability, wait-time distributions, and field-dependent activation behavior.\n\nApplication Direction\nThe long-term value of the platform is that the same physical system can be reframed for multiple applications: low-cost electrochemical microbubble actuation for microfluidic pumping, stochastic microbubble neuron concepts where nucleation implements a probabilistic activation curve, and entropy-source / TRNG studies where randomness is quantified statistically rather than assumed. This framing makes the project both fabrication-intensive and experimentally rigorous, with clear relevance to microdevices, semiconductor-style characterization, and applied physical modeling.\n\nStatus\nPrototype fabrication is active and the project is now centered on repeatable characterization, automated data collection, physically interpretable modeling, and iterative device redesign based on measured failure modes, threshold behavior, and reproducibility limits.",
-    image: "images/microfluidic_TRNG_2.jpg",
+    image: "images/microfluidic_electrolysis_1.jpg",
     images: [
-      "images/microfluidic_TRNG_2.jpg",
-      "images/microfluidic_TRNG_3.png",
-      "images/microfluidic_TRNG_4.png",
-      "images/microfluidic_TRNG_5.jpg"
+      "images/microfluidic_electrolysis_1.jpg",
+      "images/microfluidic_electrolysis_2.jpg",
+      "images/microfluidic_electrolysis_3.jpg",
+      "images/microfluidic_electrolysis_4.jpg",
+      "images/microfluidic_electrolysis_5.jpg",
+      "images/microfluidic_electrolysis_6.jpg"
     ],
     imageAlt: "Electrochemical microbubble microfluidic device and characterization workflow",
     links: [],
@@ -228,7 +230,8 @@ export const SITE = {
       "images/electronics_1.jpg",
       "images/electronics_2.jpg",
       "images/electronics_3.jpg",
-      "images/electronics_4.jpg"
+      "images/electronics_4.jpg",
+      "images/electronics_5.jpg",
     ],
     links: [],
   },
@@ -335,6 +338,34 @@ export const SITE = {
       images: ["images/scheduler_1.png", "images/scheduler_2.png", "images/scheduler_3.png"],
       imageAlt: "Scheduler results",
       links: [],
+    },
+    {
+      kind: "project",
+      title: "Superconductor Critical Temperature Modeling",
+      date: "2026-03-12",
+      categories: ["ds", "cs"],
+      tags: ["Data Science", "Machine Learning", "Materials Data"],
+      tools: ["Python", "pandas", "scikit-learn", "PCA", "Random Forest", "Matplotlib"],
+      cvBullets: [
+        "Analyzed a dataset of 21k+ superconducting materials using compositional descriptors derived from elemental properties.",
+        "Applied dimensionality reduction (PCA) and K-Means clustering to identify structure in materials feature space and isolate regions containing high-temperature superconductors.",
+        "Trained Random Forest regression model to predict superconducting critical temperature (Tc), achieving strong predictive alignment between observed and predicted values.",
+        "Evaluated feature importance to identify dominant compositional predictors, highlighting thermal conductivity variation and electronic structure descriptors as key correlates of Tc."
+      ],
+      blurb:
+        "Machine learning analysis of superconducting materials using compositional descriptors to explore structure in materials space and predict critical temperature.",
+      details:
+        "This project analyzes a large superconducting materials dataset containing over 21,000 compounds with features derived from elemental properties such as thermal conductivity, atomic mass, density, and valence electron structure.\n\nThe analysis combines unsupervised and supervised learning methods to explore structure in the materials feature space and evaluate whether compositional descriptors can predict superconducting critical temperature (Tc).\n\nDimensionality reduction using Principal Component Analysis (PCA) revealed clear structure in the feature space, while K-Means clustering separated materials into distinct compositional groups. When high-temperature superconductors were highlighted, they concentrated strongly within one region of this space, suggesting that certain combinations of elemental properties are associated with elevated Tc.\n\nA Random Forest regression model was then trained to predict Tc from the compositional descriptors. Predicted temperatures closely followed observed values across the dataset, demonstrating that machine learning models can capture meaningful relationships between elemental properties and superconducting behavior.\n\nFeature importance analysis identified the range and weighted mean of thermal conductivity among constituent elements as dominant predictors, alongside descriptors related to atomic mass, density, and electronic structure. These results suggest that variations in thermal transport properties and electronic configuration are strongly associated with superconducting critical temperature within the dataset.",
+      image: "images/superconductor_ml_1.png",
+      images: [
+        "images/superconductor_ml_1.png",
+        "images/superconductor_ml_2.png",
+        "images/superconductor_ml_3.png"
+      ],
+      imageAlt: "Machine learning analysis of superconducting materials and critical temperature prediction",
+      links: [
+        { label: "Code", url: "https://github.com/Elijah-Andrae56/Superconductor_ML_Analysis.git" }
+      ],
     },
   ],
 
