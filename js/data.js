@@ -98,26 +98,44 @@ export const SITE = {
   // Unified portfolio surface (Research + Labs + Projects)
   cards: [
     {
-      kind: "research",
-      featured: true,
-      title: "Stimulus Driven Microfluidic Entropy",
-      date: "2025-12-12",
-      categories: ["nanofab", "ds"],
-      tags: ["Nanofab", "DS", "Research"],
-      tools: ["Photolithography", "Thin-film deposition", "Metrology", "DOE"],
-      cvBullets: [
-        "Fabricated multi-layer microfluidic TRNG device (glass/metal/dielectric + PDMS microchannels) converting stochastic bubble bifurcation dynamics into bitstream outcomes.",
-        "Designed DOE-driven characterization plan to quantify bias sources (geometry asymmetry, operating conditions, fabrication tolerances) and apply debiasing and statistical validation."
-      ],
-      blurb:
-        "Designed and fabricated a microfluidic true-random number generator (TRNG) that leverages inherently stochastic microscale bubble dynamics. Built a multi-layer glass/metal/dielectric/PDMS stack and planned DOE-driven characterization and debiasing.",
-      details:
-        "Objective: translate a physical, microscale stochastic process into measurable randomness signals, then quantify bias and stability across device geometry and operating conditions.\n\nSystem design: a multi-layer lab-on-a-chip stack (glass substrate with patterned metal features and dielectric insulation, bonded to PDMS microchannels) that produces repeatable bubble events and converts bubble path outcomes into bitstreams.\n\nPlanned validation: automated bit extraction (direction to 0/1), Von Neumann debiasing, and statistical checks including binomial fit/uniformity tests and DOE/ANOVA to separate physics-driven variability from fabrication artifacts.\n\nStatus: prototype fabrication and assembly completed; initial run highlighted alignment, bonding, and defect-sensitivity as primary failure modes, guiding the next iteration and control experiments.",
-      image: "images/microfluidic_TRNG_2.jpg",
-      images: ["images/microfluidic_TRNG_2.jpg", "images/microfluidic_TRNG_3.png", "images/microfluidic_TRNG_4.png", "images/microfluidic_TRNG_5.jpg"],
-      imageAlt: "Microfluidic TRNG device image",
-      links: [],
-    },
+    kind: "research",
+    featured: true,
+    title: "Electrochemical Microbubble Devices: Fabrication, Characterization, and Stochastic Signal Applications",
+    date: "2026-03-11",
+    categories: ["nanofab", "ds", "cs"],
+    tags: ["Nanofab", "Microfluidics", "Device Physics", "Instrumentation", "Research"],
+    tools: [
+      "Photolithography",
+      "LaserWriter",
+      "Thin-film deposition",
+      "E-beam deposition",
+      "PDMS soft lithography",
+      "Keithley 2450",
+      "Semiconductor probe station",
+      "Optical microscopy",
+      "Python",
+      "DOE"
+    ],
+    cvBullets: [
+      "Designed and fabricated multilayer electrochemical microfluidic devices using patterned metal electrodes, dielectric insulation, SU-8 molds, and PDMS channel integration on glass substrates.",
+      "Developed physics-driven characterization workflows using a Keithley 2450, microscope imaging, and semiconductor probe station measurements to quantify nucleation thresholds, current response, field dependence, and trial-to-trial stochastic behavior.",
+      "Built a programmable data acquisition and analysis framework for voltage-stepped bubble experiments, including event timing, current traces, reaction-state labeling, and structured datasets for modeling nucleation probability and wait-time statistics.",
+      "Positioned the platform for multiple device directions including microbubble actuation, stochastic neuron hardware, and entropy / random-number-generation studies grounded in quantified physical variability."
+    ],
+    blurb:
+      "Research platform centered on electrochemical microbubble generation in microfluidic devices, spanning full-stack fabrication, semiconductor-style electrical characterization, automated measurement design, and stochastic modeling for actuation, neuromorphic, and entropy-source applications.",
+    details:
+      "This project has been reframed from a single application-specific random-number generator build into a broader device-physics and characterization effort focused on electrochemical microbubble generation in microfluidic systems.\n\nSubsection 1: Device Design and Fabrication\nBuilt a multilayer glass-based microfluidic device stack combining patterned aluminum electrodes, dielectric insulation, and PDMS channel structures formed from SU-8 molds. The fabrication workflow includes substrate cleaning, lithographic patterning, metal deposition and lift-off, insulating layer definition, mold fabrication, and PDMS integration. Design work emphasizes electrode geometry, gap spacing, alignment strategy, insulation openings, and channel architecture so that bubble generation can be studied as a controlled physical phenomenon rather than a one-off demonstration.\n\nSubsection 2: Characterization, Instrumentation, and Modeling\nCurrent work focuses on building rigorous characterization methods for nucleation and gas-generation behavior using a Keithley 2450, semiconductor probe station, and microscope-based video measurement. Developed structured trial protocols for identifying safe operating windows, threshold behavior, gap dependence, drift / conditioning effects, and optional current-controlled operation. Measurement workflows log voltage, compliance, baseline current, steady current, reaction class, and first-event time, with video-linked trial records for reproducibility. Parallel analysis work models bubble nucleation as a stochastic first-event process, connecting current-voltage behavior to nucleation probability, wait-time distributions, and field-dependent activation behavior.\n\nApplication Direction\nThe long-term value of the platform is that the same physical system can be reframed for multiple applications: low-cost electrochemical microbubble actuation for microfluidic pumping, stochastic microbubble neuron concepts where nucleation implements a probabilistic activation curve, and entropy-source / TRNG studies where randomness is quantified statistically rather than assumed. This framing makes the project both fabrication-intensive and experimentally rigorous, with clear relevance to microdevices, semiconductor-style characterization, and applied physical modeling.\n\nStatus\nPrototype fabrication is active and the project is now centered on repeatable characterization, automated data collection, physically interpretable modeling, and iterative device redesign based on measured failure modes, threshold behavior, and reproducibility limits.",
+    image: "images/microfluidic_TRNG_2.jpg",
+    images: [
+      "images/microfluidic_TRNG_2.jpg",
+      "images/microfluidic_TRNG_3.png",
+      "images/microfluidic_TRNG_4.png",
+      "images/microfluidic_TRNG_5.jpg"
+    ],
+    imageAlt: "Electrochemical microbubble microfluidic device and characterization workflow",
+    links: [],
+  },
 
     {
       kind: "lab",
@@ -185,21 +203,35 @@ export const SITE = {
       links: [],
     },
 
-    {
-      kind: "lab",
-      title: "Electronics Laboratory (In progress)",
-      date: "2026-01-10",
-      categories: ["cs", "ds", "nanofab"],
-      tags: ["Electronics", "Measurement", "Labs"],
-      tools: ["Oscilloscope", "Function Generator", "Multimeter", "RC Circuits"],
-      blurb:
-        "Circuit measurement and instrumentation practice: RC response, rise/fall characterization, and repeatable test setups.",
-      details:
-        "Developing measurement discipline and instrumentation workflows aligned with device characterization needs (time-domain response, grounding, probe placement, consistent excitation).",
-      image: "images/electronics_1.jpg",
-      images: ["images/electronics_1.jpg", "images/electronics_2.jpg", "images/electronics_3.jpg", "images/electronics_4.jpg"],
-      links: [],
-    },
+  {
+    kind: "lab",
+    title: "Electronics Laboratory",
+    date: "2026-03-11",
+    categories: ["cs", "ds", "nanofab", "electronics"],
+    tags: ["Circuit Analysis", "Instrumentation", "Analog Electronics", "Optoelectronics"],
+    tools: [
+      "Oscilloscope",
+      "Function Generator",
+      "Power Supplies",
+      "Fluke 179 Multimeter",
+      "Capacitance / Inductance Meters",
+      "Optical Power Meter",
+      "Spectrometer",
+      "Proto-boards"
+    ],
+    blurb:
+      "Hands-on electronics laboratory covering circuit fundamentals, instrumentation, and device characterization including RC dynamics, impedance, resonance, diode I–V behavior, transistor amplification, and optoelectronic measurements.",
+    details:
+      "Completed a full electronics laboratory obstacle course focused on practical circuit construction and measurement discipline. Built and characterized resistive, capacitive, and inductive networks; implemented voltage dividers and RC filters; measured time-domain response and frequency dependence using oscilloscopes and function generators; and analyzed impedance, reactance, and resonance in RLC systems.\n\nAdditional work included diode I–V characterization, Zener behavior, transistor current amplification (TIP31C), and operational amplifier circuits including inverting, non-inverting, and buffer configurations. Investigated instrumentation loading effects and impedance matching.\n\nOptoelectronic experiments included photodiode I–V characterization under varying illumination, LED optical power vs current measurements, and laser diode operation using a constant-current driver with optical power and spectral measurements.\n\nThe laboratory emphasized rigorous measurement workflows, circuit modeling intuition, and connections between electronic instrumentation and physical device behavior relevant to experimental physics and microdevice characterization.",
+    image: "images/electronics_1.jpg",
+    images: [
+      "images/electronics_1.jpg",
+      "images/electronics_2.jpg",
+      "images/electronics_3.jpg",
+      "images/electronics_4.jpg"
+    ],
+    links: [],
+  },
 
     {
       kind: "lab",
