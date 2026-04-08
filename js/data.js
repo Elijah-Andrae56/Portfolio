@@ -333,7 +333,7 @@ export const SITE = {
       blurb:
         "Developed a model to automate RA on-call scheduling under 8+ fairness constraints; designed for 12 teams with projected 750+ hours saved yearly.",
       details:
-        "Add: constraint list, objective function, infeasibility handling, and how you validated fairness outcomes.",
+        "Designed and implemented a constraint optimization model to automate the scheduling of Resident Assistant (RA) on-call shifts across 12 teams. The model incorporates a comprehensive set of constraints reflecting university policies, fairness considerations, and coverage requirements, including:\n\n- Maximum shift limits per RA\n- Fair distribution of weekend and holiday shifts\n- Coverage requirements for each time slot\n- Avoidance of back-to-back shifts\n- Accommodations for known unavailability\n\nUsing Python and Google's OR-Tools, the model generates feasible schedules that satisfy all constraints while optimizing for equitable shift distribution. Initial testing indicates that the automated scheduler can produce compliant schedules in seconds, with an estimated annual time savings of 750+ administrative hours compared to manual scheduling processes.",
       image: "images/scheduler_1.png",
       images: ["images/scheduler_1.png", "images/scheduler_2.png", "images/scheduler_3.png"],
       imageAlt: "Scheduler results",
