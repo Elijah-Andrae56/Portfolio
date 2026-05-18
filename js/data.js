@@ -514,7 +514,7 @@ export const SITE = {
       kind: "lab",
       title: "Optical Systems & Interferometry Laboratory",
       date: "2025-05-01", // Adjust to the actual month/year you took this course
-      categories: ["process", "physics"],
+      categories: ["nanofab", "cs"],
       tags: ["Optics", "Laser Alignment", "Interferometry", "Hardware Characterization"],
       tools: ["HeNe Lasers", "Oscilloscopes", "Thorlabs Optomechanics", "Photodetectors", "Waveplates", "Interferometers"],
       descriptions: {
@@ -523,8 +523,7 @@ export const SITE = {
           "Characterized Gaussian laser beam profiles, polarization states, and photodiode rise times using translation stages, optical choppers, and oscilloscopes.",
           "Constructed functional optical isolators using quarter waveplates and polarizing beamsplitters, ensuring strict beam containment and alignment."
         ],
-        // The resume-builder looks for resumeBullets, not just resume
-        resumeBullets: {
+        resume: {
           ds: [
             "Analyzed optical signal data and photodiode rise times using oscilloscopes to characterize hardware response rates.",
             "Modeled and simulated Fabry-Perot cavity properties (Finesse, Free Spectral Range) to validate physical benchtop measurements."
