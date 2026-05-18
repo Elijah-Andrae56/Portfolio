@@ -3,7 +3,7 @@
 export const SITE = {
   person: {
     name: "Elijah Andrae",
-    headline: "Data Science | Applied Mathematics | Nanofabrication | Marketing Analytics",
+    headline: "Process Engineer & Data Scientist | Optimizing physical systems through statistical modeling, DOE, and cleanroom nanofabrication",
     photo: "images/headshot.jpg",
     photoAlt: "Eli Andrae headshot",
     domains: ["Python & R", "Predictive Modeling", "Cleanroom Ops", "Experimental Design"],
@@ -482,6 +482,65 @@ export const SITE = {
       links: [
         { label: "Code", url: "https://github.com/Elijah-Andrae56/Superconductor_ML_Analysis.git" }
       ],
+    },
+    {
+      kind: "project",
+      title: "Mathematical Rigor & Analytical Evaluation",
+      date: "2025-06-01",
+      categories: ["ds", "cs"],
+      tags: ["Applied Mathematics", "Cryptography", "Linear Algebra"],
+      tools: ["LaTeX", "Matrix Methods", "Stochastic Processes", "Proof Validation"],
+      descriptions: {
+        cv: [
+          "Evaluated advanced mathematics assignments, providing detailed analytical feedback for proof-writing, matrix methods, and cryptographic reasoning.",
+          "Validated complex stochastic models, linear algebra proofs, and encryption algorithms for technical accuracy and logical soundness."
+        ],
+        resume: {
+          ds: [
+            "Evaluated proof-writing, matrix methods, and cryptographic reasoning in Linear Algebra and Mathematical Cryptography; provided detailed feedback to support student learning.",
+          ],
+          process: [
+            "Evaluated complex mathematical models and proofs in advanced coursework including Linear Algebra, Cryptography, and Stochastic Processes.",
+            "Demonstrated high-level quantitative rigor by identifying logical and computational errors in matrix operations and abstract mathematical structures."
+          ]
+        },
+      },
+      blurb:
+        "Evaluated advanced university mathematics coursework, demonstrating a deep foundation in the theoretical mechanics—including linear algebra and stochastic processes—that power physical modeling and data science.",
+      details:
+        "Serving as a Mathematics Paper Marker requires more than just checking answers; it requires reverse-engineering a student's logical process to find the exact point of failure in complex, multi-step proofs.\n\nMy evaluation work covered Mathematical Cryptography and Linear Algebra, requiring fluency in abstract mathematical structures, matrix operations, and rigorous proof writing. This theoretical foundation directly translates to my engineering work: the same matrix operations evaluated in these courses are the engine behind the dimensionality reduction (PCA) and regression models I deploy for materials characterization and process optimization.\n\nCoupled with my coursework in Stochastic Processes and Multivariable Calculus, this background ensures that the statistical tools and experimental designs (DOE) I utilize in the lab are mathematically sound, not just computationally executed.",
+      links: [],
+    },
+    {
+      kind: "lab",
+      title: "Optical Systems & Interferometry Laboratory",
+      date: "2025-05-01", // Adjust to the actual month/year you took this course
+      categories: ["process", "physics"],
+      tags: ["Optics", "Laser Alignment", "Interferometry", "Hardware Characterization"],
+      tools: ["HeNe Lasers", "Oscilloscopes", "Thorlabs Optomechanics", "Photodetectors", "Waveplates", "Interferometers"],
+      descriptions: {
+        cv: [
+          "Built and aligned complex free-space optical systems, including Michelson interferometers and Fabry-Perot cavities, to measure refractive indices, coherence length, and cavity finesse.",
+          "Characterized Gaussian laser beam profiles, polarization states, and photodiode rise times using translation stages, optical choppers, and oscilloscopes.",
+          "Constructed functional optical isolators using quarter waveplates and polarizing beamsplitters, ensuring strict beam containment and alignment."
+        ],
+        resume: {
+          ds: [
+            "Analyzed optical signal data and photodiode rise times using oscilloscopes to characterize hardware response rates.",
+            "Modeled and simulated Fabry-Perot cavity properties (Finesse, Free Spectral Range) to validate physical benchtop measurements."
+          ],
+          process: [
+            "Engineered and aligned complex free-space optical systems, including Michelson interferometers and Fabry-Perot cavities, utilizing Thorlabs optomechanics.",
+            "Characterized physical system properties including Gaussian beam profiles (Rayleigh range, 1/e width), polarization states, and photodetector rise-times.",
+            "Executed rigorous optical cleaning, handling, and safety protocols for precision lenses, waveplates, and beamsplitter cubes."
+          ]
+        },
+      },
+      blurb:
+        "Designed, built, and characterized precision free-space optical systems—including interferometers and Fabry-Perot cavities—using Thorlabs optomechanics and HeNe lasers.",
+      details:
+        "Completed an intensive, self-directed optics course focused on the rigorous alignment and characterization of free-space optical systems. Work involved setting up and aligning HeNe lasers, measuring Gaussian beam profiles (1/e width, Rayleigh range) using translation stages, and manipulating polarization states utilizing waveplates and Brewster's angle mechanics.\n\nAdvanced modules required independent troubleshooting and system design, including constructing a Michelson interferometer to measure the refractive index of unknown materials and building Fabry-Perot cavities to analyze free spectral range (FSR) and cavity finesse. Additional hardware characterization included measuring small and large photodiode rise-times using optical choppers and oscilloscopes, and constructing functional optical isolators to protect source lasers from retroreflections.",
+      links: [],
     },
   ],
 

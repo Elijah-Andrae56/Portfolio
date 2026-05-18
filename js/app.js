@@ -72,7 +72,7 @@ const state = {
   searchQuery: "",
   sortMode: "relevance",
   pdfConfig: {
-    focus: "ds",
+    focus: "process", // or "ds"
     doctype: "resume",
   },
 };
@@ -834,11 +834,10 @@ function init() {
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") modal.close(); });
 
   // PDF controls defaults
-  state.pdfConfig.domain = "ds";
-  state.pdfConfig.audience = "industry";
+  state.pdfConfig.focus = "process"; // Changed from 'domain' to 'focus'
   state.pdfConfig.doctype = "resume";
   wirePdfControls();
-  renderPdfControls();
+  renderPdfControls(); 
 
   // Refine dropdown
   wireRefineDropdown();
