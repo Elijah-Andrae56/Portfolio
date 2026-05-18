@@ -585,7 +585,10 @@ export const SITE = {
         "Introduction to Proofs",
         "Mathematical Cryptography",
         "Differential Equations",
-        "Introduction to Statistical Methods",
+        "Multivariable Calculus I and II",
+        "Statistical Methods",
+        "Statistics for Data Science",
+        "Stochastic Processes",
       ],
     },
     {
@@ -602,7 +605,7 @@ export const SITE = {
     {
       title: "Nanofabrication and Engineering",
       meta: "",
-      bullets: ["Nanofabrication"],
+      bullets: ["Nanofabrication", "Analog Electronics Independent Study", "Optics Independent Study", "Microfluidics Research"],
     },
     {
       title: "Ethics and Analytical Reasoning",
@@ -619,7 +622,7 @@ export const SITE = {
         "Expected graduation: June 2026",
         "GPA 3.30",
         "Honors: Dean's List Spring 2025, Dean's List Fall 2025",
-        "Relevant coursework: Machine Learning, Probability and Statistics, Linear Algebra, Differential Equations, Nanofabrication",
+        "Relevant coursework: Machine Learning, Probability and Statistics, Linear Algebra, Differential Equations, Nanofabrication, Stochastic Processes",
       ],
     },
   ],
