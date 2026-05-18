@@ -1,5 +1,7 @@
 // app.js
 import { SITE, CATEGORY_LABELS } from "./data.js";
+import { buildResumeHtml } from "./resume-builder.js";
+import { buildCvHtml } from "./cv-builder.js";
 
 /* -------------------------
    Helpers
@@ -70,8 +72,7 @@ const state = {
   searchQuery: "",
   sortMode: "relevance",
   pdfConfig: {
-    domain: "ds",
-    audience: "industry",
+    focus: "ds",
     doctype: "resume",
   },
 };
@@ -634,438 +635,14 @@ function wireRefineDropdown() {
 }
 
 /* -------------------------
-   PDF generation
+   PDF generation — delegates to resume-builder.js / cv-builder.js
 -------------------------- */
-function getAllDomains() { return ["ds", "marketing", "nanofab", "cs"]; }
-function domainsFromSlider(domainMode) { return domainMode === "nanotech" ? ["nanofab"] : ["ds", "cs", "marketing"]; }
-
-function domainMatches(item, domains) {
-  const tags = item?.domains || item?.categories;
-  if (!tags || tags.length === 0) return true;
-  return tags.some((tag) => domains.includes(tag));
-}
-
-function inferTrack(item, section) {
-  if (item && typeof item.track === "string") return item.track;
-  if (section === "education" || section === "coursework" || section === "research" || section === "labs") return "academic";
-
-  if (section === "experience") {
-    const t = normalize(item?.title);
-    if (t.includes("assistant") || t.includes("teaching") || t.includes("learning") || t.includes("marker") || t.includes("grader")) return "academic";
-    return "industry";
-  }
-
-  // projects are mixed; default industry unless nanofab
-  if (section === "projects") {
-    const cats = item?.categories || [];
-    if (cats.includes("nanofab")) return "academic";
-    return "industry";
-  }
-
-  return "industry";
-}
-
-function trackMatches(item, section, audience) {
-  if (!audience || audience === "all") return true;
-  const tr = inferTrack(item, section);
-  if (tr === "both") return true;
-  return tr === audience;
-}
-
-function limitBullets(arr, max) {
-  const a = Array.isArray(arr) ? arr : [];
-  if (!Number.isFinite(max) || max <= 0) return a;
-  return a.slice(0, max);
-}
-
-function labToCvBullets(lab) {
-  // Prefer explicit cvBullets; otherwise synthesize from module bullets, but do not invent details.
-  if (Array.isArray(lab.cvBullets) && lab.cvBullets.length) return lab.cvBullets;
-
-  const out = [];
-  if (Array.isArray(lab.modules)) {
-    for (const m of lab.modules) {
-      if (Array.isArray(m.bullets) && m.bullets.length) {
-        out.push(...m.bullets.map((b) => `${m.title}: ${b}`));
-      } else if (m.blurb) {
-        out.push(`${m.title}: ${m.blurb}`);
-      }
-    }
-  }
-  return out;
-}
-
-function buildResumeHtml(config) {
-  const person = SITE.person;
-
-  const isCV = config?.doctype === "cv";
-  const domains = isCV ? getAllDomains() : domainsFromSlider(config?.domain);
-  const audience = isCV ? "all" : (config?.audience || "industry");
-
-  const showCoursework = isCV ? false : (audience === "academic");
-  const showResearch = isCV ? true : (audience === "academic");
-  const showLabs = isCV ? true : (audience === "academic" || config?.domain === "nanotech");
-  const showExperience = isCV ? true : (audience === "industry");
-  const showProjects = true;
-
-  const BUL_RESEARCH = isCV ? 999 : 3;
-  const BUL_LABS = isCV ? 999 : 4;
-  const BUL_EXP = isCV ? 999 : 3;
-  const BUL_EDU = isCV ? 999 : 3;
-  const BUL_COURSE = isCV ? 999 : 10;
-  const CV_PROJECT_BUL = 2;
-
-  const highlights = Array.isArray(SITE.highlights) ? SITE.highlights.filter(Boolean) : [];
-  const highlightsHtml = highlights.length
-    ? `<ul class="bullets">${highlights.map((h) => `<li>${escapeHtml(h)}</li>`).join("")}</ul>`
-    : "";
-
-
-  const education = (SITE.education || []).filter((e) => domainMatches(e, domains));
-  const coursework = (SITE.coursework || []).filter((c) => domainMatches(c, domains));
-  const skills = (SITE.skills || []).filter((s) => domainMatches(s, domains));
-  const experience = (SITE.experience || []).filter((x) => domainMatches(x, domains)).filter((x) => trackMatches(x, "experience", audience));
-
-  const researchCards = (SITE.cards || [])
-    .filter((c) => c.kind === "research")
-    .filter((c) => domainMatches(c, domains))
-    .filter((c) => trackMatches(c, "research", audience))
-    .sort((a, b) => parseDate(b.date) - parseDate(a.date));
-
-  const labCards = (SITE.cards || [])
-    .filter((c) => c.kind === "lab")
-    .filter((c) => domainMatches(c, domains))
-    .filter((c) => trackMatches(c, "labs", audience))
-    .sort((a, b) => parseDate(b.date) - parseDate(a.date));
-
-  const projectCards = (SITE.cards || [])
-    .filter((c) => c.kind === "project")
-    .filter((c) => domainMatches(c, domains))
-    .filter((c) => trackMatches(c, "projects", audience))
-    .sort((a, b) => parseDate(b.date) - parseDate(a.date));
-
-  const cfgTitleParts = [];
-  cfgTitleParts.push(isCV ? "CV" : "Resume");
-  if (!isCV) cfgTitleParts.push(audience === "academic" ? "Academic" : "Industry");
-  if (!isCV) cfgTitleParts.push(config?.domain === "nanotech" ? "Nanotech" : "Data Science");
-  const cfgTitle = cfgTitleParts.join(" - ");
-
-  const contactHtml = `
-    ${person.contact?.email ? `<div>${escapeHtml(person.contact.email)}</div>` : ""}
-    ${person.contact?.linkedin ? `<div><a href="${person.contact.linkedin}">${escapeHtml(stripUrl(person.contact.linkedin))}</a></div>` : ""}
-    ${person.contact?.github ? `<div><a href="${person.contact.github}">${escapeHtml(stripUrl(person.contact.github))}</a></div>` : ""}
-    ${person.contact?.portfolio ? `<div><a href="${person.contact.portfolio}">${escapeHtml(stripUrl(person.contact.portfolio))}</a></div>` : ""}
-  `;
-
-  const eduHtml = education.map((e) => `
-    <div class="entry">
-      <div class="entry-head">
-        <div class="entry-title">${escapeHtml(e.title)}</div>
-        ${e.meta ? `<div class="entry-meta">${escapeHtml(e.meta)}</div>` : ""}
-      </div>
-      ${(e.bullets || []).length
-        ? `<ul class="bullets">${limitBullets(e.bullets, BUL_EDU).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
-        : ""}
-    </div>
-  `).join("");
-
-  const skillsHtml = isCV
-    ? skills.map((cat) => `
-        <div class="skillrow">
-          <span class="skillrow-title">${escapeHtml(cat.title)}:</span>
-          <span class="skillrow-items">${escapeHtml(commaLine(cat.items))}</span>
-        </div>
-      `).join("")
-    : skills.map((cat) => `
-        <div class="skillblock">
-          <div class="skillblock-title">${escapeHtml(cat.title)}</div>
-          <div class="pillwrap">
-            ${(cat.items || []).map((s) => `<span class="pill">${escapeHtml(s)}</span>`).join("")}
-          </div>
-        </div>
-      `).join("");
-
-  const courseHtml = coursework.map((c) => `
-    <div class="entry">
-      <div class="entry-title">${escapeHtml(c.title)}</div>
-      ${(c.bullets || []).length
-        ? `<ul class="bullets">${limitBullets(c.bullets, BUL_COURSE).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
-        : ""}
-    </div>
-  `).join("");
-
-  const researchHtml = researchCards.map((r) => `
-    <div class="entry">
-      <div class="entry-head">
-        <div class="entry-title">${escapeHtml(r.title)}</div>
-        <div class="entry-meta">${escapeHtml(formatMonthYear(r.date))}</div>
-      </div>
-      ${(r.cvBullets || r.bullets || []).length
-        ? `<ul class="bullets">${limitBullets(r.cvBullets || r.bullets, BUL_RESEARCH).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
-        : (r.blurb ? `<div class="desc">${escapeHtml(r.blurb)}</div>` : "")}
-    </div>
-  `).join("");
-
-  const labsHtml = labCards.map((l) => {
-    const bullets = labToCvBullets(l);
-    const tools = commaLine(l.tools);
-
-    return `
-    <div class="entry">
-      <div class="entry-head">
-        <div class="entry-title">${escapeHtml(l.title)}</div>
-        <div class="entry-meta">${escapeHtml(formatMonthYear(l.date))}</div>
-      </div>
-      ${bullets.length
-        ? `<ul class="bullets">${limitBullets(bullets, BUL_LABS).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
-        : (l.blurb ? `<div class="desc">${escapeHtml(l.blurb)}</div>` : "")
-      }
-      ${tools ? `<div class="tools-commas"><span class="tools-label">Tools:</span> ${escapeHtml(tools)}</div>` : ""}
-    </div>
-    `;
-  }).join("");
-
-  const experienceHtml = experience.map((exp) => `
-    <div class="entry">
-      <div class="entry-head">
-        <div class="entry-title">${escapeHtml(exp.title)}</div>
-        ${exp.meta ? `<div class="entry-meta">${escapeHtml(exp.meta)}</div>` : ""}
-      </div>
-      ${(exp.bullets || []).length
-        ? `<ul class="bullets">${limitBullets(exp.bullets, BUL_EXP).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
-        : ""}
-    </div>
-  `).join("");
-
-  const projectsHtmlCv = projectCards.map((p) => {
-    const bullets = Array.isArray(p.cvBullets) ? p.cvBullets : [];
-    const tools = commaLine(p.tools);
-
-    return `
-      <div class="entry">
-        <div class="entry-head">
-          <div class="entry-title">${escapeHtml(p.title)}</div>
-          <div class="entry-meta">${escapeHtml(formatMonthYear(p.date))}</div>
-        </div>
-
-        ${bullets.length
-          ? `<ul class="bullets">${bullets.slice(0, CV_PROJECT_BUL).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
-          : (p.blurb ? `<div class="desc">${escapeHtml(p.blurb)}</div>` : "")
-        }
-
-        ${tools ? `<div class="tools-commas"><span class="tools-label">Tools:</span> ${escapeHtml(tools)}</div>` : ""}
-      </div>
-    `;
-  }).join("");
-
-  const projectsHtmlResume = projectCards.map((p) => `
-    <div class="entry">
-      <div class="entry-head">
-        <div class="entry-title">${escapeHtml(p.title)}</div>
-        <div class="entry-meta">${escapeHtml(formatMonthYear(p.date))}</div>
-      </div>
-      ${p.blurb ? `<div class="desc">${escapeHtml(p.blurb)}</div>` : ""}
-      ${p.tools?.length ? `
-        <div class="toolsline">
-          ${(p.tools || []).slice(0, 7).map((t) => `<span class="pill pill-soft">${escapeHtml(t)}</span>`).join("")}
-        </div>` : ""}
-    </div>
-  `).join("");
-
-  if (isCV) {
-    return `
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8"/>
-<title>${escapeHtml(person.name)} - ${escapeHtml(cfgTitle)}</title>
-<style>
-  :root { --text:#111827; --muted:#6b7280; --accent:#2563eb; --line:#e5e7eb; }
-  * { box-sizing: border-box; }
-  html, body { margin:0; padding:0; }
-  @page { size: letter portrait; margin: 0.65in; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    color: var(--text);
-    font-size: 11.2px;
-    line-height: 1.35;
-  }
-  a { color: var(--text); text-decoration: underline; }
-  .page { width: 100%; max-width: 8.5in; margin: 0 auto; }
-  .hdr { display:flex; justify-content:space-between; gap:18px; align-items:flex-start; padding-bottom: 10px; border-bottom: 2px solid #111; margin-bottom: 14px; }
-  .hdr-left .name { font-size: 22px; font-weight: 900; letter-spacing: -0.3px; line-height: 1.1; }
-  .hdr-left .headline { margin-top: 4px; color: var(--muted); font-size: 12px; font-weight: 600; }
-  .hdr-right { text-align:right; color: var(--muted); font-size: 10.6px; line-height: 1.45; }
-  .section { margin: 12px 0 14px 0; }
-  .stitle {
-    font-size: 10.8px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--accent);
-    border-bottom: 1px solid var(--line);
-    padding-bottom: 4px;
-    margin-bottom: 8px;
-  }
-  .entry { margin: 0 0 10px 0; break-inside: avoid; page-break-inside: avoid; }
-  .entry-head { display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
-  .entry-title { font-weight: 800; font-size: 12px; }
-  .entry-meta { color: var(--muted); font-style: italic; font-size: 10.5px; text-align:right; }
-  .desc { margin-top: 3px; color:#374151; }
-  .bullets { margin: 4px 0 0 16px; padding: 0; color:#374151; }
-  .bullets li { margin: 0 0 2px 0; }
-  .skillrow { margin: 0 0 6px 0; }
-  .skillrow-title { font-weight: 900; color: #111; }
-  .skillrow-items { color: #374151; }
-  .tools-commas { margin-top: 3px; color: var(--muted); font-size: 10.4px; }
-  .tools-label { font-weight: 800; color: #4b5563; }
-  .cv-footer { margin-top: 16px; padding-top: 10px; border-top: 1px solid var(--line); display:flex; justify-content:flex-end; gap:10px; color: var(--muted); font-size: 10px; }
-  .qr { width: 72px; height: 72px; border: 1px solid var(--line); border-radius: 6px; padding: 4px; background: #fff; }
-  .qr-label { text-align: right; line-height: 1.25; }
-  @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } .page { max-width: none; } }
-</style>
-</head>
-<body>
-  <div class="page">
-    <div class="hdr">
-      <div class="hdr-left">
-        <div class="name">${escapeHtml(person.name)}</div>
-        <div class="headline">${escapeHtml(person.headline)}</div>
-      </div>
-      <div class="hdr-right">${contactHtml}</div>
-    </div>
-    ${highlightsHtml ? `<div class="section"><div class="stitle">Selected Highlights</div>${highlightsHtml}</div>` : ""}
-
-    <div class="section">
-      <div class="stitle">Education</div>
-      ${eduHtml}
-    </div>
-
-    ${researchHtml ? `<div class="section"><div class="stitle">Research</div>${researchHtml}</div>` : ""}
-
-    ${labsHtml ? `<div class="section"><div class="stitle">Technical Experience</div>${labsHtml}</div>` : ""}
-
-    ${projectsHtmlCv ? `<div class="section"><div class="stitle">Projects</div>${projectsHtmlCv}</div>` : ""}
-
-    ${experienceHtml ? `<div class="section"><div class="stitle">Teaching and Leadership</div>${experienceHtml}</div>` : ""}
-
-    <div class="section">
-      <div class="stitle">Skills</div>
-      ${skillsHtml}
-    </div>
-
-    ${showCoursework && courseHtml ? `<div class="section"><div class="stitle">Coursework</div>${courseHtml}</div>` : ""}
-
-    <div class="cv-footer">
-      <div class="qr-label">
-        <div><strong>Portfolio</strong></div>
-        <div>${escapeHtml(stripUrl(person.contact?.portfolio || ""))}</div>
-      </div>
-      ${
-        person.contact?.portfolio
-          ? `<img class="qr" alt="Portfolio QR code" src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(person.contact.portfolio)}" />`
-          : ""
-      }
-    </div>
-  </div>
-</body>
-</html>
-    `;
-  }
-
-  return `
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8"/>
-<title>${escapeHtml(person.name)} - ${escapeHtml(cfgTitle)}</title>
-<style>
-  :root { --text:#111827; --muted:#6b7280; --accent:#2563eb; --line:#e5e7eb; }
-  * { box-sizing: border-box; }
-  html, body { margin:0; padding:0; }
-  @page { size: letter portrait; margin: 0.55in; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    color: var(--text);
-    font-size: 11.2px;
-    line-height: 1.35;
-  }
-  a { color: var(--accent); text-decoration: none; }
-  .page { width: 100%; max-width: 8.5in; margin: 0 auto; }
-  .header { border-bottom: 2px solid #111; padding-bottom: 10px; margin-bottom: 12px; display:flex; justify-content:space-between; gap:18px; align-items:flex-start; }
-  .name { font-size: 22px; font-weight: 900; line-height: 1.1; letter-spacing: -0.3px; }
-  .headline { font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 600; }
-  .contact { text-align: right; font-size: 10.6px; line-height: 1.45; color: var(--muted); }
-  .grid { display: grid; grid-template-columns: 2.35in 1fr; gap: 0.35in; align-items: start; }
-  .section { margin: 0 0 12px 0; break-inside: avoid; page-break-inside: avoid; }
-  .stitle {
-    font-size: 10.8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em;
-    color: var(--accent); border-bottom: 1px solid var(--line); padding-bottom: 4px; margin-bottom: 8px;
-  }
-  .entry { margin: 0 0 10px 0; break-inside: avoid; page-break-inside: avoid; }
-  .entry-head { display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
-  .entry-title { font-weight: 800; font-size: 12px; }
-  .entry-meta { color: var(--muted); font-style: italic; font-size: 10.5px; text-align:right; }
-  .desc { margin-top: 3px; color:#374151; }
-  .bullets { margin: 4px 0 0 16px; padding: 0; color:#374151; }
-  .bullets li { margin: 0 0 2px 0; }
-  .pillwrap { display:flex; flex-wrap:wrap; gap:4px; }
-  .pill { background:#f3f4f6; border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; font-size: 9.4px; color:#374151; font-weight: 600; }
-  .pill-soft { background: transparent; }
-  .skillblock { margin-bottom: 10px; }
-  .skillblock-title { font-weight: 900; font-size: 11px; margin-bottom: 4px; color:#111; }
-  .toolsline { margin-top: 5px; }
-  @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } .page { max-width: none; } }
-</style>
-</head>
-<body>
-  <div class="page">
-    <div class="header">
-      <div>
-        <div class="name">${escapeHtml(person.name)}</div>
-        <div class="headline">${escapeHtml(person.headline)}</div>
-      </div>
-      <div class="contact">${contactHtml}</div>
-    </div>
-
-    <div class="grid">
-      <div class="left">
-        <div class="section">
-          <div class="stitle">Education</div>
-          ${eduHtml}
-        </div>
-
-        <div class="section">
-          <div class="stitle">Skills</div>
-          ${skillsHtml}
-        </div>
-
-        ${showCoursework && courseHtml ? `<div class="section"><div class="stitle">Coursework</div>${courseHtml}</div>` : ""}
-      </div>
-
-      <div class="right">
-        <div class="section">
-          <div class="stitle">Summary</div>
-          <div class="desc">${escapeHtml(person.summary)}</div>
-        </div>
-
-        ${showResearch && researchHtml ? `<div class="section"><div class="stitle">Research</div>${researchHtml}</div>` : ""}
-
-        ${showLabs && labsHtml ? `<div class="section"><div class="stitle">Technical Experience</div>${labsHtml}</div>` : ""}
-
-        ${showProjects && projectsHtmlResume ? `<div class="section"><div class="stitle">Projects</div>${projectsHtmlResume}</div>` : ""}
-
-        ${showExperience && experienceHtml ? `<div class="section"><div class="stitle">Work Experience</div>${experienceHtml}</div>` : ""}
-      </div>
-    </div>
-  </div>
-</body>
-</html>
-  `;
+function dispatchBuild(config) {
+  return config?.doctype === "cv" ? buildCvHtml(config) : buildResumeHtml(config);
 }
 
 /* -------------------------
-   PDF controls wiring (existing)
+   PDF controls wiring
 -------------------------- */
 function setSeg(group, value) {
   state.pdfConfig[group] = value;
@@ -1089,7 +666,7 @@ function renderPdfControls() {
   });
 
   const isCV = cfg.doctype === "cv";
-  const disableGroups = isCV ? new Set(["domain", "audience"]) : new Set();
+  const disableGroups = isCV ? new Set(["focus"]) : new Set();
 
   btns.forEach((b) => {
     const g = b.getAttribute("data-group");
@@ -1099,11 +676,10 @@ function renderPdfControls() {
   });
 
   if (hint) {
-    if (isCV) hint.textContent = "CV mode: single-column output; Focus/Target disabled.";
+    if (isCV) hint.textContent = "CV mode: comprehensive output; Focus disabled.";
     else {
-      const focus = cfg.domain === "nanotech" ? "Nanotech" : "Data Science";
-      const target = cfg.audience === "academic" ? "Academic" : "Industry";
-      hint.textContent = `Resume mode: ${target} - ${focus}.`;
+      const focusLabel = cfg.focus === "process" ? "Process Engineering" : "Data Science";
+      hint.textContent = `Resume mode: ${focusLabel}.`;
     }
   }
 }
@@ -1139,7 +715,7 @@ function wirePdfControls() {
   dl.addEventListener("click", async (e) => {
     e.preventDefault();
 
-    const html = buildResumeHtml(state.pdfConfig);
+    const html = dispatchBuild(state.pdfConfig);
 
     const iframe = document.createElement("iframe");
     iframe.style.position = "fixed";

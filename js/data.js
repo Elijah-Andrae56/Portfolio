@@ -13,8 +13,15 @@ export const SITE = {
       github: "https://github.com/Elijah-Andrae56",
       portfolio: "https://elijah-andrae56.github.io/Portfolio/"
     },
+    // summary is the portfolio display / CV fallback
     summary:
       "A multidisciplinary data scientist with integrated experience across nanofabrication, applied mathematics, and marketing analytics. Skilled in developing predictive models, experimental designs, and end-to-end analytical pipelines that translate complex data into operational and strategic decisions. Combines statistical rigor with hands-on engineering and cleanroom experience, enabling a full stack understanding of how physical systems, data pipelines, and business objectives interact. Demonstrated strength in technical communication, cross-functional collaboration, and delivering analyses that influence stakeholders and improve organizational performance.",
+    // per-focus resume summaries
+    summaries: {
+      cv: "A multidisciplinary data scientist with integrated experience across nanofabrication, applied mathematics, and marketing analytics. Skilled in developing predictive models, experimental designs, and end-to-end analytical pipelines that translate complex data into operational and strategic decisions. Combines statistical rigor with hands-on engineering and cleanroom experience, enabling a full stack understanding of how physical systems, data pipelines, and business objectives interact. Demonstrated strength in technical communication, cross-functional collaboration, and delivering analyses that influence stakeholders and improve organizational performance.",
+      process: "Process-oriented engineer with hands-on experience in cleanroom nanofabrication, DOE-driven process optimization, and statistical materials characterization. Skilled in designing and executing experimental protocols, applying statistical analysis to identify process sensitivities, and maintaining rigorous experimental documentation. Experienced in operating and maintaining precision laboratory equipment, executing controlled process sequences, and working cross-functionally to implement technical solutions. Combines materials data analysis capabilities with direct physical process development experience and a strong commitment to laboratory safety.",
+      ds: "Data scientist with applied experience in predictive modeling, statistical inference, and end-to-end analytical pipelines across research, business, and public-sector domains. Skilled in Python (scikit-learn, pandas, NumPy), R (tidyverse), SQL, and machine learning methods including regression, classification, PCA, clustering, and DOE. Experienced in feature engineering, model evaluation, and translating complex analytical findings into clear, actionable recommendations for stakeholders. Demonstrated ability to handle large, high-dimensional datasets and communicate technical results to both technical and non-technical audiences.",
+    },
   },
 
   highlights: [
@@ -24,13 +31,12 @@ export const SITE = {
     "Teaching and mentorship: Learning Assistant (Applied DS) and mathematics grader (proof + linear algebra)",
   ],
 
-
   skills: [
     {
       title: "Statistical and ML Methods",
       domains: ["ds", "marketing", "nanofab"],
       items: [
-        "Regression (SLM/MLM)",
+        "Regression (SLR/MLR)",
         "Logistic, Ridge/Lasso",
         "Classification (KNN/Forests)",
         "PCA and Clustering",
@@ -98,46 +104,61 @@ export const SITE = {
   // Unified portfolio surface (Research + Labs + Projects)
   cards: [
     {
-    kind: "research",
-    featured: true,
-    title: "Electrochemical Microbubble Devices: Fabrication, Characterization, and Stochastic Signal Applications",
-    date: "2026-03-11",
-    categories: ["nanofab", "ds", "cs"],
-    tags: ["Nanofab", "Microfluidics", "Device Physics", "Instrumentation", "Research"],
-    tools: [
-      "Photolithography",
-      "LaserWriter",
-      "Thin-film deposition",
-      "E-beam deposition",
-      "PDMS soft lithography",
-      "Keithley 2450",
-      "Semiconductor probe station",
-      "Optical microscopy",
-      "Python",
-      "DOE"
-    ],
-    cvBullets: [
-      "Designed and fabricated multilayer electrochemical microfluidic devices using patterned metal electrodes, dielectric insulation, SU-8 molds, and PDMS channel integration on glass substrates.",
-      "Developed physics-driven characterization workflows using a Keithley 2450, microscope imaging, and semiconductor probe station measurements to quantify nucleation thresholds, current response, field dependence, and trial-to-trial stochastic behavior.",
-      "Built a programmable data acquisition and analysis framework for voltage-stepped bubble experiments, including event timing, current traces, reaction-state labeling, and structured datasets for modeling nucleation probability and wait-time statistics.",
-      "Positioned the platform for multiple device directions including microbubble actuation, stochastic neuron hardware, and entropy / random-number-generation studies grounded in quantified physical variability."
-    ],
-    blurb:
-      "Research platform centered on electrochemical microbubble generation in microfluidic devices, spanning full-stack fabrication, semiconductor-style electrical characterization, automated measurement design, and stochastic modeling for actuation, neuromorphic, and entropy-source applications.",
-    details:
-      "This project has been reframed from a single application-specific random-number generator build into a broader device-physics and characterization effort focused on electrochemical microbubble generation in microfluidic systems.\n\nSubsection 1: Device Design and Fabrication\nBuilt a multilayer glass-based microfluidic device stack combining patterned aluminum electrodes, dielectric insulation, and PDMS channel structures formed from SU-8 molds. The fabrication workflow includes substrate cleaning, lithographic patterning, metal deposition and lift-off, insulating layer definition, mold fabrication, and PDMS integration. Design work emphasizes electrode geometry, gap spacing, alignment strategy, insulation openings, and channel architecture so that bubble generation can be studied as a controlled physical phenomenon rather than a one-off demonstration.\n\nSubsection 2: Characterization, Instrumentation, and Modeling\nCurrent work focuses on building rigorous characterization methods for nucleation and gas-generation behavior using a Keithley 2450, semiconductor probe station, and microscope-based video measurement. Developed structured trial protocols for identifying safe operating windows, threshold behavior, gap dependence, drift / conditioning effects, and optional current-controlled operation. Measurement workflows log voltage, compliance, baseline current, steady current, reaction class, and first-event time, with video-linked trial records for reproducibility. Parallel analysis work models bubble nucleation as a stochastic first-event process, connecting current-voltage behavior to nucleation probability, wait-time distributions, and field-dependent activation behavior.\n\nApplication Direction\nThe long-term value of the platform is that the same physical system can be reframed for multiple applications: low-cost electrochemical microbubble actuation for microfluidic pumping, stochastic microbubble neuron concepts where nucleation implements a probabilistic activation curve, and entropy-source / TRNG studies where randomness is quantified statistically rather than assumed. This framing makes the project both fabrication-intensive and experimentally rigorous, with clear relevance to microdevices, semiconductor-style characterization, and applied physical modeling.\n\nStatus\nPrototype fabrication is active and the project is now centered on repeatable characterization, automated data collection, physically interpretable modeling, and iterative device redesign based on measured failure modes, threshold behavior, and reproducibility limits.",
-    image: "images/microfluidic_electrolysis_1.jpg",
-    images: [
-      "images/microfluidic_electrolysis_1.jpg",
-      "images/microfluidic_electrolysis_2.jpg",
-      "images/microfluidic_electrolysis_3.jpg",
-      "images/microfluidic_electrolysis_4.jpg",
-      "images/microfluidic_electrolysis_5.jpg",
-      "images/microfluidic_electrolysis_6.jpg"
-    ],
-    imageAlt: "Electrochemical microbubble microfluidic device and characterization workflow",
-    links: [],
-  },
+      kind: "research",
+      featured: true,
+      title: "Electrochemical Microbubble Devices: Fabrication, Characterization, and Stochastic Signal Applications",
+      date: "2026-03-11",
+      categories: ["nanofab", "ds", "cs"],
+      tags: ["Nanofab", "Microfluidics", "Device Physics", "Instrumentation", "Research"],
+      tools: [
+        "Photolithography",
+        "LaserWriter",
+        "Thin-film deposition",
+        "E-beam deposition",
+        "PDMS soft lithography",
+        "Keithley 2450",
+        "Semiconductor probe station",
+        "Optical microscopy",
+        "Python",
+        "DOE"
+      ],
+      descriptions: {
+        cv: [
+          "Designed and fabricated multilayer electrochemical microfluidic devices using patterned metal electrodes, dielectric insulation, SU-8 molds, and PDMS channel integration on glass substrates.",
+          "Developed physics-driven characterization workflows using a Keithley 2450, microscope imaging, and semiconductor probe station measurements to quantify nucleation thresholds, current response, field dependence, and trial-to-trial stochastic behavior.",
+          "Built a programmable data acquisition and analysis framework for voltage-stepped bubble experiments, including event timing, current traces, reaction-state labeling, and structured datasets for modeling nucleation probability and wait-time statistics.",
+          "Positioned the platform for multiple device directions including microbubble actuation, stochastic neuron hardware, and entropy/random-number-generation studies grounded in quantified physical variability.",
+        ],
+        resume: {
+          process: [
+            "Designed and fabricated multilayer electrochemical microdevices using photolithographic patterning, thin-film metal deposition, SU-8 mold processing, and PDMS elastomeric channel integration on glass substrates.",
+            "Developed systematic experimental protocols for device characterization using a Keithley 2450 and probe station; varied process parameters to map nucleation thresholds, current response, and field-dependent activation behavior across device geometries.",
+            "Applied statistical analysis to multi-trial stochastic datasets to characterize process variability, screen for anomalies, and quantify nucleation probability distributions across experimental conditions.",
+            "Maintained structured experimental records including trial logs, voltage-current data, photographic documentation, and reproducibility assessments to support iterative process improvement.",
+          ],
+          ds: [
+            "Built programmable data acquisition framework for voltage-stepped electrochemical experiments; automated event timing, current trace logging, and reaction-state labeling into structured datasets.",
+            "Applied stochastic modeling to nucleation datasets; characterized nucleation probability distributions and wait-time statistics to quantify physical variability across experimental conditions.",
+            "Designed structured datasets linking process parameters to measured outcomes, enabling predictive modeling of nucleation behavior across voltage and device geometry conditions.",
+          ],
+        },
+      },
+      blurb:
+        "Research platform centered on electrochemical microbubble generation in microfluidic devices, spanning full-stack fabrication, semiconductor-style electrical characterization, automated measurement design, and stochastic modeling for actuation, neuromorphic, and entropy-source applications.",
+      details:
+        "This project has been reframed from a single application-specific random-number generator build into a broader device-physics and characterization effort focused on electrochemical microbubble generation in microfluidic systems.\n\nSubsection 1: Device Design and Fabrication\nBuilt a multilayer glass-based microfluidic device stack combining patterned aluminum electrodes, dielectric insulation, and PDMS channel structures formed from SU-8 molds. The fabrication workflow includes substrate cleaning, lithographic patterning, metal deposition and lift-off, insulating layer definition, mold fabrication, and PDMS integration. Design work emphasizes electrode geometry, gap spacing, alignment strategy, insulation openings, and channel architecture so that bubble generation can be studied as a controlled physical phenomenon rather than a one-off demonstration.\n\nSubsection 2: Characterization, Instrumentation, and Modeling\nCurrent work focuses on building rigorous characterization methods for nucleation and gas-generation behavior using a Keithley 2450, semiconductor probe station, and microscope-based video measurement. Developed structured trial protocols for identifying safe operating windows, threshold behavior, gap dependence, drift / conditioning effects, and optional current-controlled operation. Measurement workflows log voltage, compliance, baseline current, steady current, reaction class, and first-event time, with video-linked trial records for reproducibility. Parallel analysis work models bubble nucleation as a stochastic first-event process, connecting current-voltage behavior to nucleation probability, wait-time distributions, and field-dependent activation behavior.\n\nApplication Direction\nThe long-term value of the platform is that the same physical system can be reframed for multiple applications: low-cost electrochemical microbubble actuation for microfluidic pumping, stochastic microbubble neuron concepts where nucleation implements a probabilistic activation curve, and entropy-source / TRNG studies where randomness is quantified statistically rather than assumed. This framing makes the project both fabrication-intensive and experimentally rigorous, with clear relevance to microdevices, semiconductor-style characterization, and applied physical modeling.\n\nStatus\nPrototype fabrication is active and the project is now centered on repeatable characterization, automated data collection, physically interpretable modeling, and iterative device redesign based on measured failure modes, threshold behavior, and reproducibility limits.",
+      image: "images/microfluidic_electrolysis_1.jpg",
+      images: [
+        "images/microfluidic_electrolysis_1.jpg",
+        "images/microfluidic_electrolysis_2.jpg",
+        "images/microfluidic_electrolysis_3.jpg",
+        "images/microfluidic_electrolysis_4.jpg",
+        "images/microfluidic_electrolysis_5.jpg",
+        "images/microfluidic_electrolysis_6.jpg"
+      ],
+      imageAlt: "Electrochemical microbubble microfluidic device and characterization workflow",
+      links: [],
+    },
 
     {
       kind: "lab",
@@ -146,6 +167,26 @@ export const SITE = {
       categories: ["nanofab"],
       tags: ["Nanofab", "Cleanroom", "Labs"],
       tools: ["SUSS MJB4", "Microtech LaserWriter", "Thermal Evaporation", "Profilometry", "Wet Etch", "JMP"],
+      descriptions: {
+        cv: [
+          "Designed and executed full 2\u00b3 factorial DOE varying dose, D-step, and lens configuration to characterize LaserWriter lithography resolution limits; analyzed main effects and interactions in JMP.",
+          "Executed multilayer lithography workflows using SUSS MJB4 mask alignment and LaserWriter direct-write; quantified overlay error and compared alignment accuracy for multilayer device fabrication.",
+          "Patterned and deposited ~100 nm aluminum via thermal evaporation; executed lift-off and quantified film thickness, uniformity, and edge fidelity via profilometry.",
+          "Transferred aluminum patterns via controlled wet chemical etching; measured etch rates and evaluated line edge fidelity and undercut to assess process repeatability and parameter sensitivity.",
+        ],
+        resume: {
+          process: [
+            "Designed and executed a full 2\u00b3 factorial DOE varying dose, D-step, and lens configuration to characterize LaserWriter lithography resolution limits; analyzed main effects and interactions in JMP to identify optimal process parameters.",
+            "Characterized thin-film aluminum deposition, lift-off, and wet etch process sequences using profilometry; quantified film thickness, uniformity, etch rates, and edge fidelity across process conditions to assess repeatability and parameter sensitivity.",
+            "Operated cleanroom equipment including mask aligners (SUSS MJB4), thermal evaporation systems, and wet processing stations; followed ISO safety protocols for solvent handling and substrate preparation.",
+            "Executed multilayer lithography alignment workflows; quantified overlay error and evaluated process trade-offs between mask alignment and direct-write methods for multilayer device fabrication.",
+          ],
+          ds: [
+            "Designed and executed a full 2\u00b3 factorial DOE on lithography parameters; analyzed main effects and two-way interactions in JMP to identify dominant drivers of pattern fidelity.",
+            "Quantified process metrics (linewidth, film thickness, overlay error) via profilometry and optical metrology; applied statistical analysis to characterize parameter sensitivity across process conditions.",
+          ],
+        },
+      },
       blurb:
         "Cleanroom process modules emphasizing reproducible lithography, thin-film processing, metrology, multilayer alignment, and parameter sensitivity.",
       details:
@@ -158,10 +199,10 @@ export const SITE = {
           date: "2025-11-05",
           tools: ["Microtech LaserWriter", "AZ1512", "Profilometry", "JMP"],
           bullets: [
-            "Designed and executed randomized full 2^3 factorial DOE varying dose, D-step, and lens configuration to characterize LaserWriter resolution limits.",
+            "Designed and executed randomized full 2\u00b3 factorial DOE varying dose, D-step, and lens configuration to characterize LaserWriter resolution limits.",
             "Measured linewidth and feature depth via profilometry; analyzed main effects and interactions in JMP to identify parameter regimes maximizing pattern fidelity."
           ],
-          blurb: "Characterized lithographic resolution limits using a full 2^3 factorial DOE on LaserWriter parameters.",
+          blurb: "Characterized lithographic resolution limits using a full 2\u00b3 factorial DOE on LaserWriter parameters.",
           images: ["images/dose_test_1.png", "images/dose_test_2.jpg"],
           imageAlt: "LaserWriter lithography resolution test patterns",
         },
@@ -205,36 +246,50 @@ export const SITE = {
       links: [],
     },
 
-  {
-    kind: "lab",
-    title: "Electronics Laboratory",
-    date: "2026-03-11",
-    categories: ["cs", "ds", "nanofab", "electronics"],
-    tags: ["Circuit Analysis", "Instrumentation", "Analog Electronics", "Optoelectronics"],
-    tools: [
-      "Oscilloscope",
-      "Function Generator",
-      "Power Supplies",
-      "Fluke 179 Multimeter",
-      "Capacitance / Inductance Meters",
-      "Optical Power Meter",
-      "Spectrometer",
-      "Proto-boards"
-    ],
-    blurb:
-      "Hands-on electronics laboratory covering circuit fundamentals, instrumentation, and device characterization including RC dynamics, impedance, resonance, diode I–V behavior, transistor amplification, and optoelectronic measurements.",
-    details:
-      "Completed a full electronics laboratory obstacle course focused on practical circuit construction and measurement discipline. Built and characterized resistive, capacitive, and inductive networks; implemented voltage dividers and RC filters; measured time-domain response and frequency dependence using oscilloscopes and function generators; and analyzed impedance, reactance, and resonance in RLC systems.\n\nAdditional work included diode I–V characterization, Zener behavior, transistor current amplification (TIP31C), and operational amplifier circuits including inverting, non-inverting, and buffer configurations. Investigated instrumentation loading effects and impedance matching.\n\nOptoelectronic experiments included photodiode I–V characterization under varying illumination, LED optical power vs current measurements, and laser diode operation using a constant-current driver with optical power and spectral measurements.\n\nThe laboratory emphasized rigorous measurement workflows, circuit modeling intuition, and connections between electronic instrumentation and physical device behavior relevant to experimental physics and microdevice characterization.",
-    image: "images/electronics_1.jpg",
-    images: [
-      "images/electronics_1.jpg",
-      "images/electronics_2.jpg",
-      "images/electronics_3.jpg",
-      "images/electronics_4.jpg",
-      "images/electronics_5.jpg",
-    ],
-    links: [],
-  },
+    {
+      kind: "lab",
+      title: "Electronics Laboratory",
+      date: "2026-03-11",
+      categories: ["cs", "ds", "nanofab", "electronics"],
+      tags: ["Circuit Analysis", "Instrumentation", "Analog Electronics", "Optoelectronics"],
+      tools: [
+        "Oscilloscope",
+        "Function Generator",
+        "Power Supplies",
+        "Fluke 179 Multimeter",
+        "Capacitance / Inductance Meters",
+        "Optical Power Meter",
+        "Spectrometer",
+        "Proto-boards"
+      ],
+      descriptions: {
+        cv: [
+          "Built and characterized resistive, capacitive, and inductive networks; implemented voltage dividers and RC filters; measured time-domain response and frequency dependence using oscilloscopes and function generators.",
+          "Analyzed impedance, reactance, and resonance in RLC systems; characterized diode I\u2013V behavior, Zener behavior, and transistor current amplification.",
+          "Performed optoelectronic measurements including photodiode I\u2013V characterization, LED optical power vs current, and laser diode operation using a constant-current driver with optical power and spectral measurements.",
+        ],
+        resume: {
+          process: [
+            "Built and characterized resistive, capacitive, and inductive circuits; measured impedance, resonance, and time-domain response using oscilloscopes and function generators.",
+            "Characterized diode, transistor, and optoelectronic device behavior from I\u2013V measurements; operated optical power meters and spectrometers for device characterization.",
+          ],
+          ds: null,
+        },
+      },
+      blurb:
+        "Hands-on electronics laboratory covering circuit fundamentals, instrumentation, and device characterization including RC dynamics, impedance, resonance, diode I\u2013V behavior, transistor amplification, and optoelectronic measurements.",
+      details:
+        "Completed a full electronics laboratory obstacle course focused on practical circuit construction and measurement discipline. Built and characterized resistive, capacitive, and inductive networks; implemented voltage dividers and RC filters; measured time-domain response and frequency dependence using oscilloscopes and function generators; and analyzed impedance, reactance, and resonance in RLC systems.\n\nAdditional work included diode I\u2013V characterization, Zener behavior, transistor current amplification (TIP31C), and operational amplifier circuits including inverting, non-inverting, and buffer configurations. Investigated instrumentation loading effects and impedance matching.\n\nOptoelectronic experiments included photodiode I\u2013V characterization under varying illumination, LED optical power vs current measurements, and laser diode operation using a constant-current driver with optical power and spectral measurements.\n\nThe laboratory emphasized rigorous measurement workflows, circuit modeling intuition, and connections between electronic instrumentation and physical device behavior relevant to experimental physics and microdevice characterization.",
+      image: "images/electronics_1.jpg",
+      images: [
+        "images/electronics_1.jpg",
+        "images/electronics_2.jpg",
+        "images/electronics_3.jpg",
+        "images/electronics_4.jpg",
+        "images/electronics_5.jpg",
+      ],
+      links: [],
+    },
 
     {
       kind: "lab",
@@ -243,10 +298,21 @@ export const SITE = {
       categories: ["ds", "cs"],
       tags: ["Data Science", "Program Evaluation", "Labs"],
       tools: ["Python", "pandas", "Visualization"],
-      cvBullets: [
-        "Built reproducible Python/pandas pipeline for cleaning and analyzing 50k+ police CAD dispatch records related to mental health crisis response.",
-        "Quantified temporal/spatial trends and produced stakeholder-facing visualizations supporting operational program evaluation (Eugene, OR)."
-      ],
+      descriptions: {
+        cv: [
+          "Built reproducible Python/pandas pipeline for cleaning and analyzing 50,000+ police CAD dispatch records related to mental health crisis response.",
+          "Quantified temporal/spatial trends and produced stakeholder-facing visualizations supporting operational program evaluation (Eugene, OR).",
+        ],
+        resume: {
+          ds: [
+            "Built reproducible Python/pandas pipeline to clean and analyze 50,000+ police CAD dispatch records; engineered features to quantify temporal and spatial trends in crisis-response operations.",
+            "Produced stakeholder-facing visualizations and analytical summaries for program evaluation; translated complex dispatch data into actionable operational insights for community stakeholders (White Bird Clinic).",
+          ],
+          process: [
+            "Built reproducible data pipeline for cleaning and analyzing 50,000+ operational records; maintained structured documentation and produced clear summaries for stakeholder program evaluation.",
+          ],
+        },
+      },
       blurb:
         "Built reproducible pipelines and trend analyses on crisis-response dispatch logs to support operational evaluation.",
       details:
@@ -264,10 +330,19 @@ export const SITE = {
       categories: ["cs"],
       tags: ["CS", "App Dev"],
       tools: ["Python", "Kivy", "SQL", "ETL"],
-      cvBullets: [
-        "Developed offline-first mobile application (Python/Kivy + SQLite) integrating GPS route logging with environmental data ingestion for fishing performance analytics.",
-        "Implemented ETL + data model linking catches to location/time/weather conditions, enabling historical query, trend analysis, and decision support."
-      ],
+      descriptions: {
+        cv: [
+          "Developed offline-first mobile application (Python/Kivy + SQLite) integrating GPS route logging with environmental data ingestion for fishing performance analytics.",
+          "Implemented ETL + data model linking catches to location/time/weather conditions, enabling historical query, trend analysis, and decision support.",
+        ],
+        resume: {
+          ds: [
+            "Developed offline-first mobile application (Python/Kivy) integrating GPS route logging and real-time NOAA environmental data ingestion for fishing performance analytics.",
+            "Designed and implemented SQLite data model linking catch records to location, time, and weather conditions; enabled historical trend analysis and data-driven decision support.",
+          ],
+          process: null,
+        },
+      },
       blurb:
         "Developed a mobile app scraping NOAA data, logging GPS routes, and using SQL for real-time analytics.",
       details:
@@ -284,10 +359,19 @@ export const SITE = {
       categories: ["ds", "marketing"],
       tags: ["Data Science", "Marketing"],
       tools: ["R", "BigQuery", "tidyverse", "Logistic regression", "SQL"],
-      cvBullets: [
-        "Analyzed 900k+ e-commerce sessions using SQL/BigQuery and R (tidyverse); engineered behavioral and temporal features for marketing attribution.",
-        "Built and evaluated logistic regression models to predict purchase propensity/high-value customers; translated results into campaign-timing and targeting recommendations."
-      ],
+      descriptions: {
+        cv: [
+          "Analyzed 900,000+ e-commerce sessions using SQL/BigQuery and R (tidyverse); engineered behavioral and temporal features for marketing attribution.",
+          "Built and evaluated logistic regression models to predict purchase propensity/high-value customers; translated results into campaign-timing and targeting recommendations.",
+        ],
+        resume: {
+          ds: [
+            "Analyzed 900,000+ e-commerce sessions using SQL/BigQuery and R; engineered behavioral and temporal features for marketing attribution and customer segmentation.",
+            "Built and evaluated logistic regression models to predict purchase propensity and high-value customer behavior; translated model outputs into campaign-timing and audience-targeting recommendations.",
+          ],
+          process: null,
+        },
+      },
       blurb:
         "Parsed 900k e-commerce sessions using R and BigQuery. Built logistic regression models to classify high-value buyers and optimize campaign scheduling.",
       details:
@@ -305,10 +389,19 @@ export const SITE = {
       categories: ["ds", "cs"],
       tags: ["Data Science", "Python"],
       tools: ["Python", "scikit-learn", "PCA", "Ridge regression"],
-      cvBullets: [
-        "Integrated NOAA buoy and airport datasets; engineered directional and seasonal features to model hazardous wave regimes and safe/unsafe classifications.",
-        "Built Ridge regression model with PCA-based dimensionality reduction; reduced false negatives by 23% vs baseline heuristics and produced interpretable safety workflow."
-      ],
+      descriptions: {
+        cv: [
+          "Integrated NOAA buoy and airport datasets; engineered directional and seasonal features to model hazardous wave regimes and safe/unsafe classifications.",
+          "Built Ridge regression model with PCA-based dimensionality reduction; reduced false negatives by 23% vs baseline heuristics and produced interpretable safety workflow.",
+        ],
+        resume: {
+          ds: [
+            "Integrated multi-source NOAA buoy and airport weather datasets; engineered directional and seasonal features to model hazardous wave regimes and binary safety classifications.",
+            "Built Ridge regression model with PCA-based dimensionality reduction; reduced false negatives by 23% vs baseline heuristics and produced an interpretable go/no-go safety decision workflow.",
+          ],
+          process: null,
+        },
+      },
       blurb:
         "Integrated NOAA buoy and airport datasets to predict hazardous wave conditions. Applied Ridge Regression and PCA to reduce false negatives by 23% vs baseline heuristics.",
       details:
@@ -326,10 +419,19 @@ export const SITE = {
       categories: ["cs", "ds"],
       tags: ["CS", "Optimization"],
       tools: ["Python", "OR-Tools", "Constraint optimization"],
-      cvBullets: [
-        "Built constraint optimization model (Python + OR-Tools) automating RA on-call scheduling under 8+ fairness and coverage constraints.",
-        "Produced feasible schedules for 12 teams; estimated 750+ administrative hours saved annually while maintaining policy compliance and equitable assignments."
-      ],
+      descriptions: {
+        cv: [
+          "Built constraint optimization model (Python + OR-Tools) automating RA on-call scheduling under 8+ fairness and coverage constraints.",
+          "Produced feasible schedules for 12 teams; estimated 750+ administrative hours saved annually while maintaining policy compliance and equitable assignments.",
+        ],
+        resume: {
+          ds: [
+            "Built constraint optimization model (Python + OR-Tools) automating RA on-call scheduling across 12 teams under 8+ fairness and coverage constraints.",
+            "Generated policy-compliant, equitable schedules in seconds; estimated 750+ administrative hours saved annually through algorithmic scheduling.",
+          ],
+          process: null,
+        },
+      },
       blurb:
         "Developed a model to automate RA on-call scheduling under 8+ fairness constraints; designed for 12 teams with projected 750+ hours saved yearly.",
       details:
@@ -339,6 +441,7 @@ export const SITE = {
       imageAlt: "Scheduler results",
       links: [],
     },
+
     {
       kind: "project",
       title: "Superconductor Critical Temperature Modeling",
@@ -346,12 +449,25 @@ export const SITE = {
       categories: ["ds", "cs"],
       tags: ["Data Science", "Machine Learning", "Materials Data"],
       tools: ["Python", "pandas", "scikit-learn", "PCA", "Random Forest", "Matplotlib"],
-      cvBullets: [
-        "Analyzed a dataset of 21k+ superconducting materials using compositional descriptors derived from elemental properties.",
-        "Applied dimensionality reduction (PCA) and K-Means clustering to identify structure in materials feature space and isolate regions containing high-temperature superconductors.",
-        "Trained Random Forest regression model to predict superconducting critical temperature (Tc), achieving strong predictive alignment between observed and predicted values.",
-        "Evaluated feature importance to identify dominant compositional predictors, highlighting thermal conductivity variation and electronic structure descriptors as key correlates of Tc."
-      ],
+      descriptions: {
+        cv: [
+          "Analyzed a dataset of 21,000+ superconducting materials using compositional descriptors derived from elemental properties.",
+          "Applied dimensionality reduction (PCA) and K-Means clustering to identify structure in materials feature space and isolate regions containing high-temperature superconductors.",
+          "Trained Random Forest regression model to predict superconducting critical temperature (Tc), achieving strong predictive alignment between observed and predicted values.",
+          "Evaluated feature importance to identify dominant compositional predictors, highlighting thermal conductivity variation and electronic structure descriptors as key correlates of Tc.",
+        ],
+        resume: {
+          ds: [
+            "Analyzed 21,000+ superconducting compounds using PCA-based dimensionality reduction and K-Means clustering to identify compositional structure in a high-dimensional materials feature space.",
+            "Trained a Random Forest regression model to predict superconducting critical temperature (Tc); identified thermal conductivity variation and electronic structure descriptors as dominant compositional predictors via feature importance analysis.",
+          ],
+          process: [
+            "Analyzed a dataset of 21,000+ superconducting materials using compositional and elemental property descriptors; applied PCA and clustering to identify structure-property relationships across the materials feature space.",
+            "Applied statistical analysis and feature importance evaluation to identify dominant property predictors of critical temperature; screened data for anomalies and outliers to validate model reliability.",
+            "Demonstrated ability to extract interpretable process-property relationships from high-dimensional materials datasets using machine learning; communicated findings clearly through visualizations and structured analysis.",
+          ],
+        },
+      },
       blurb:
         "Machine learning analysis of superconducting materials using compositional descriptors to explore structure in materials space and predict critical temperature.",
       details:
@@ -380,6 +496,17 @@ export const SITE = {
         "Conducted safety inspections, policy education, and incident documentation to ensure adherence to university standards.",
         "Led community programming focused on engagement, well-being, and resource accessibility.",
       ],
+      resumeBullets: {
+        ds: [
+          "Managed operations for 180+ person residential community; documented incidents and maintained accurate records in coordination with professional staff.",
+          "Collaborated cross-functionally with housing, facilities, and emergency services to resolve operational issues and implement community programs.",
+        ],
+        process: [
+          "Enforced safety protocols and conducted regular inspections across a 180+ person facility; documented incidents and coordinated corrective action with professional staff and emergency services.",
+          "Responded to on-call medical, safety, and facilities incidents; communicated status clearly and escalated appropriately to maintain safe operations.",
+          "Collaborated cross-functionally with housing, facilities, and emergency services teams to identify and implement viable solutions to operational issues.",
+        ],
+      },
     },
     {
       title: "Learning Assistant - Applied Data Science for Social Justice",
@@ -391,6 +518,15 @@ export const SITE = {
         "Coached analytical storytelling and partner-facing presentations for community stakeholders (White Bird Clinic).",
         "Provided individualized technical support in Python/pandas workflows for reproducible, impact-oriented insights.",
       ],
+      resumeBullets: {
+        ds: [
+          "Facilitated lab sessions and office hours guiding students through Python/pandas data cleaning, visualization, and statistical analysis workflows.",
+          "Coached analytical storytelling and technical communication for stakeholder presentations; provided individualized mentorship in reproducible data science.",
+        ],
+        process: [
+          "Guided students through technical data analysis workflows; provided individualized mentorship and supported clear documentation of analytical methods and results.",
+        ],
+      },
     },
     {
       title: "Social Media Analytics and Marketing Intern",
@@ -401,17 +537,29 @@ export const SITE = {
         "Increased organic reach by 117% within three weeks by analyzing engagement metrics and optimizing cadence in Meta Business Suite.",
         "Conducted competitive content analysis and audience segmentation to refine messaging strategy and improve engagement consistency.",
       ],
+      resumeBullets: {
+        ds: [
+          "Increased organic social reach by 117% in three weeks by analyzing engagement metrics and optimizing posting cadence in Meta Business Suite.",
+          "Conducted competitive content analysis and audience segmentation to refine messaging strategy and improve engagement consistency.",
+        ],
+        process: null,
+      },
     },
     {
       title: "Mathematics Paper Marker",
       track: "academic",
       domains: ["ds", "cs", "nanofab"],
-      meta: "Intro to Mathematical Cryptography; Linear Algebra",
       meta: "University of Oregon - Eugene, OR | Jun 2025 to Present",
       bullets: [
         "Evaluated assignments and provided detailed feedback to support proof-writing, matrix methods, and cryptographic reasoning.",
         "Collaborated with instructors to maintain grading accuracy, rubric adherence, and timely feedback delivery.",
       ],
+      resumeBullets: {
+        ds: [
+          "Evaluated proof-writing, matrix methods, and cryptographic reasoning in Linear Algebra and Mathematical Cryptography; provided detailed feedback to support student learning.",
+        ],
+        process: null,
+      },
     },
   ],
 
