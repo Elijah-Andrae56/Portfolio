@@ -10,7 +10,6 @@ export const SITE = {
     contact: {
       email: "Elijah.andrae56@outlook.com",
       linkedin: "https://www.linkedin.com/in/elijah-andrae",
-      github: "https://github.com/Elijah-Andrae56",
       portfolio: "https://elijah-andrae56.github.io/Portfolio/"
     },
     // summary is the portfolio display / CV fallback
