@@ -523,7 +523,8 @@ export const SITE = {
           "Characterized Gaussian laser beam profiles, polarization states, and photodiode rise times using translation stages, optical choppers, and oscilloscopes.",
           "Constructed functional optical isolators using quarter waveplates and polarizing beamsplitters, ensuring strict beam containment and alignment."
         ],
-        resume: {
+        // The resume-builder looks for resumeBullets, not just resume
+        resumeBullets: {
           ds: [
             "Analyzed optical signal data and photodiode rise times using oscilloscopes to characterize hardware response rates.",
             "Modeled and simulated Fabry-Perot cavity properties (Finesse, Free Spectral Range) to validate physical benchtop measurements."
@@ -678,7 +679,6 @@ export const SITE = {
       meta: "B.S. Data Science (Marketing Analytics concentration) - Minors: Mathematics, Business Administration",
       bullets: [
         "Expected graduation: June 2026",
-        "GPA 3.30",
         "Honors: Dean's List Spring 2025, Dean's List Fall 2025",
         "Relevant coursework: Machine Learning, Probability and Statistics, Linear Algebra, Differential Equations, Nanofabrication, Stochastic Processes",
       ],
