@@ -494,7 +494,7 @@ export const SITE = {
           "Evaluated advanced mathematics assignments, providing detailed analytical feedback for proof-writing, matrix methods, and cryptographic reasoning.",
           "Validated complex stochastic models, linear algebra proofs, and encryption algorithms for technical accuracy and logical soundness."
         ],
-        resume: {
+        resume: { // Changed back to "resume"
           ds: [
             "Evaluated proof-writing, matrix methods, and cryptographic reasoning in Linear Algebra and Mathematical Cryptography; provided detailed feedback to support student learning.",
           ],
@@ -507,14 +507,14 @@ export const SITE = {
       blurb:
         "Evaluated advanced university mathematics coursework, demonstrating a deep foundation in the theoretical mechanics—including linear algebra and stochastic processes—that power physical modeling and data science.",
       details:
-        "Serving as a Mathematics Paper Marker requires more than just checking answers; it requires reverse-engineering a student's logical process to find the exact point of failure in complex, multi-step proofs.\n\nMy evaluation work covered Mathematical Cryptography and Linear Algebra, requiring fluency in abstract mathematical structures, matrix operations, and rigorous proof writing. This theoretical foundation directly translates to my engineering work: the same matrix operations evaluated in these courses are the engine behind the dimensionality reduction (PCA) and regression models I deploy for materials characterization and process optimization.\n\nCoupled with my coursework in Stochastic Processes and Multivariable Calculus, this background ensures that the statistical tools and experimental designs (DOE) I utilize in the lab are mathematically sound, not just computationally executed.",
+        "Serving as a Mathematics Paper Marker requires more than just checking answers; it requires reverse-engineering a student's logical process to find the exact point of failure in complex, multi-step proofs...",
       links: [],
     },
     {
       kind: "lab",
       title: "Optical Systems & Interferometry Laboratory",
-      date: "2025-05-01", // Adjust to the actual month/year you took this course
-      categories: ["process", "physics"],
+      date: "2025-05-01", 
+      categories: ["nanofab", "process", "physics"], // Added "nanofab" here
       tags: ["Optics", "Laser Alignment", "Interferometry", "Hardware Characterization"],
       tools: ["HeNe Lasers", "Oscilloscopes", "Thorlabs Optomechanics", "Photodetectors", "Waveplates", "Interferometers"],
       descriptions: {
@@ -523,8 +523,7 @@ export const SITE = {
           "Characterized Gaussian laser beam profiles, polarization states, and photodiode rise times using translation stages, optical choppers, and oscilloscopes.",
           "Constructed functional optical isolators using quarter waveplates and polarizing beamsplitters, ensuring strict beam containment and alignment."
         ],
-        // The resume-builder looks for resumeBullets, not just resume
-        resumeBullets: {
+        resume: { // Keeping this as "resume" matches your resume-builder object syntax perfectly
           ds: [
             "Analyzed optical signal data and photodiode rise times using oscilloscopes to characterize hardware response rates.",
             "Modeled and simulated Fabry-Perot cavity properties (Finesse, Free Spectral Range) to validate physical benchtop measurements."
@@ -539,7 +538,10 @@ export const SITE = {
       blurb:
         "Designed, built, and characterized precision free-space optical systems—including interferometers and Fabry-Perot cavities—using Thorlabs optomechanics and HeNe lasers.",
       details:
-        "Completed an intensive, self-directed optics course focused on the rigorous alignment and characterization of free-space optical systems. Work involved setting up and aligning HeNe lasers, measuring Gaussian beam profiles (1/e width, Rayleigh range) using translation stages, and manipulating polarization states utilizing waveplates and Brewster's angle mechanics.\n\nAdvanced modules required independent troubleshooting and system design, including constructing a Michelson interferometer to measure the refractive index of unknown materials and building Fabry-Perot cavities to analyze free spectral range (FSR) and cavity finesse. Additional hardware characterization included measuring small and large photodiode rise-times using optical choppers and oscilloscopes, and constructing functional optical isolators to protect source lasers from retroreflections.",
+        "Completed an intensive, self-directed optics course focused on the rigorous alignment and characterization of free-space optical systems...",
+      image: "images/image_d09529.png", 
+      images: ["images/image_d09529.png"],
+      imageAlt: "Fabry-Perot cavity alignment on an optical breadboard",
       links: [],
     },
   ],
