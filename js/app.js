@@ -712,57 +712,26 @@ function wirePdfControls() {
   const dl = qs("#pdfDownloadBtn");
   if (!dl) return;
 
-  dl.addEventListener("click", async (e) => {
+  dl.addEventListener("click", (e) => {
     e.preventDefault();
+    closeDropdown("#pdfDdMenu", "#pdfDdBtn");
 
     const html = dispatchBuild(state.pdfConfig);
 
-    const iframe = document.createElement("iframe");
-    iframe.style.position = "fixed";
-    iframe.style.right = "0";
-    iframe.style.bottom = "0";
-    iframe.style.width = "0";
-    iframe.style.height = "0";
-    iframe.style.border = "0";
-    document.body.appendChild(iframe);
-
-    const win = iframe.contentWindow;
-    const doc = win.document;
-
-    doc.open();
-    doc.write(html);
-    doc.close();
-
-    const safePrint = async () => {
-      try {
-        if (win.document?.fonts?.ready) await win.document.fonts.ready;
-      } catch {}
-      await new Promise((r) => setTimeout(r, 30));
-
-      win.onafterprint = () => {
-        setTimeout(() => {
-          try { document.body.removeChild(iframe); } catch {}
-        }, 0);
-        win.onafterprint = null;
-      };
-
-      win.focus();
-      win.print();
-    };
-
-    let fired = false;
-    iframe.onload = () => {
-      if (fired) return;
-      fired = true;
-      safePrint();
-    };
-    setTimeout(() => {
-      if (fired) return;
-      fired = true;
-      safePrint();
-    }, 60);
-
-    closeDropdown("#pdfDdMenu", "#pdfDdBtn");
+    // Open a real popup window so Chrome's print engine has a proper rendering
+    // context — a 0×0 iframe causes Chrome to rasterize instead of vector-text.
+    const printWin = window.open(
+      "",
+      "_blank",
+      "width=900,height=700,menubar=no,toolbar=no,location=no,scrollbars=yes,resizable=yes"
+    );
+    if (!printWin) {
+      alert("Pop-ups are blocked. Please allow pop-ups for this site and try again.");
+      return;
+    }
+    printWin.document.open();
+    printWin.document.write(html);
+    printWin.document.close();
   });
 
   // PDF dropdown open/close

@@ -125,17 +125,20 @@ export function buildCvHtml(config) {
       ${(exp.bullets || []).length ? `<ul class="bullets">${exp.bullets.map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>` : ""}
     </div>`).join("");
 
+  const nameSlug = person.name.replace(/\s+/g, "_");
+  const docTitle = `${nameSlug}_CV`;
+
   return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<title>${escapeHtml(person.name)} - CV</title>
+<title>${escapeHtml(docTitle)}</title>
 <style>
   :root { --text:#111827; --muted:#6b7280; --accent:#2563eb; --line:#e5e7eb; }
   * { box-sizing: border-box; }
   html, body { margin:0; padding:0; }
   @page { size: letter portrait; margin: 0.65in; }
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; color: var(--text); font-size: 11.2px; line-height: 1.35; }
+  body { font-family: Arial, Helvetica, "Segoe UI", sans-serif; color: var(--text); font-size: 11.2px; line-height: 1.35; }
   a { color: var(--text); text-decoration: underline; }
   .page { width: 100%; max-width: 8.5in; margin: 0 auto; }
   .hdr { display:flex; justify-content:space-between; gap:18px; align-items:flex-start; padding-bottom: 10px; border-bottom: 2px solid #111; margin-bottom: 14px; }
@@ -159,7 +162,13 @@ export function buildCvHtml(config) {
   .cv-footer { margin-top: 16px; padding-top: 10px; border-top: 1px solid var(--line); display:flex; justify-content:flex-end; gap:10px; color: var(--muted); font-size: 10px; }
   .qr { width: 72px; height: 72px; border: 1px solid var(--line); border-radius: 6px; padding: 4px; background: #fff; }
   .qr-label { text-align: right; line-height: 1.25; }
-  @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } .page { max-width: none; } }
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page { max-width: none; width: 100%; }
+    @page { size: letter portrait; margin: 0.65in; }
+    * { transform: none !important; filter: none !important; }
+    a { color: inherit; }
+  }
 </style>
 </head>
 <body>
@@ -191,6 +200,16 @@ export function buildCvHtml(config) {
       ${contact?.portfolio ? `<img class="qr" alt="Portfolio QR code" src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(contact.portfolio)}" />` : ""}
     </div>
   </div>
+<script>
+  window.addEventListener("load", function () {
+    var doPrint = function () { window.print(); };
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(doPrint).catch(doPrint);
+    } else {
+      doPrint();
+    }
+  });
+</script>
 </body>
 </html>`;
 }
