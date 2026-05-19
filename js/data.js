@@ -539,9 +539,9 @@ export const SITE = {
         "Designed, built, and characterized precision free-space optical systems—including interferometers and Fabry-Perot cavities—using Thorlabs optomechanics and HeNe lasers.",
       details:
         "Completed an intensive, self-directed optics course focused on the rigorous alignment and characterization of free-space optical systems...",
-      image: "images/image_d09529.png", 
-      images: ["images/image_d09529.png"],
-      imageAlt: "Fabry-Perot cavity alignment on an optical breadboard",
+      image: "images/optics_4.jpeg", 
+      images: ["images/optics_1.jpeg", "images/optics_2.jpeg", "images/optics_3.jpeg"],
+      imageAlt: "Michaelson Inferometer on an optical breadboard",
       links: [],
     },
   ],
