@@ -178,15 +178,23 @@ export function buildResumeHtml(config) {
     });
   }).join("");
 
-  // --- Contact line ---
+  // --- Contact line (real <a href> anchors so ATS parsers see live links) ---
   const { contact } = person;
   const contactParts = [
-    contact?.email,
-    contact?.linkedin ? stripUrl(contact.linkedin) : null,
-    contact?.github ? stripUrl(contact.github) : null,
-    contact?.portfolio ? stripUrl(contact.portfolio) : null,
+    contact?.email
+      ? `<a href="mailto:${escapeHtml(contact.email)}">${escapeHtml(contact.email)}</a>`
+      : null,
+    contact?.linkedin
+      ? `<a href="${escapeHtml(contact.linkedin)}">${escapeHtml(stripUrl(contact.linkedin))}</a>`
+      : null,
+    contact?.github
+      ? `<a href="${escapeHtml(contact.github)}">${escapeHtml(stripUrl(contact.github))}</a>`
+      : null,
+    contact?.portfolio
+      ? `<a href="${escapeHtml(contact.portfolio)}">${escapeHtml(stripUrl(contact.portfolio))}</a>`
+      : null,
   ].filter(Boolean);
-  const contactHtml = contactParts.map((p) => `<span>${escapeHtml(p)}</span>`).join('<span class="sep"> | </span>');
+  const contactHtml = contactParts.join('<span class="sep"> | </span>');
 
   // --- Section order differs by focus ---
   // Process: Summary > Skills > Research > Lab Experience > Projects > Experience > Education
@@ -212,11 +220,17 @@ export function buildResumeHtml(config) {
 
   const bodySections = isProcess ? sectionsProcess : sectionsDs;
 
+  // Filename hint: Chrome uses <title> as the suggested save-as name
+  const nameSlug = person.name.replace(/\s+/g, "_");
+  const docTitle = focus === "process"
+    ? `${nameSlug}_Process_Resume`
+    : `${nameSlug}_Data_Science_Resume`;
+
   return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<title>${escapeHtml(person.name)} - Resume</title>
+<title>${escapeHtml(docTitle)}</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { margin: 0; padding: 0; }
@@ -270,7 +284,11 @@ export function buildResumeHtml(config) {
 
   @media print {
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .page { max-width: none; }
+    .page { max-width: none; width: 100%; }
+    @page { size: letter portrait; margin: 0.6in 0.65in; }
+    /* Prevent any element from being clipped or transformed during print */
+    * { transform: none !important; filter: none !important; }
+    a { color: inherit; text-decoration: none; }
   }
 </style>
 </head>
@@ -282,6 +300,16 @@ export function buildResumeHtml(config) {
     </div>
     ${bodySections}
   </div>
+<script>
+  window.addEventListener("load", function () {
+    var doPrint = function () { window.print(); };
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(doPrint).catch(doPrint);
+    } else {
+      doPrint();
+    }
+  });
+</script>
 </body>
 </html>`;
 }
