@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "mcp__Claude_Preview__preview_start",
-      "Bash(gh pr create --repo Elijah-Andrae56/Portfilio-Site --base main --head claude/fervent-lovelace-ff1141 --title 'Fix ATS PDF generation: replace hidden iframe with window.open popup' --body ' *)"
-    ]
-  }
-}
