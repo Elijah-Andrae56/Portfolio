@@ -6,7 +6,7 @@ export const SITE = {
     headline: "Process Engineer & Data Scientist | Optimizing physical systems through statistical modeling, DOE, and cleanroom nanofabrication",
     photo: "images/headshot.jpg",
     photoAlt: "Eli Andrae headshot",
-    domains: ["Python & R", "Predictive Modeling", "Cleanroom Ops", "Experimental Design"],
+    domains: ["Cleanroom Ops", "Experimental Design", "Predictive Modeling", "Python & R"],
     contact: {
       email: "Elijah.andrae56@outlook.com",
       linkedin: "https://www.linkedin.com/in/elijah-andrae",
@@ -27,10 +27,37 @@ export const SITE = {
     "Cleanroom microfabrication: photolithography, thin films, multilayer alignment, metrology (Dektak/ellipsometry)",
     "DOE-driven lithography characterization; factorial analysis in JMP",
     "Reproducible data pipelines (Python/pandas) for program evaluation and operational analytics",
-    "Teaching and mentorship: Learning Assistant (Applied DS) and mathematics grader (proof + linear algebra)",
+    "Teaching and mentorship: Learning Assistant (Applied DS); grader for Linear Algebra (Math 341), Mathematical Modeling (Math 343), and Mathematical Cryptography (Math 458)",
   ],
 
   skills: [
+    {
+      title: "Nanofabrication and Lab Techniques",
+      domains: ["nanofab"],
+      items: [
+        "ISO cleanroom operations",
+        "Substrate prep, solvent handling, UV-ozone cleaning",
+        "Photolithography (spin coat, bakes, alignment, dev, dose optimization)",
+        "Thin-film processing (thermal evap, e-beam deposition, lift-off, etching)",
+        "Metrology (Dektak, ellipsometry, reflectometry, optical microscopy)",
+        "Process development, yield optimization, characterization",
+        "2D & 3D CAD software (KLayout, CLEWin, AutoCAD, Fusion 360)",
+      ],
+    },
+    {
+      title: "Analytics and Experimentation",
+      domains: ["ds", "nanofab", "marketing"],
+      items: [
+        "DOE (full and fractional factorials)",
+        "Process optimization",
+        "Interaction modeling",
+        "Instrument validation",
+        "Predictive modeling",
+        "Train/validation strategy",
+        "Multivariate analysis",
+        "Marketing and operational decision analytics",
+      ],
+    },
     {
       title: "Statistical and ML Methods",
       domains: ["ds", "marketing", "nanofab"],
@@ -44,6 +71,15 @@ export const SITE = {
         "A/B Testing, KS tests",
         "Time-series summarization",
         "Model evaluation",
+        "Neural Networks (MLP, CNN)",
+        "Decision Trees",
+        "Random Forests",
+        "Gradient Boosting",
+        "Hyperparameter tuning",
+        "Cross-validation",
+        "Feature engineering",
+        "Clustering",
+        "Markov Chains"
       ],
     },
     {
@@ -62,20 +98,6 @@ export const SITE = {
       ],
     },
     {
-      title: "Analytics and Experimentation",
-      domains: ["ds", "nanofab", "marketing"],
-      items: [
-        "Predictive modeling",
-        "Train/validation strategy",
-        "DOE (full and fractional factorials)",
-        "Multivariate analysis",
-        "Process optimization",
-        "Interaction modeling",
-        "Instrument validation",
-        "Marketing and operational decision analytics",
-      ],
-    },
-    {
       title: "Communication and Leadership",
       items: [
         "Technical writing",
@@ -86,16 +108,156 @@ export const SITE = {
         "Results translation (technical/non-technical)",
       ],
     },
+  ],
+
+  // Skills section is rendered from `pipeline` (below). `skills` (above) is kept
+  // as a flat structure for the resume/CV builders.
+  pipeline: [
     {
-      title: "Nanofabrication and Lab Techniques",
-      domains: ["nanofab"],
-      items: [
-        "ISO cleanroom operations",
-        "Substrate prep, solvent handling, UV-ozone cleaning",
-        "Photolithography (spin coat, bakes, alignment, dev, dose optimization)",
-        "Thin-film processing (thermal evap, e-beam deposition, lift-off, etching)",
-        "Metrology (Dektak, ellipsometry, reflectometry, optical microscopy)",
-        "Process development, yield optimization, characterization",
+      id: "engineering",
+      stage: "01",
+      role: "Build",
+      title: "Engineering",
+      deck: "Physical systems, fabricated, measured, and characterized in the lab.",
+      groups: [
+        {
+          name: "Nanofabrication",
+          items: [
+            "ISO cleanroom operations",
+            "Photolithography (spin coat, bakes, alignment, dose)",
+            "Thin-film processing (thermal evap, e-beam, lift-off, etching)",
+            "Multilayer alignment",
+            "Substrate prep, UV-ozone cleaning",
+            "Process development, yield optimization",
+          ],
+        },
+        {
+          name: "Optics & Metrology",
+          items: [
+            "Free-space optical alignment",
+            "Interferometry (Michelson, Fabry-Perot)",
+            "Polarization & beam profiling",
+            "Dektak, ellipsometry, reflectometry",
+            "Optical microscopy",
+          ],
+        },
+        {
+          name: "Electronics & Instrumentation",
+          items: [
+            "Keithley 2450 SMU",
+            "Oscilloscopes & photodetectors",
+            "Semiconductor probe station",
+            "Analog signal conditioning",
+            "Microcontroller prototyping (Arduino)",
+            "DAQ & instrument control",
+          ],
+        },
+        {
+          name: "Design & CAD",
+          items: [
+            "KLayout, CLEWin (mask design)",
+            "AutoCAD, Fusion 360",
+            "Process flow documentation",
+          ],
+        },
+      ],
+    },
+    {
+      id: "data",
+      stage: "02",
+      role: "Model",
+      title: "Data Science",
+      deck: "Code, statistics, and machine learning that turn experiments into models.",
+      groups: [
+        {
+          name: "Programming & Tooling",
+          items: [
+            "Python (pandas, NumPy, scikit-learn, Matplotlib)",
+            "R (tidyverse)",
+            "SQL, Bash, LaTeX",
+            "Git / GitHub",
+            "Jupyter, RMarkdown",
+          ],
+        },
+        {
+          name: "Statistics & Inference",
+          items: [
+            "Regression (SLR / MLR)",
+            "Logistic, Ridge / Lasso",
+            "ANOVA, t-tests, chi-square",
+            "Bootstrap, A/B testing, KS tests",
+            "Time-series summarization",
+          ],
+        },
+        {
+          name: "Machine Learning",
+          items: [
+            "Classification (KNN, Random Forests, Gradient Boosting)",
+            "PCA & clustering",
+            "Neural networks (MLP, CNN)",
+            "Hyperparameter tuning, cross-validation",
+            "Feature engineering",
+            "Model evaluation",
+          ],
+        },
+        {
+          name: "Mathematical Foundations",
+          items: [
+            "Linear algebra (Math 341)",
+            "Mathematical modeling (Math 343)",
+            "Cryptography (Math 458)",
+            "Markov chains, stochastic processes",
+          ],
+        },
+      ],
+    },
+    {
+      id: "analytics",
+      stage: "03",
+      role: "Decide",
+      title: "Analytics & Strategy",
+      deck: "Experimental design, decision analytics, and communication that close the loop.",
+      groups: [
+        {
+          name: "Experimental Design",
+          items: [
+            "DOE (full & fractional factorials)",
+            "Process optimization",
+            "Interaction modeling",
+            "Instrument validation",
+            "Multivariate analysis",
+            "Train / validation strategy",
+          ],
+        },
+        {
+          name: "Decision Analytics",
+          items: [
+            "Marketing & operational analytics",
+            "Sentiment analysis",
+            "Predictive modeling for decisions",
+            "A/B testing",
+          ],
+        },
+        {
+          name: "Analytical Tooling",
+          items: [
+            "JMP, SPSS",
+            "Excel, Tableau",
+            "Google Cloud (analytics + ETL)",
+            "Meta Business Suite",
+          ],
+        },
+        {
+          name: "Communication & Leadership",
+          items: [
+            "Technical writing",
+            "Stakeholder presentations",
+            "Cross-functional collaboration",
+            "Instructional support & mentorship",
+            "Project scoping",
+            "Results translation",
+          ],
+        },
       ],
     },
   ],
@@ -483,31 +645,31 @@ export const SITE = {
       ],
     },
     {
-      kind: "project",
+      kind: "Highlight",
       title: "Mathematical Rigor & Analytical Evaluation",
       date: "2025-06-01",
       categories: ["ds", "cs"],
-      tags: ["Applied Mathematics", "Cryptography", "Linear Algebra"],
-      tools: ["LaTeX", "Matrix Methods", "Stochastic Processes", "Proof Validation"],
+      tags: ["Applied Mathematics", "Linear Algebra", "Mathematical Modeling", "Cryptography"],
+      tools: ["LaTeX", "Matrix Methods", "Mathematical Modeling", "Proof Validation"],
       descriptions: {
         cv: [
-          "Evaluated advanced mathematics assignments, providing detailed analytical feedback for proof-writing, matrix methods, and cryptographic reasoning.",
-          "Validated complex stochastic models, linear algebra proofs, and encryption algorithms for technical accuracy and logical soundness."
+          "Graded coursework for Linear Algebra (Math 341), Mathematical Modeling (Math 343), and Intro to Mathematical Cryptography (Math 458); provided detailed analytical feedback for proof-writing, matrix methods, modeling formulations, and cryptographic reasoning.",
+          "Validated linear algebra proofs, modeling derivations, and encryption algorithms for technical accuracy and logical soundness."
         ],
-        resume: { // Changed back to "resume"
+        resume: {
           ds: [
-            "Evaluated proof-writing, matrix methods, and cryptographic reasoning in Linear Algebra and Mathematical Cryptography; provided detailed feedback to support student learning.",
+            "Graded coursework for Linear Algebra (Math 341), Mathematical Modeling (Math 343), and Mathematical Cryptography (Math 458); provided detailed feedback to support student learning.",
           ],
           process: [
-            "Evaluated complex mathematical models and proofs in advanced coursework including Linear Algebra, Cryptography, and Stochastic Processes.",
-            "Demonstrated high-level quantitative rigor by identifying logical and computational errors in matrix operations and abstract mathematical structures."
+            "Graded advanced mathematics coursework including Linear Algebra, Mathematical Modeling, and Cryptography (Math 341/343/458); demonstrated quantitative rigor relevant to engineering modeling and characterization.",
+            "Identified logical and computational errors in matrix operations, modeling derivations, and abstract mathematical structures."
           ]
         },
       },
       blurb:
-        "Evaluated advanced university mathematics coursework, demonstrating a deep foundation in the theoretical mechanics—including linear algebra and stochastic processes—that power physical modeling and data science.",
+        "Graded upper-division mathematics coursework — Linear Algebra (Math 341), Mathematical Modeling (Math 343), and Mathematical Cryptography (Math 458) — demonstrating the theoretical foundation that underpins engineering modeling and analysis.",
       details:
-        "Serving as a Mathematics Paper Marker requires more than just checking answers; it requires reverse-engineering a student's logical process to find the exact point of failure in complex, multi-step proofs...",
+        "Serving as a Mathematics Paper Marker requires more than just checking answers; it requires reverse-engineering a student's logical process to find the exact point of failure in complex, multi-step proofs and derivations across linear algebra, mathematical modeling, and cryptographic systems.",
       links: [],
     },
     {
@@ -538,19 +700,36 @@ export const SITE = {
       blurb:
         "Designed, built, and characterized precision free-space optical systems—including interferometers and Fabry-Perot cavities—using Thorlabs optomechanics and HeNe lasers.",
       details:
-        "Completed an intensive, self-directed optics course focused on the rigorous alignment and characterization of free-space optical systems...",
+        "Completed an intensive, self-directed optics course focused on constructing, aligning, and analyzing foundational optical systems to measure light properties, material interactions, and hardware limitations. The experimental scope included verifying Malus's Law, determining Brewster's angle to calculate the refractive index of glass, and building a 'poor man's' optical isolator using waveplates and polarizers. Additionally, a 1:2 Keplerian telescope was constructed to expand and map Gaussian beam profiles, allowing for the calculation of the 1/e² width using a translation stage, pinhole, and photodiode. The project further explored interferometry and coherence by building a Michelson interferometer to precisely measure the refractive index of optical materials via interference fringes, alongside determining the laser's coherence length at approximately 15 cm. Finally, the work involved setting up a scanning spherical-mirror Fabry-Perot cavity to analyze theoretical finesse, free spectral range (FSR), and resolution against practical limitations like mirror scattering, as well as conducting hardware diagnostics to compare photodetector rise times and identify the impact of junction capacitance and RC constants on signal processing speeds.",
       image: "images/optics_4.jpg", 
       images: ["images/optics_1.jpg", "images/optics_1.jpg", "images/optics_2.jpg", "images/optics_3.jpg"],
       imageAlt: "Varoious optical experiments",
-      links: [],
+      links: [{ label: "Obstacle Course", url: "https://newjune.uoregon.edu/mediawiki/index.php/Optics_Obstacle_Course" }],
     },
   ],
 
   experience: [
     {
+      title: "Undergraduate Researcher",
+      track: "academic",
+      domains: ["nanofab", "ds"],
+      meta: "Aleman Lab, University of Oregon - Eugene, OR | Jan 2026 to June 2026",
+      bullets: [
+        "Joined the Aleman Lab as an undergraduate researcher contributing to nanofabrication and device-physics work.",
+      ],
+      resumeBullets: {
+        process: [
+          "Undergraduate researcher in the Aleman Lab; contributing to nanofabrication and device-physics research.",
+        ],
+        ds: [
+          "Undergraduate researcher in the Aleman Lab; contributing to experimental device characterization and data analysis.",
+        ],
+      },
+    },
+    {
       title: "Resident Assistant",
       track: "industry",
-      meta: "University of Oregon Housing - Eugene, OR | Sept 2023 to Present",
+      meta: "University of Oregon Housing - Eugene, OR | Sept 2023 to June 2026",
       bullets: [
         "Mentored and supported 180+ students in dormitory housing; provided conflict mediation, academic guidance, and day-to-day support.",
         "Delivered on-call first-response assistance during medical, wellness, and facilities incidents; coordinated with professional staff and emergency services.",
@@ -612,14 +791,16 @@ export const SITE = {
       domains: ["ds", "cs", "nanofab"],
       meta: "University of Oregon - Eugene, OR | Jun 2025 to Present",
       bullets: [
-        "Evaluated assignments and provided detailed feedback to support proof-writing, matrix methods, and cryptographic reasoning.",
-        "Collaborated with instructors to maintain grading accuracy, rubric adherence, and timely feedback delivery.",
+        "Graded assignments for Linear Algebra (Math 341), Mathematical Modeling (Math 343), and Intro to Mathematical Cryptography (Math 458); provided detailed feedback on proof-writing, matrix methods, modeling formulations, and cryptographic reasoning.",
+        "Collaborated with instructors to maintain grading accuracy, rubric adherence, and timely feedback across upper-division mathematics coursework.",
       ],
       resumeBullets: {
         ds: [
-          "Evaluated proof-writing, matrix methods, and cryptographic reasoning in Linear Algebra and Mathematical Cryptography; provided detailed feedback to support student learning.",
+          "Graded coursework for Linear Algebra (Math 341), Mathematical Modeling (Math 343), and Mathematical Cryptography (Math 458); provided detailed feedback on proof-writing, matrix methods, modeling, and cryptographic reasoning.",
         ],
-        process: null,
+        process: [
+          "Graded upper-division mathematics coursework (Linear Algebra, Mathematical Modeling, Cryptography); demonstrated rigor in quantitative analysis applicable to engineering modeling and characterization.",
+        ],
       },
     },
   ],
@@ -641,15 +822,14 @@ export const SITE = {
       title: "Mathematics",
       meta: "",
       bullets: [
-        "Calculus I to III",
-        "Linear Algebra I and II",
-        "Introduction to Proofs",
-        "Mathematical Cryptography",
-        "Differential Equations",
-        "Multivariable Calculus I and II",
-        "Statistical Methods",
-        "Statistics for Data Science",
-        "Stochastic Processes",
+        "Calculus I to III (Math 251 - 253)",
+        "Differential Equations (Math 256)",
+        "Multivariable Calculus I and II (Math 281 & 282)",
+        "Introduction to Proofs (Math 307)",
+        "Linear Algebra I and II (Math 341 & 342)",
+        "Mathematical Cryptography (Math 458)",
+        "Intro to Statistical Methods (Math 461)",
+        "Stochastic Processes (Math 467)",
       ],
     },
     {
@@ -658,9 +838,11 @@ export const SITE = {
       bullets: [
         "Marketing Research",
         "Marketing Analytics",
-        "Language of Business Decisions",
-        "Value Creation for Customers",
         "Micro/Macro Economics",
+        "Language of Business Decisions (Accounting)",
+        "Creating Value for Customers (Marketing)",
+        "Creating Value Through Capital (Finance)",
+        "Creating Value Through People (Management)",
       ],
     },
     {

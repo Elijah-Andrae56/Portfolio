@@ -1,4 +1,4 @@
-// cv-builder.js — comprehensive single-column CV
+// cv-builder.js: comprehensive single-column CV, site-styled
 import { SITE } from "./data.js";
 
 /* ---- Helpers ---- */
@@ -18,10 +18,6 @@ function stripUrl(url) {
   return String(url || "").replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
 }
 function commaLine(arr) { return Array.isArray(arr) ? arr.filter(Boolean).join(", ") : ""; }
-function limitBullets(arr, max) {
-  const a = Array.isArray(arr) ? arr : [];
-  return Number.isFinite(max) && max > 0 ? a.slice(0, max) : a;
-}
 
 function labToCvBullets(lab) {
   const cv = lab.descriptions?.cv;
@@ -30,8 +26,11 @@ function labToCvBullets(lab) {
   const out = [];
   if (Array.isArray(lab.modules)) {
     for (const m of lab.modules) {
-      if (Array.isArray(m.bullets) && m.bullets.length) out.push(...m.bullets.map((b) => `${m.title}: ${b}`));
-      else if (m.blurb) out.push(`${m.title}: ${m.blurb}`);
+      if (Array.isArray(m.bullets) && m.bullets.length) {
+        out.push(...m.bullets.map((b) => `${m.title}: ${b}`));
+      } else if (m.blurb) {
+        out.push(`${m.title}: ${m.blurb}`);
+      }
     }
   }
   return out;
@@ -44,7 +43,24 @@ function getCardCvBullets(card) {
   return Array.isArray(card.bullets) ? card.bullets : [];
 }
 
-export function buildCvHtml(config) {
+/* ---- Entry block ---- */
+function renderEntry({ title, meta, bullets, descFallback, tools }) {
+  const buls = Array.isArray(bullets) ? bullets : [];
+  return `
+  <article class="entry">
+    <div class="entry-head">
+      <h3 class="entry-title">${escapeHtml(title)}</h3>
+      ${meta ? `<span class="entry-meta">${escapeHtml(meta)}</span>` : ""}
+    </div>
+    ${buls.length
+      ? `<ul class="bullets">${buls.map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
+      : (descFallback ? `<p class="desc">${escapeHtml(descFallback)}</p>` : "")}
+    ${tools ? `<p class="tools-line"><span class="tools-label">Tools:</span> ${escapeHtml(tools)}</p>` : ""}
+  </article>`;
+}
+
+/* ---- Main export ---- */
+export function buildCvHtml(/* config */) {
   const person = SITE.person;
   const highlights = (SITE.highlights || []).filter(Boolean);
   const skills = SITE.skills || [];
@@ -66,106 +82,246 @@ export function buildCvHtml(config) {
   const { contact } = person;
 
   const contactHtml = [
-    contact?.email ? `<div>${escapeHtml(contact.email)}</div>` : "",
-    contact?.linkedin ? `<div><a href="${contact.linkedin}">${escapeHtml(stripUrl(contact.linkedin))}</a></div>` : "",
-    contact?.github ? `<div><a href="${contact.github}">${escapeHtml(stripUrl(contact.github))}</a></div>` : "",
-    contact?.portfolio ? `<div><a href="${contact.portfolio}">${escapeHtml(stripUrl(contact.portfolio))}</a></div>` : "",
+    contact?.email
+      ? `<p class="contact-line"><a href="mailto:${escapeHtml(contact.email)}">${escapeHtml(contact.email)}</a></p>`
+      : "",
+    contact?.linkedin
+      ? `<p class="contact-line"><a href="${escapeHtml(contact.linkedin)}">${escapeHtml(stripUrl(contact.linkedin))}</a></p>`
+      : "",
+    contact?.github
+      ? `<p class="contact-line"><a href="${escapeHtml(contact.github)}">${escapeHtml(stripUrl(contact.github))}</a></p>`
+      : "",
+    contact?.portfolio
+      ? `<p class="contact-line"><a href="${escapeHtml(contact.portfolio)}">${escapeHtml(stripUrl(contact.portfolio))}</a></p>`
+      : "",
   ].join("");
 
   const highlightsHtml = highlights.length
-    ? `<ul class="bullets">${highlights.map((h) => `<li>${escapeHtml(h)}</li>`).join("")}</ul>`
+    ? `<ul class="bullets highlights">${highlights.map((h) => `<li>${escapeHtml(h)}</li>`).join("")}</ul>`
     : "";
 
-  const eduHtml = education.map((e) => `
-    <div class="entry">
-      <div class="entry-head"><div class="entry-title">${escapeHtml(e.title)}</div>${e.meta ? `<div class="entry-meta">${escapeHtml(e.meta)}</div>` : ""}</div>
-      ${(e.bullets || []).length ? `<ul class="bullets">${e.bullets.map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>` : ""}
-    </div>`).join("");
+  const eduHtml = education.map((e) => renderEntry({
+    title: e.title,
+    meta: e.meta,
+    bullets: e.bullets,
+  })).join("");
 
   const skillsHtml = skills.map((cat) => `
-    <div class="skillrow">
-      <span class="skillrow-title">${escapeHtml(cat.title)}:</span>
-      <span class="skillrow-items"> ${escapeHtml(commaLine(cat.items))}</span>
-    </div>`).join("");
+    <p class="skill-row">
+      <span class="skill-cat">${escapeHtml(cat.title)}:</span>
+      <span class="skill-items">${escapeHtml(commaLine(cat.items))}</span>
+    </p>`).join("");
 
-  const researchHtml = researchCards.map((r) => {
-    const buls = getCardCvBullets(r);
-    return `
-    <div class="entry">
-      <div class="entry-head"><div class="entry-title">${escapeHtml(r.title)}</div><div class="entry-meta">${escapeHtml(formatMonthYear(r.date))}</div></div>
-      ${buls.length ? `<ul class="bullets">${buls.map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>` : (r.blurb ? `<div class="desc">${escapeHtml(r.blurb)}</div>` : "")}
-    </div>`;
-  }).join("");
+  const researchHtml = researchCards.map((r) => renderEntry({
+    title: r.title,
+    meta: formatMonthYear(r.date),
+    bullets: getCardCvBullets(r),
+    descFallback: r.blurb,
+  })).join("");
 
-  const labsHtml = labCards.map((l) => {
-    const buls = labToCvBullets(l);
-    const tools = commaLine(l.tools);
-    return `
-    <div class="entry">
-      <div class="entry-head"><div class="entry-title">${escapeHtml(l.title)}</div><div class="entry-meta">${escapeHtml(formatMonthYear(l.date))}</div></div>
-      ${buls.length ? `<ul class="bullets">${buls.map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>` : (l.blurb ? `<div class="desc">${escapeHtml(l.blurb)}</div>` : "")}
-      ${tools ? `<div class="tools-commas"><span class="tools-label">Tools:</span> ${escapeHtml(tools)}</div>` : ""}
-    </div>`;
-  }).join("");
+  const labsHtml = labCards.map((l) => renderEntry({
+    title: l.title,
+    meta: formatMonthYear(l.date),
+    bullets: labToCvBullets(l),
+    descFallback: l.blurb,
+    tools: commaLine(l.tools),
+  })).join("");
 
   const projectsHtml = projectCards.map((p) => {
     const buls = getCardCvBullets(p);
-    const tools = commaLine(p.tools);
-    return `
-    <div class="entry">
-      <div class="entry-head"><div class="entry-title">${escapeHtml(p.title)}</div><div class="entry-meta">${escapeHtml(formatMonthYear(p.date))}</div></div>
-      ${buls.length ? `<ul class="bullets">${buls.slice(0, 2).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>` : (p.blurb ? `<div class="desc">${escapeHtml(p.blurb)}</div>` : "")}
-      ${tools ? `<div class="tools-commas"><span class="tools-label">Tools:</span> ${escapeHtml(tools)}</div>` : ""}
-    </div>`;
+    return renderEntry({
+      title: p.title,
+      meta: formatMonthYear(p.date),
+      bullets: buls.slice(0, 3),
+      descFallback: p.blurb,
+      tools: commaLine(p.tools),
+    });
   }).join("");
 
-  const expHtml = experience.map((exp) => `
-    <div class="entry">
-      <div class="entry-head"><div class="entry-title">${escapeHtml(exp.title)}</div>${exp.meta ? `<div class="entry-meta">${escapeHtml(exp.meta)}</div>` : ""}</div>
-      ${(exp.bullets || []).length ? `<ul class="bullets">${exp.bullets.map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>` : ""}
-    </div>`).join("");
+  const expHtml = experience.map((exp) => renderEntry({
+    title: exp.title,
+    meta: exp.meta,
+    bullets: exp.bullets,
+  })).join("");
 
   const nameSlug = person.name.replace(/\s+/g, "_");
   const docTitle = `${nameSlug}_CV`;
+
+  const qrHtml = contact?.portfolio
+    ? `<div class="doc-footer">
+         <div class="footer-text">
+           <p class="footer-line"><strong>Portfolio</strong></p>
+           <p class="footer-line">${escapeHtml(stripUrl(contact.portfolio))}</p>
+         </div>
+         <img class="qr" alt="Portfolio QR code" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(contact.portfolio)}" />
+       </div>`
+    : "";
 
   return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
 <title>${escapeHtml(docTitle)}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root { --text:#111827; --muted:#6b7280; --accent:#2563eb; --line:#e5e7eb; }
-  * { box-sizing: border-box; }
-  html, body { margin:0; padding:0; }
-  @page { size: letter portrait; margin: 0.65in; }
-  body { font-family: Arial, Helvetica, "Segoe UI", sans-serif; color: var(--text); font-size: 11.2px; line-height: 1.35; }
-  a { color: var(--text); text-decoration: underline; }
+  :root {
+    --ink:       #15171C;
+    --ink-soft:  #4B4D55;
+    --ink-mute:  #7C7A72;
+    --rule:      #D8D3C5;
+    --accent:    #7A2E2A;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { margin: 0; padding: 0; background: #fff; }
+  @page { size: letter portrait; margin: 0.6in 0.65in; }
+
+  body {
+    font-family: 'Inter', Arial, sans-serif;
+    color: var(--ink);
+    font-size: 10.8px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--ink); text-decoration: none; }
+
   .page { width: 100%; max-width: 8.5in; margin: 0 auto; }
-  .hdr { display:flex; justify-content:space-between; gap:18px; align-items:flex-start; padding-bottom: 10px; border-bottom: 2px solid #111; margin-bottom: 14px; }
-  .hdr-left .name { font-size: 22px; font-weight: 900; letter-spacing: -0.3px; line-height: 1.1; }
-  .hdr-left .headline { margin-top: 4px; color: var(--muted); font-size: 12px; font-weight: 600; }
-  .hdr-right { text-align:right; color: var(--muted); font-size: 10.6px; line-height: 1.45; }
-  .section { margin: 12px 0 14px 0; }
-  .stitle { font-size: 10.8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); border-bottom: 1px solid var(--line); padding-bottom: 4px; margin-bottom: 8px; }
-  .entry { margin: 0 0 10px 0; break-inside: avoid; page-break-inside: avoid; }
-  .entry-head { display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
-  .entry-title { font-weight: 800; font-size: 12px; }
-  .entry-meta { color: var(--muted); font-style: italic; font-size: 10.5px; text-align:right; }
-  .desc { margin-top: 3px; color:#374151; }
-  .bullets { margin: 4px 0 0 16px; padding: 0; color:#374151; }
-  .bullets li { margin: 0 0 2px 0; }
-  .skillrow { margin: 0 0 6px 0; }
-  .skillrow-title { font-weight: 900; color: #111; }
-  .skillrow-items { color: #374151; }
-  .tools-commas { margin-top: 3px; color: var(--muted); font-size: 10.4px; }
-  .tools-label { font-weight: 800; color: #4b5563; }
-  .cv-footer { margin-top: 16px; padding-top: 10px; border-top: 1px solid var(--line); display:flex; justify-content:flex-end; gap:10px; color: var(--muted); font-size: 10px; }
-  .qr { width: 72px; height: 72px; border: 1px solid var(--line); border-radius: 6px; padding: 4px; background: #fff; }
-  .qr-label { text-align: right; line-height: 1.25; }
+
+  /* Header */
+  .hdr {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+    border-bottom: 1.5px solid var(--ink);
+  }
+  .hdr-left { min-width: 0; flex: 1; }
+  .hdr-left h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 30px;
+    font-weight: 500;
+    font-style: italic;
+    font-variation-settings: 'opsz' 144;
+    letter-spacing: -0.02em;
+    line-height: 1.0;
+    color: var(--ink);
+  }
+  .headline {
+    margin-top: 6px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 11px;
+    color: var(--ink-soft);
+    max-width: 4.8in;
+    line-height: 1.45;
+  }
+  .hdr-right {
+    text-align: right;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 9.8px;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    flex-shrink: 0;
+  }
+  .contact-line { margin: 0; }
+  .contact-line a { color: var(--ink-soft); }
+
+  /* Sections */
+  .section { margin-bottom: 14px; }
+  .stitle {
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+  }
+
+  /* Highlights at top */
+  .highlights { margin-left: 16px; color: var(--ink-soft); }
+  .highlights li { margin-bottom: 2px; }
+
+  /* Skills */
+  .skill-row { margin-bottom: 5px; line-height: 1.45; }
+  .skill-cat { font-weight: 600; color: var(--ink); }
+  .skill-items { color: var(--ink-soft); }
+
+  /* Entries */
+  .entry { margin-bottom: 10px; break-inside: avoid; page-break-inside: avoid; }
+  .entry-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 1px;
+  }
+  .entry-title {
+    font-family: 'Inter', Arial, sans-serif;
+    font-weight: 600;
+    font-size: 11.8px;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .entry-meta {
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 9.8px;
+    font-style: italic;
+    color: var(--ink-mute);
+    flex-shrink: 0;
+    white-space: nowrap;
+    text-align: right;
+  }
+  .desc { margin-top: 3px; color: var(--ink-soft); }
+  .bullets { margin: 4px 0 0 16px; padding: 0; color: var(--ink-soft); }
+  .bullets li { margin-bottom: 2px; }
+  .tools-line {
+    margin-top: 3px;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 9.8px;
+    color: var(--ink-mute);
+  }
+  .tools-label { font-weight: 500; color: var(--ink-soft); }
+
+  /* QR footer */
+  .doc-footer {
+    margin-top: 18px;
+    padding-top: 10px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 14px;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .footer-text {
+    text-align: right;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 9.8px;
+    line-height: 1.4;
+    color: var(--ink-soft);
+  }
+  .footer-text strong { font-weight: 500; color: var(--accent); }
+  .qr {
+    width: 70px;
+    height: 70px;
+    border: 1px solid var(--rule);
+    padding: 3px;
+    background: #fff;
+  }
+
   @media print {
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .page { max-width: none; width: 100%; }
-    @page { size: letter portrait; margin: 0.65in; }
+    @page { size: letter portrait; margin: 0.6in 0.65in; }
     * { transform: none !important; filter: none !important; }
     a { color: inherit; }
   }
@@ -173,32 +329,26 @@ export function buildCvHtml(config) {
 </head>
 <body>
   <div class="page">
-    <div class="hdr">
+    <header class="hdr">
       <div class="hdr-left">
-        <div class="name">${escapeHtml(person.name)}</div>
-        <div class="headline">${escapeHtml(person.headline)}</div>
+        <h1>${escapeHtml(person.name)}</h1>
+        <p class="headline">${escapeHtml(person.headline)}</p>
       </div>
-      <div class="hdr-right">${contactHtml}</div>
-    </div>
+      <address class="hdr-right">${contactHtml}</address>
+    </header>
 
-    ${highlightsHtml ? `<div class="section"><div class="stitle">Selected Highlights</div>${highlightsHtml}</div>` : ""}
+    ${highlightsHtml ? `<section class="section"><h2 class="stitle">Selected Highlights</h2>${highlightsHtml}</section>` : ""}
 
-    <div class="section"><div class="stitle">Education</div>${eduHtml}</div>
+    <section class="section"><h2 class="stitle">Education</h2>${eduHtml}</section>
 
-    ${researchHtml ? `<div class="section"><div class="stitle">Research</div>${researchHtml}</div>` : ""}
-    ${labsHtml ? `<div class="section"><div class="stitle">Technical Experience</div>${labsHtml}</div>` : ""}
-    ${projectsHtml ? `<div class="section"><div class="stitle">Projects</div>${projectsHtml}</div>` : ""}
-    ${expHtml ? `<div class="section"><div class="stitle">Teaching and Leadership</div>${expHtml}</div>` : ""}
+    ${researchHtml ? `<section class="section"><h2 class="stitle">Research</h2>${researchHtml}</section>` : ""}
+    ${labsHtml ? `<section class="section"><h2 class="stitle">Technical Experience</h2>${labsHtml}</section>` : ""}
+    ${projectsHtml ? `<section class="section"><h2 class="stitle">Projects</h2>${projectsHtml}</section>` : ""}
+    ${expHtml ? `<section class="section"><h2 class="stitle">Teaching and Leadership</h2>${expHtml}</section>` : ""}
 
-    <div class="section"><div class="stitle">Skills</div>${skillsHtml}</div>
+    <section class="section"><h2 class="stitle">Skills</h2>${skillsHtml}</section>
 
-    <div class="cv-footer">
-      <div class="qr-label">
-        <div><strong>Portfolio</strong></div>
-        <div>${escapeHtml(stripUrl(contact?.portfolio || ""))}</div>
-      </div>
-      ${contact?.portfolio ? `<img class="qr" alt="Portfolio QR code" src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(contact.portfolio)}" />` : ""}
-    </div>
+    ${qrHtml}
   </div>
 <script>
   window.addEventListener("load", function () {
