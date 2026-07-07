@@ -24,6 +24,20 @@ function el(tag, attrs = {}, children = []) {
 function normalize(x) { return String(x || "").toLowerCase(); }
 function parseDate(x) { const t = Date.parse(x); return Number.isFinite(t) ? t : 0; }
 
+function slugify(s) {
+  return String(s || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+function cardSlug(card) {
+  return card.slug || slugify(card.title);
+}
+function setHashSilently(hash) {
+  const newUrl = location.pathname + location.search + (hash ? "#" + hash : "");
+  history.replaceState(null, "", newUrl);
+}
+
 function formatMonthYear(isoDate) {
   if (!isoDate) return "";
   const d = new Date(isoDate);
@@ -152,13 +166,14 @@ const modal = {
     this.closeBtn.focus();
   },
 
-  close() {
+  close(opts = {}) {
     if (typeof this.cleanup === "function") this.cleanup();
     this.cleanup = null;
     this.backdrop.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
     if (this.lastFocus) this.lastFocus.focus();
     this.lastFocus = null;
+    if (opts.clearHash !== false) setHashSilently("");
   },
 };
 
@@ -221,6 +236,7 @@ function mountCarousel(container, obj) {
 
 function openCardModal(card, triggerEl) {
   modal.lastFocus = triggerEl instanceof HTMLElement ? triggerEl : document.activeElement;
+  setHashSilently(cardSlug(card));
   modal.open({
     title: card.title,
     buildBody: (body) => {
@@ -753,6 +769,21 @@ function init() {
   modal.closeBtn.addEventListener("click", () => modal.close());
   modal.backdrop.addEventListener("click", (e) => { if (e.target === modal.backdrop) modal.close(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && modal.isOpen()) modal.close(); });
+
+  // Deep-link support: open the modal that matches the URL hash on load,
+  // and respond to hash changes (back button, manual edits).
+  const openByHash = (hash) => {
+    const h = (hash || "").replace(/^#/, "");
+    if (!h) {
+      if (modal.isOpen()) modal.close({ clearHash: false });
+      return;
+    }
+    const card = (SITE.cards || []).find((c) => cardSlug(c) === h);
+    if (card) openCardModal(card, null);
+    else if (modal.isOpen()) modal.close({ clearHash: false });
+  };
+  window.addEventListener("hashchange", () => openByHash(location.hash));
+  if (location.hash) requestAnimationFrame(() => openByHash(location.hash));
 
   // PDF defaults
   state.pdfConfig.focus = "process";

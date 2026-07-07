@@ -17,6 +17,16 @@ function formatMonthYear(d) {
 function stripUrl(url) {
   return String(url || "").replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
 }
+function slugify(s) {
+  return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+function cardDeepLink(card) {
+  const base = SITE.person?.contact?.portfolio;
+  if (!base) return "";
+  const slug = card.slug || slugify(card.title);
+  if (!slug) return "";
+  return base.replace(/\/+$/, "") + "/#" + slug;
+}
 function commaLine(arr) { return Array.isArray(arr) ? arr.filter(Boolean).join(", ") : ""; }
 
 function labToCvBullets(lab) {
@@ -44,12 +54,15 @@ function getCardCvBullets(card) {
 }
 
 /* ---- Entry block ---- */
-function renderEntry({ title, meta, bullets, descFallback, tools }) {
+function renderEntry({ title, meta, bullets, descFallback, tools, url }) {
   const buls = Array.isArray(bullets) ? bullets : [];
+  const titleInner = url
+    ? `<a class="entry-title-link" href="${escapeHtml(url)}">${escapeHtml(title)}<span class="ext-mark" aria-hidden="true"> &#8599;</span></a>`
+    : escapeHtml(title);
   return `
   <article class="entry">
     <div class="entry-head">
-      <h3 class="entry-title">${escapeHtml(title)}</h3>
+      <h3 class="entry-title">${titleInner}</h3>
       ${meta ? `<span class="entry-meta">${escapeHtml(meta)}</span>` : ""}
     </div>
     ${buls.length
@@ -117,6 +130,7 @@ export function buildCvHtml(/* config */) {
     meta: formatMonthYear(r.date),
     bullets: getCardCvBullets(r),
     descFallback: r.blurb,
+    url: cardDeepLink(r),
   })).join("");
 
   const labsHtml = labCards.map((l) => renderEntry({
@@ -125,6 +139,7 @@ export function buildCvHtml(/* config */) {
     bullets: labToCvBullets(l),
     descFallback: l.blurb,
     tools: commaLine(l.tools),
+    url: cardDeepLink(l),
   })).join("");
 
   const projectsHtml = projectCards.map((p) => {
@@ -135,6 +150,7 @@ export function buildCvHtml(/* config */) {
       bullets: buls.slice(0, 3),
       descFallback: p.blurb,
       tools: commaLine(p.tools),
+      url: cardDeepLink(p),
     });
   }).join("");
 
@@ -269,6 +285,20 @@ export function buildCvHtml(/* config */) {
     font-size: 11.8px;
     color: var(--ink);
     line-height: 1.2;
+  }
+  .entry-title-link {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dotted var(--ink-mute);
+  }
+  .entry-title-link:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .ext-mark {
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.78em;
+    color: var(--accent);
+    vertical-align: super;
+    margin-left: 1px;
+    border-bottom: none;
   }
   .entry-meta {
     font-family: 'JetBrains Mono', 'Consolas', monospace;

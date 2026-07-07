@@ -9,7 +9,6 @@ export const SITE = {
     domains: ["Cleanroom Ops", "Experimental Design", "Predictive Modeling", "Python & R"],
     contact: {
       email: "Elijah.andrae56@outlook.com",
-      linkedin: "https://www.linkedin.com/in/elijah-andrae",
       portfolio: "https://elijah-andrae56.github.io/Portfolio/"
     },
     // summary is the portfolio display / CV fallback

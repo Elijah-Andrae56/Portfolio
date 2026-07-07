@@ -17,6 +17,16 @@ function formatMonthYear(d) {
 function stripUrl(url) {
   return String(url || "").replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
 }
+function slugify(s) {
+  return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+function cardDeepLink(card) {
+  const base = SITE.person?.contact?.portfolio;
+  if (!base) return "";
+  const slug = card.slug || slugify(card.title);
+  if (!slug) return "";
+  return base.replace(/\/+$/, "") + "/#" + slug;
+}
 function commaLine(arr) { return Array.isArray(arr) ? arr.filter(Boolean).join(", ") : ""; }
 function limitBullets(arr, max) {
   const a = Array.isArray(arr) ? arr : [];
@@ -77,12 +87,15 @@ function getExpBullets(exp, focus) {
 }
 
 /* ---- Section HTML builders (semantic: h3 for entry title, ul/li for bullets) ---- */
-function renderEntry({ title, sub, date, bullets, tools, maxBullets = 999 }) {
+function renderEntry({ title, sub, date, bullets, tools, url, maxBullets = 999 }) {
   const buls = limitBullets(bullets, maxBullets);
+  const titleInner = url
+    ? `<a class="entry-title-link" href="${escapeHtml(url)}">${escapeHtml(title)}<span class="ext-mark" aria-hidden="true"> &#8599;</span></a>`
+    : escapeHtml(title);
   return `
   <article class="entry">
     <div class="entry-hd">
-      <h3 class="entry-title">${escapeHtml(title)}</h3>
+      <h3 class="entry-title">${titleInner}</h3>
       ${date ? `<span class="entry-date">${escapeHtml(date)}</span>` : ""}
     </div>
     ${sub ? `<p class="entry-sub">${escapeHtml(sub)}</p>` : ""}
@@ -156,6 +169,7 @@ export function buildResumeHtml(config) {
       bullets: buls,
       maxBullets: CAP_RESEARCH,
       tools: isProcess ? commaLine(r.tools) : null,
+      url: cardDeepLink(r),
     });
   }).join("");
 
@@ -169,6 +183,7 @@ export function buildResumeHtml(config) {
       bullets: buls,
       maxBullets: CAP_LABS,
       tools: isProcess ? commaLine(l.tools) : null,
+      url: cardDeepLink(l),
     });
   }).join("");
 
@@ -182,6 +197,7 @@ export function buildResumeHtml(config) {
       bullets: buls,
       maxBullets: CAP_PROJECTS,
       tools: commaLine(p.tools),
+      url: cardDeepLink(p),
     });
   }).join("");
 
@@ -347,6 +363,20 @@ export function buildResumeHtml(config) {
     font-size: 11.4px;
     color: var(--ink);
     line-height: 1.2;
+  }
+  .entry-title-link {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dotted var(--ink-mute);
+  }
+  .entry-title-link:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .ext-mark {
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.78em;
+    color: var(--accent);
+    vertical-align: super;
+    margin-left: 1px;
+    border-bottom: none;
   }
   .entry-date {
     font-family: 'JetBrains Mono', 'Consolas', monospace;
