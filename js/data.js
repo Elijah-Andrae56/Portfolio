@@ -788,7 +788,7 @@ export const SITE = {
       title: "Mathematics Paper Marker",
       track: "academic",
       domains: ["ds", "cs", "nanofab"],
-      meta: "University of Oregon - Eugene, OR | Jun 2025 to Present",
+      meta: "University of Oregon - Eugene, OR | March 2025 to June 2026",
       bullets: [
         "Graded assignments for Linear Algebra (Math 341), Mathematical Modeling (Math 343), and Intro to Mathematical Cryptography (Math 458); provided detailed feedback on proof-writing, matrix methods, modeling formulations, and cryptographic reasoning.",
         "Collaborated with instructors to maintain grading accuracy, rubric adherence, and timely feedback across upper-division mathematics coursework.",
