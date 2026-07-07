@@ -751,7 +751,7 @@ export const SITE = {
       title: "Learning Assistant - Applied Data Science for Social Justice",
       track: "academic",
       domains: ["ds", "cs", "nanofab"],
-      meta: "University of Oregon - Eugene, OR | Apr 2025 to Jun 2025",
+      meta: "University of Oregon - Eugene, OR | Apr 2025 to Jun 2026",
       bullets: [
         "Facilitated lab sessions and office hours; guided students through cleaning, visualization, and analysis of CAHOOTS dispatch logs.",
         "Coached analytical storytelling and partner-facing presentations for community stakeholders (White Bird Clinic).",
