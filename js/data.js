@@ -861,7 +861,7 @@ export const SITE = {
       title: "University of Oregon",
       meta: "B.S. Data Science (Marketing Analytics concentration) - Minors: Mathematics, Business Administration",
       bullets: [
-        "Expected graduation: June 2026",
+        "Graduated: June 2026",
         "Honors: Dean's List Spring 2025, Dean's List Fall 2025",
         "Relevant coursework: Machine Learning, Probability and Statistics, Linear Algebra, Differential Equations, Nanofabrication, Stochastic Processes",
       ],
