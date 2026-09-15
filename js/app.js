@@ -471,8 +471,24 @@ function renderFeatured() {
         el("h3", { class: "project-title", text: c.title }),
         ...(c.date ? [el("p", { class: "project-date", text: new Date(c.date).toLocaleDateString() })] : []),
         el("p", { class: "project-desc", text: c.blurb || "" }),
+
+        // Mirror the grid cards: surface subsection titles on the card face
+        ...(Array.isArray(c.modules) && c.modules.length
+          ? [
+              el("p", { class: "card-subtle", text: `Modules: ${c.modules.length}` }),
+              el(
+                "div",
+                { class: "mini-pills" },
+                c.modules.slice(0, 4).map((m) => el("span", { class: "mini-pill", text: m.title }))
+              ),
+            ]
+          : []),
+
         el("div", { class: "project-actions" }, [
           el("button", { class: "btn-secondary", type: "button", text: "View Details", onclick: (e) => openCardModal(c, e.currentTarget) }),
+          ...(c.links || []).slice(0, 2).map((l) =>
+            el("a", { class: "project-link", href: l.url, target: "_blank", rel: "noreferrer", text: `${l.label} →` })
+          ),
         ]),
       ]);
 

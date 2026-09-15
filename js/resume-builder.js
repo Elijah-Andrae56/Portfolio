@@ -1,4 +1,4 @@
-// resume-builder.js — single-column ATS-optimized resume
+// resume-builder.js ,  single-column ATS-optimized resume
 import { SITE } from "./data.js";
 
 /* ---- Helpers ---- */
@@ -107,15 +107,15 @@ export function buildResumeHtml(config) {
 
   const researchCards = (SITE.cards || [])
     .filter((c) => c.kind === "research" && domainMatches(c, domains))
-    .sort((a, b) => parseDate(b.date) - parseDate(a.date));
+    .sort((a, b) => ((b.priority || 0) - (a.priority || 0)) || (parseDate(b.date) - parseDate(a.date)));
 
   const labCards = (SITE.cards || [])
     .filter((c) => c.kind === "lab" && domainMatches(c, domains))
-    .sort((a, b) => parseDate(b.date) - parseDate(a.date));
+    .sort((a, b) => ((b.priority || 0) - (a.priority || 0)) || (parseDate(b.date) - parseDate(a.date)));
 
   const projectCards = (SITE.cards || [])
     .filter((c) => c.kind === "project" && domainMatches(c, domains))
-    .sort((a, b) => parseDate(b.date) - parseDate(a.date));
+    .sort((a, b) => ((b.priority || 0) - (a.priority || 0)) || (parseDate(b.date) - parseDate(a.date)));
 
   // --- Skills section (ATS: plain text rows, no pills) ---
   const skillsHtml = skills.map((cat) => `
@@ -145,7 +145,7 @@ export function buildResumeHtml(config) {
     if (buls === null) return "";
     return renderEntry({
       title: r.title,
-      sub: formatMonthYear(r.date),
+      sub: [r.org, formatMonthYear(r.date)].filter(Boolean).join(" | "),
       bullets: buls,
       maxBullets: isProcess ? 4 : 3,
       tools: isProcess ? commaLine(r.tools) : null,
@@ -158,10 +158,10 @@ export function buildResumeHtml(config) {
     if (buls === null) return "";
     return renderEntry({
       title: l.title,
-      sub: formatMonthYear(l.date),
+      sub: [l.org, formatMonthYear(l.date)].filter(Boolean).join(" | "),
       bullets: buls,
       maxBullets: isProcess ? 4 : 2,
-      tools: isProcess ? commaLine(l.tools) : null,
+      tools: null,
     });
   }).join("");
 
@@ -171,10 +171,10 @@ export function buildResumeHtml(config) {
     if (buls === null) return "";
     return renderEntry({
       title: p.title,
-      sub: formatMonthYear(p.date),
+      sub: [p.org, formatMonthYear(p.date)].filter(Boolean).join(" | "),
       bullets: buls,
       maxBullets: 2,
-      tools: commaLine(p.tools),
+      tools: null,
     });
   }).join("");
 
@@ -234,24 +234,24 @@ export function buildResumeHtml(config) {
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { margin: 0; padding: 0; }
-  @page { size: letter portrait; margin: 0.6in 0.65in; }
+  @page { size: letter portrait; margin: 0.5in 0.55in; }
   body {
     font-family: Arial, Helvetica, sans-serif;
     color: #111827;
-    font-size: 10.6px;
-    line-height: 1.42;
+    font-size: 10.1px;
+    line-height: 1.34;
   }
   a { color: #111827; text-decoration: none; }
   .page { width: 100%; max-width: 8.5in; margin: 0 auto; }
 
   /* Header */
-  .hdr { text-align: center; border-bottom: 1.5px solid #111827; padding-bottom: 8px; margin-bottom: 11px; }
+  .hdr { text-align: center; border-bottom: 1.5px solid #111827; padding-bottom: 6px; margin-bottom: 8px; }
   .name { font-size: 21px; font-weight: 700; letter-spacing: 0.2px; line-height: 1.1; }
   .contact-line { margin-top: 4px; font-size: 10px; color: #374151; }
   .contact-line .sep { color: #9ca3af; }
 
   /* Sections */
-  .section { margin-bottom: 10px; }
+  .section { margin-bottom: 7px; }
   .stitle {
     font-size: 10.4px;
     font-weight: 700;
@@ -260,32 +260,32 @@ export function buildResumeHtml(config) {
     color: #2563eb;
     border-bottom: 1px solid #e5e7eb;
     padding-bottom: 2px;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
 
   /* Summary */
   .summary-text { color: #1f2937; line-height: 1.45; }
 
   /* Skills */
-  .skill-row { margin-bottom: 3px; }
+  .skill-row { margin-bottom: 2px; }
   .skill-cat { font-weight: 700; color: #111827; }
   .skill-items { color: #374151; }
 
   /* Entries */
-  .entry { margin-bottom: 8px; break-inside: avoid; page-break-inside: avoid; }
+  .entry { margin-bottom: 5px; break-inside: avoid; page-break-inside: avoid; }
   .entry-hd { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
   .entry-title { font-weight: 700; font-size: 10.8px; }
   .entry-date { color: #6b7280; font-size: 10px; flex-shrink: 0; font-style: italic; }
   .entry-sub { color: #374151; font-size: 10px; margin-top: 1px; font-style: italic; }
   .bullets { margin: 3px 0 0 14px; padding: 0; color: #1f2937; }
-  .bullets li { margin-bottom: 1.5px; }
+  .bullets li { margin-bottom: 0.5px; }
   .tools-line { margin-top: 2px; color: #6b7280; font-size: 10px; }
   .tools-label { font-weight: 700; color: #4b5563; }
 
   @media print {
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .page { max-width: none; width: 100%; }
-    @page { size: letter portrait; margin: 0.6in 0.65in; }
+    @page { size: letter portrait; margin: 0.5in 0.55in; }
     /* Prevent any element from being clipped or transformed during print */
     * { transform: none !important; filter: none !important; }
     a { color: inherit; text-decoration: none; }
