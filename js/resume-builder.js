@@ -182,7 +182,7 @@ export function buildResumeHtml(config) {
       sub: [l.org, formatMonthYear(l.date)].filter(Boolean).join(" | "),
       bullets: buls,
       maxBullets: CAP_LABS,
-      tools: isProcess ? commaLine(l.tools) : null,
+      tools: null,
       url: cardDeepLink(l),
     });
   }).join("");
@@ -196,7 +196,7 @@ export function buildResumeHtml(config) {
       sub: [p.org, formatMonthYear(p.date)].filter(Boolean).join(" | "),
       bullets: buls,
       maxBullets: CAP_PROJECTS,
-      tools: commaLine(p.tools),
+      tools: null,
       url: cardDeepLink(p),
     });
   }).join("");
@@ -271,13 +271,13 @@ export function buildResumeHtml(config) {
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { margin: 0; padding: 0; background: #fff; }
-  @page { size: letter portrait; margin: 0.55in 0.65in; }
+  @page { size: letter portrait; margin: 0.5in 0.55in; }
 
   body {
     font-family: 'Inter', Arial, sans-serif;
     color: var(--ink);
-    font-size: 10.5px;
-    line-height: 1.45;
+    font-size: 10.0px;
+    line-height: 1.34;
     -webkit-font-smoothing: antialiased;
   }
   a { color: var(--ink); text-decoration: none; }
@@ -291,7 +291,7 @@ export function buildResumeHtml(config) {
     align-items: flex-start;
     gap: 24px;
     padding-bottom: 11px;
-    margin-bottom: 14px;
+    margin-bottom: 9px;
     border-bottom: 1.5px solid var(--ink);
   }
   .hdr-name { min-width: 0; }
@@ -327,7 +327,7 @@ export function buildResumeHtml(config) {
   .contact-item a { color: var(--ink-soft); }
 
   /* Sections */
-  .section { margin-bottom: 11px; }
+  .section { margin-bottom: 7px; }
   .stitle {
     font-family: 'JetBrains Mono', 'Consolas', monospace;
     font-size: 9.5px;
@@ -341,15 +341,15 @@ export function buildResumeHtml(config) {
   }
 
   /* Summary */
-  .summary-text { color: var(--ink-soft); line-height: 1.55; }
+  .summary-text { color: var(--ink-soft); line-height: 1.38; }
 
   /* Skills */
-  .skill-row { margin-bottom: 4px; line-height: 1.45; }
+  .skill-row { margin-bottom: 2px; line-height: 1.34; }
   .skill-cat { font-weight: 600; color: var(--ink); }
   .skill-items { color: var(--ink-soft); }
 
   /* Entries */
-  .entry { margin-bottom: 9px; break-inside: avoid; page-break-inside: avoid; }
+  .entry { margin-bottom: 5px; break-inside: avoid; page-break-inside: avoid; }
   .entry-hd {
     display: flex;
     justify-content: space-between;

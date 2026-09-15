@@ -6,9 +6,10 @@ export const SITE = {
     headline: "Process Engineer & Data Scientist | Optimizing physical systems through statistical modeling, DOE, and cleanroom nanofabrication",
     photo: "images/headshot.jpg",
     photoAlt: "Eli Andrae headshot",
-    domains: ["Cleanroom Ops", "Experimental Design", "Predictive Modeling", "Python & R"],
+    domains: ["Python & R", "Predictive Modeling", "Cleanroom Ops", "Experimental Design"],
     contact: {
       email: "Elijah.andrae56@outlook.com",
+      linkedin: "https://www.linkedin.com/in/elijah-andrae",
       portfolio: "https://elijah-andrae56.github.io/Portfolio/"
     },
     // summary is the portfolio display / CV fallback
@@ -23,40 +24,13 @@ export const SITE = {
   },
 
   highlights: [
-    "Cleanroom microfabrication: photolithography, thin films, multilayer alignment, metrology (Dektak/ellipsometry)",
-    "DOE-driven lithography characterization; factorial analysis in JMP",
-    "Reproducible data pipelines (Python/pandas) for program evaluation and operational analytics",
-    "Teaching and mentorship: Learning Assistant (Applied DS); grader for Linear Algebra (Math 341), Mathematical Modeling (Math 343), and Mathematical Cryptography (Math 458)",
+    "Designed and analyzed five randomized factorial DOEs (2\u00b3-2\u2074) plus a 12-level dose-response study in a single term: 60+ designed runs across oxidation, deposition, spin coating, and lithography, blocked on tool, instrument, and lab section",
+    "Reduced-model analysis in JMP: main effects and interactions, response transformations, residual and normality diagnostics, and multi-response desirability optimization with 95% confidence intervals",
+    "Cleanroom microfabrication: photolithography, thermal oxidation, thin-film deposition, lift-off and wet etch, multilayer alignment, metrology (Dektak, ellipsometry, reflectometry)",
+    "Measurement systems analysis across reflectometers, ellipsometer, profilometer, and crystal monitors; isolated a tool-level block effect that dominated a deposition model",
   ],
 
   skills: [
-    {
-      title: "Nanofabrication and Lab Techniques",
-      domains: ["nanofab"],
-      items: [
-        "ISO cleanroom operations",
-        "Substrate prep, solvent handling, UV-ozone cleaning",
-        "Photolithography (spin coat, bakes, alignment, dev, dose optimization)",
-        "Thin-film processing (thermal evap, e-beam deposition, lift-off, etching)",
-        "Metrology (Dektak, ellipsometry, reflectometry, optical microscopy)",
-        "Process development, yield optimization, characterization",
-        "2D & 3D CAD software (KLayout, CLEWin, AutoCAD, Fusion 360)",
-      ],
-    },
-    {
-      title: "Analytics and Experimentation",
-      domains: ["ds", "nanofab", "marketing"],
-      items: [
-        "DOE (full and fractional factorials)",
-        "Process optimization",
-        "Interaction modeling",
-        "Instrument validation",
-        "Predictive modeling",
-        "Train/validation strategy",
-        "Multivariate analysis",
-        "Marketing and operational decision analytics",
-      ],
-    },
     {
       title: "Statistical and ML Methods",
       domains: ["ds", "marketing", "nanofab"],
@@ -65,18 +39,8 @@ export const SITE = {
         "Classification (logistic, KNN, random forests)",
         "PCA and clustering",
         "Inference (ANOVA, t-tests, chi-square, bootstrap)",
-        "A/B Testing, KS tests",
-        "Time-series summarization",
-        "Model evaluation",
-        "Neural Networks (MLP, CNN)",
-        "Decision Trees",
-        "Random Forests",
-        "Gradient Boosting",
-        "Hyperparameter tuning",
-        "Cross-validation",
-        "Feature engineering",
-        "Clustering",
-        "Markov Chains"
+        "A/B testing and hypothesis testing",
+        "Model evaluation and cross-validation",
       ],
     },
     {
@@ -92,6 +56,19 @@ export const SITE = {
       ],
     },
     {
+      title: "Analytics and Experimentation",
+      domains: ["ds", "nanofab", "marketing"],
+      items: [
+        "DOE: full factorial (2³/2⁴), screening, and dose-response designs in JMP",
+        "Randomization, blocking, and replication strategy",
+        "Reduced-model selection and interaction modeling",
+        "Residual diagnostics and response transformations (log, Box-Cox)",
+        "Post-hoc comparison (Tukey HSD, Fisher LSD) and equality-of-variance testing",
+        "Prediction profilers and multi-response desirability optimization",
+        "Measurement systems analysis and instrument agreement testing",
+      ],
+    },
+    {
       title: "Communication and Leadership",
       items: [
         "Technical writing and SOP authorship",
@@ -100,10 +77,20 @@ export const SITE = {
         "Mentorship and instruction",
       ],
     },
+    {
+      title: "Nanofabrication and Lab Techniques",
+      domains: ["nanofab"],
+      items: [
+        "ISO cleanroom operations, solvent handling, UV-ozone clean",
+        "Photolithography (spin coat, bakes, mask alignment, direct-write, develop, dose optimization)",
+        "Thermal oxidation and thin-film deposition (thermal evaporation, e-beam, lift-off)",
+        "Wet etch and pattern transfer",
+        "Metrology (stylus profilometry, ellipsometry, reflectometry, optical microscopy)",
+        "Multilayer alignment and overlay measurement",
+      ],
+    },
   ],
 
-  // Skills section is rendered from `pipeline` (below). `skills` (above) is kept
-  // as a flat structure for the resume/CV builders.
   pipeline: [
     {
       id: "engineering",
@@ -789,31 +776,26 @@ export const SITE = {
       ],
     },
     {
-      kind: "Highlight",
+      kind: "project",
       title: "Mathematical Rigor & Analytical Evaluation",
       date: "2025-06-01",
       categories: ["ds", "cs"],
-      tags: ["Applied Mathematics", "Linear Algebra", "Mathematical Modeling", "Cryptography"],
-      tools: ["LaTeX", "Matrix Methods", "Mathematical Modeling", "Proof Validation"],
+      tags: ["Applied Mathematics", "Cryptography", "Linear Algebra"],
+      tools: ["LaTeX", "Matrix Methods", "Stochastic Processes", "Proof Validation"],
       descriptions: {
         cv: [
-          "Graded coursework for Linear Algebra (Math 341), Mathematical Modeling (Math 343), and Intro to Mathematical Cryptography (Math 458); provided detailed analytical feedback for proof-writing, matrix methods, modeling formulations, and cryptographic reasoning.",
-          "Validated linear algebra proofs, modeling derivations, and encryption algorithms for technical accuracy and logical soundness."
+          "Evaluated advanced mathematics assignments, providing detailed analytical feedback for proof-writing, matrix methods, and cryptographic reasoning.",
+          "Validated complex stochastic models, linear algebra proofs, and encryption algorithms for technical accuracy and logical soundness."
         ],
-        resume: {
-          ds: [
-            "Graded coursework for Linear Algebra (Math 341), Mathematical Modeling (Math 343), and Mathematical Cryptography (Math 458); provided detailed feedback to support student learning.",
-          ],
-          process: [
-            "Graded advanced mathematics coursework including Linear Algebra, Mathematical Modeling, and Cryptography (Math 341/343/458); demonstrated quantitative rigor relevant to engineering modeling and characterization.",
-            "Identified logical and computational errors in matrix operations, modeling derivations, and abstract mathematical structures."
-          ]
+        resume: { // Changed back to "resume"
+          ds: null,
+          process: null,
         },
       },
       blurb:
-        "Graded upper-division mathematics coursework — Linear Algebra (Math 341), Mathematical Modeling (Math 343), and Mathematical Cryptography (Math 458) — demonstrating the theoretical foundation that underpins engineering modeling and analysis.",
+        "Evaluated advanced university mathematics coursework, demonstrating a deep foundation in the theoretical mechanics, including linear algebra and stochastic processes, that power physical modeling and data science.",
       details:
-        "Serving as a Mathematics Paper Marker requires more than just checking answers; it requires reverse-engineering a student's logical process to find the exact point of failure in complex, multi-step proofs and derivations across linear algebra, mathematical modeling, and cryptographic systems.",
+        "Serving as a Mathematics Paper Marker requires more than just checking answers; it requires reverse-engineering a student's logical process to find the exact point of failure in complex, multi-step proofs...",
       links: [],
     },
     {
@@ -845,32 +827,67 @@ export const SITE = {
       blurb:
         "Completed the published 16-station UO Optics Obstacle Course: designed, built, and characterized precision free-space optical systems including Michelson interferometers and Fabry-Perot cavities, using Thorlabs optomechanics and HeNe lasers.",
       details:
-        "Completed an intensive, self-directed optics course focused on constructing, aligning, and analyzing foundational optical systems to measure light properties, material interactions, and hardware limitations. The experimental scope included verifying Malus's Law, determining Brewster's angle to calculate the refractive index of glass, and building a 'poor man's' optical isolator using waveplates and polarizers. Additionally, a 1:2 Keplerian telescope was constructed to expand and map Gaussian beam profiles, allowing for the calculation of the 1/e² width using a translation stage, pinhole, and photodiode. The project further explored interferometry and coherence by building a Michelson interferometer to precisely measure the refractive index of optical materials via interference fringes, alongside determining the laser's coherence length at approximately 15 cm. Finally, the work involved setting up a scanning spherical-mirror Fabry-Perot cavity to analyze theoretical finesse, free spectral range (FSR), and resolution against practical limitations like mirror scattering, as well as conducting hardware diagnostics to compare photodetector rise times and identify the impact of junction capacitance and RC constants on signal processing speeds.",
-      image: "images/optics_4.jpg", 
-      images: ["images/optics_1.jpg", "images/optics_1.jpg", "images/optics_2.jpg", "images/optics_3.jpg"],
-      imageAlt: "Varoious optical experiments",
-      links: [{ label: "Obstacle Course", url: "https://newjune.uoregon.edu/mediawiki/index.php/Optics_Obstacle_Course" }],
+        "Completed the University of Oregon Optics Obstacle Course, a published 16-station laboratory sequence in which each station - alignment, measurement, or system build - must be demonstrated and signed off before advancing. The course runs from laser safety and optics handling through beam alignment and polarization control, into quantitative beam characterization, and finally into multi-element system builds: telescopes, optical isolators, Michelson interferometers, and Fabry-Perot cavities.\n\nThe emphasis throughout is on doing alignment properly rather than approximately. Establishing a level, correctly polarized beam at a fixed height using irises along the optical table hole pattern is the prerequisite for every later station, and a cavity that will not reach its specified finesse is usually an alignment problem rather than a component problem. Measurements are cross-checked between methods wherever possible - optical power by meter versus photodetector-and-oscilloscope using detector responsivity, refractive index by Brewster's angle versus interferometry.\n\nThe stations below group the course into its major skill areas.",
+      image: "images/optics_4.jpg",
+      images: ["images/optics_1.jpg", "images/optics_2.jpg", "images/optics_3.jpg", "images/optics_4.jpg"],
+      imageAlt: "Various optical experiments",
+      modules: [
+        {
+          title: "Beam Alignment and Laser Safety",
+          tools: ["HeNe laser", "Mirrors", "Irises", "Thorlabs optomechanics"],
+          bullets: [
+            "Established a level, vertically polarized beam at a controlled 4-inch height using mirror pairs and two irises referenced to the optical table hole pattern.",
+            "Executed laser safety and beam-containment protocols and performed proper handling and cleaning of precision optics.",
+          ],
+          blurb: "The alignment and safety foundation every later station depends on.",
+        },
+        {
+          title: "Polarization Control and Optical Isolation",
+          tools: ["Polarizers", "Polarizing beamsplitter cubes", "Quarter waveplates", "Rotation stages"],
+          bullets: [
+            "Characterized vertical, horizontal, and 45-degree polarization states through polarizing beamsplitter cubes, and generated circular polarization with quarter waveplates.",
+            "Built two optical isolator configurations - polarizer plus quarter waveplate, and polarizing beamsplitter plus quarter waveplate - and compared their behavior against Faraday rotator isolators.",
+            "Determined the refractive index of a glass cover slip from Brewster's angle using a rotation stage, horizontally polarized light, and power measurement.",
+          ],
+          blurb: "Polarization state control, isolator construction, and Brewster's-angle index measurement.",
+        },
+        {
+          title: "Power Measurement and Detector Response",
+          tools: ["Optical power meter", "DET10A / DET110 photodiodes", "Optical chopper", "Oscilloscope", "ND filters"],
+          bullets: [
+            "Cross-validated optical power measured by power meter against the photodetector-and-oscilloscope method using detector responsivity data, and verified neutral-density filter optical densities.",
+            "Compared rise times of small-area and large-area silicon photodiodes using a chopper and two-lens telescope to quantify the speed-versus-active-area tradeoff.",
+          ],
+          blurb: "Two independent power-measurement methods cross-checked, plus photodiode rise-time characterization.",
+        },
+        {
+          title: "Gaussian Beam Characterization and Telescopes",
+          tools: ["200 µm pinhole", "Translation stage", "Photodiode", "Newport KPX lenses"],
+          bullets: [
+            "Built a 1:2 beam expander from two supplied lenses and verified collimation.",
+            "Measured the 1/e beam width by scanning a 200 µm pinhole on a translation stage across the beam, then characterized spot size and Rayleigh range at the telescope focus.",
+            "Studied spherical aberration, coma, astigmatism, and chromatic aberration, and how lens orientation and positioning minimize Seidel aberrations.",
+          ],
+          blurb: "Beam expander construction, pinhole-scan beam profiling, Rayleigh range, and aberration behavior.",
+        },
+        {
+          title: "Interferometry and Fabry-Perot Cavities",
+          tools: ["Michelson interferometer", "Non-polarizing beamsplitter", "Plane and spherical mirror cavities", "Fiber-coupled spectrometer"],
+          bullets: [
+            "Built a Michelson interferometer with a non-polarizing beamsplitter and used it to measure laser wavelength and the refractive indices of a glass slide and an unknown sample.",
+            "Measured laser coherence length on the same interferometer, and characterized the source center wavelength and linewidth with a fiber-coupled spectrometer.",
+            "Constructed plane-mirror and spherical-mirror Fabry-Perot cavities to specification - finesse of 20 or better with free spectral range in the 500 MHz to 1 GHz band - and explored the practical limits on resolution and achievable finesse.",
+          ],
+          blurb: "Michelson interferometry for wavelength, index, and coherence length, plus Fabry-Perot cavities built to a finesse and FSR spec.",
+        },
+      ],
+      links: [
+        { label: "Obstacle Course", url: "https://newjune.uoregon.edu/mediawiki/index.php/Optics_Obstacle_Course" },
+      ],
     },
   ],
 
   experience: [
-    {
-      title: "Undergraduate Researcher",
-      track: "academic",
-      domains: ["nanofab", "ds"],
-      meta: "Aleman Lab, University of Oregon - Eugene, OR | Jan 2026 to June 2026",
-      bullets: [
-        "Joined the Aleman Lab as an undergraduate researcher contributing to nanofabrication and device-physics work.",
-      ],
-      resumeBullets: {
-        process: [
-          "Undergraduate researcher in the Aleman Lab; contributing to nanofabrication and device-physics research.",
-        ],
-        ds: [
-          "Undergraduate researcher in the Aleman Lab; contributing to experimental device characterization and data analysis.",
-        ],
-      },
-    },
     {
       title: "Resident Assistant",
       track: "industry",
@@ -896,7 +913,7 @@ export const SITE = {
       title: "Learning Assistant - Applied Data Science for Social Justice",
       track: "academic",
       domains: ["ds", "cs", "nanofab"],
-      meta: "University of Oregon - Eugene, OR | Apr 2025 to Jun 2026",
+      meta: "University of Oregon - Eugene, OR | Apr 2025 to June 2026",
       bullets: [
         "Facilitated lab sessions and office hours; guided students through cleaning, visualization, and analysis of CAHOOTS dispatch logs.",
         "Coached analytical storytelling and partner-facing presentations for community stakeholders (White Bird Clinic).",
@@ -933,18 +950,16 @@ export const SITE = {
       title: "Mathematics Paper Marker",
       track: "academic",
       domains: ["ds", "cs", "nanofab"],
-      meta: "University of Oregon - Eugene, OR | March 2025 to June 2026",
+      meta: "University of Oregon - Eugene, OR | Mar 2025 to June 2026",
       bullets: [
-        "Graded assignments for Linear Algebra (Math 341), Mathematical Modeling (Math 343), and Intro to Mathematical Cryptography (Math 458); provided detailed feedback on proof-writing, matrix methods, modeling formulations, and cryptographic reasoning.",
-        "Collaborated with instructors to maintain grading accuracy, rubric adherence, and timely feedback across upper-division mathematics coursework.",
+        "Evaluated assignments and provided detailed feedback to support proof-writing, matrix methods, and cryptographic reasoning.",
+        "Collaborated with instructors to maintain grading accuracy, rubric adherence, and timely feedback delivery.",
       ],
       resumeBullets: {
         ds: [
-          "Graded coursework for Linear Algebra (Math 341), Mathematical Modeling (Math 343), and Mathematical Cryptography (Math 458); provided detailed feedback on proof-writing, matrix methods, modeling, and cryptographic reasoning.",
+          "Evaluated proof-writing, matrix methods, and cryptographic reasoning in Linear Algebra and Mathematical Cryptography; provided detailed feedback to support student learning.",
         ],
-        process: [
-          "Graded upper-division mathematics coursework (Linear Algebra, Mathematical Modeling, Cryptography); demonstrated rigor in quantitative analysis applicable to engineering modeling and characterization.",
-        ],
+        process: null,
       },
     },
   ],
@@ -966,14 +981,15 @@ export const SITE = {
       title: "Mathematics",
       meta: "",
       bullets: [
-        "Calculus I to III (Math 251 - 253)",
-        "Differential Equations (Math 256)",
-        "Multivariable Calculus I and II (Math 281 & 282)",
-        "Introduction to Proofs (Math 307)",
-        "Linear Algebra I and II (Math 341 & 342)",
-        "Mathematical Cryptography (Math 458)",
-        "Intro to Statistical Methods (Math 461)",
-        "Stochastic Processes (Math 467)",
+        "Calculus I to III",
+        "Linear Algebra I and II",
+        "Introduction to Proofs",
+        "Mathematical Cryptography",
+        "Differential Equations",
+        "Multivariable Calculus I and II",
+        "Statistical Methods",
+        "Statistics for Data Science",
+        "Stochastic Processes",
       ],
     },
     {
@@ -982,11 +998,9 @@ export const SITE = {
       bullets: [
         "Marketing Research",
         "Marketing Analytics",
+        "Language of Business Decisions",
+        "Value Creation for Customers",
         "Micro/Macro Economics",
-        "Language of Business Decisions (Accounting)",
-        "Creating Value for Customers (Marketing)",
-        "Creating Value Through Capital (Finance)",
-        "Creating Value Through People (Management)",
       ],
     },
     {
@@ -1006,8 +1020,7 @@ export const SITE = {
       title: "University of Oregon",
       meta: "B.S. Data Science (Marketing Analytics concentration) - Minors: Mathematics, Business Administration",
       bullets: [
-        "Graduated: June 2026",
-        "Honors: Dean's List Spring 2025, Dean's List Fall 2025",
+        "Graduated June 2026. Dean's List: Spring 2025, Fall 2025",
         "Relevant coursework: Machine Learning, Probability and Statistics, Linear Algebra, Differential Equations, Nanofabrication, Stochastic Processes",
       ],
     },
