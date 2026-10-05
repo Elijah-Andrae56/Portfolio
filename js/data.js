@@ -624,6 +624,28 @@ export const SITE = {
         },
       ],
     },
+    {
+      kind: "project",
+      title: "Course Reference Sheets (LaTeX)",
+      slug: "course-reference-sheets",
+      aliases: ["mathematical-rigor-analytical-evaluation"],
+      org: "University of Oregon coursework",
+      date: "2026-06-01",
+      categories: ["ds", "cs"],
+      tags: ["LaTeX", "Mathematics", "Statistics", "Machine Learning"],
+      tools: ["LaTeX (XeLaTeX)", "Probability", "Stochastic processes", "Machine learning", "Multivariable calculus"],
+      blurb: "Two-page LaTeX reference sheets that condense a full course each: machine learning, stochastic processes, multivariable calculus, probability, statistics, data structures, and finance.",
+      details: "I wrote these for my exams and kept refining them until each course fit on two dense pages: definitions, formulas, decision rules for choosing a method, and the traps I kept falling into. The machine learning sheet ends in model and metric routing tables; the stochastic processes sheet covers Markov chain classification, stationary distributions, hitting times, mixing rate, and Brownian motion.\n\nThe public versions are concept sheets only: worked homework, quiz, and practice-exam solutions were removed. Source and compiled PDFs are on GitHub.",
+      image: "images/notesheets_dsci372.png",
+      images: ["images/notesheets_dsci372.png", "images/notesheets_math467.png", "images/notesheets_math281.png"],
+      imageAlt: "Page one of a LaTeX course reference sheet",
+      links: [
+        {
+          label: "GitHub",
+          url: "https://github.com/Elijah-Andrae56/course-notesheets",
+        },
+      ],
+    },
   ],
   experience: [
     {
