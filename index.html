@@ -36,11 +36,32 @@
     </ol>
   </nav>
 
-  <!-- Resume and CV downloads (static PDFs in docs/) -->
-  <nav class="doc-links" aria-label="Download resume or CV">
-    <a class="doc-link" href="docs/Elijah_Andrae_Resume.pdf" target="_blank" rel="noopener">Resume (PDF)</a>
-    <a class="doc-link secondary" href="docs/Elijah_Andrae_CV.pdf" target="_blank" rel="noopener">CV (PDF)</a>
-  </nav>
+  <!-- PDF dropdown (top-right). Resume and CV are static PDFs in docs/, built by the job-application workflow. -->
+  <div class="pdf-controls pdf-floating">
+    <div class="pdf-dd" id="pdfDropdown">
+      <button id="pdfDdBtn" class="pdf-dd-btn" type="button" aria-haspopup="menu" aria-expanded="false">
+        Download PDF <span aria-hidden="true">▾</span>
+      </button>
+
+      <div id="pdfDdMenu" class="pdf-dd-menu hidden" role="menu" aria-label="PDF download options">
+        <div class="pdf-dd-title">PDF Options</div>
+
+        <div class="pdf-control-row">
+          <div class="pdf-control-label">Type</div>
+          <div class="seg" role="radiogroup" aria-label="Resume or CV">
+            <button class="seg-btn active" type="button" data-doc="resume" aria-checked="true" role="radio">Resume</button>
+            <button class="seg-btn" type="button" data-doc="cv" aria-checked="false" role="radio">CV</button>
+          </div>
+        </div>
+
+        <div class="pdf-actions">
+          <a id="pdfDownloadBtn" class="pdf-action primary" href="docs/Elijah_Andrae_Resume.pdf" target="_blank" rel="noopener">Download PDF</a>
+        </div>
+
+        <div class="pdf-hint" id="pdfHint" aria-live="polite">Resume: two pages.</div>
+      </div>
+    </div>
+  </div>
 
   <main class="canvas">
 

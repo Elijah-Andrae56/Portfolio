@@ -323,7 +323,7 @@ function renderSocialLinks(selector) {
   if (c.email)     wrap.appendChild(el("a", { class: "social-link", href: `mailto:${c.email}`, text: "Email" }));
   if (c.linkedin)  wrap.appendChild(el("a", { class: "social-link", href: c.linkedin, target: "_blank", rel: "noreferrer", text: "LinkedIn" }));
   if (c.github)    wrap.appendChild(el("a", { class: "social-link", href: c.github, target: "_blank", rel: "noreferrer", text: "GitHub" }));
-  if (c.portfolio) wrap.appendChild(el("a", { class: "social-link", href: c.portfolio, target: "_blank", rel: "noreferrer", text: "Portfolio" }));
+  // No "Portfolio" link: this page is the portfolio. contact.portfolio stays in data.js for resume deep links.
 }
 
 function buildStageArrow() {
@@ -625,6 +625,47 @@ function wireRefineDropdown() {
 }
 
 /* -------------------------
+   PDF dropdown: Resume or CV (static files in docs/, built by the job-application workflow)
+-------------------------- */
+const PDF_DOCS = {
+  resume: { href: "docs/Elijah_Andrae_Resume.pdf", hint: "Resume: two pages." },
+  cv: { href: "docs/Elijah_Andrae_CV.pdf", hint: "CV: the full record, including coursework projects and every lab." },
+};
+
+function wirePdfDropdown() {
+  const btn = qs("#pdfDdBtn");
+  const menu = qs("#pdfDdMenu");
+  const wrap = qs("#pdfDropdown");
+  const dl = qs("#pdfDownloadBtn");
+  const hint = qs("#pdfHint");
+  if (!btn || !menu || !wrap || !dl) return;
+
+  const open  = () => { menu.classList.remove("hidden"); btn.setAttribute("aria-expanded", "true"); };
+  const close = () => { menu.classList.add("hidden");    btn.setAttribute("aria-expanded", "false"); };
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (menu.classList.contains("hidden")) open(); else close();
+  });
+  document.addEventListener("click", (e) => { if (!wrap.contains(e.target)) close(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+
+  menu.querySelectorAll(".seg-btn[data-doc]").forEach((b) => {
+    b.addEventListener("click", () => {
+      const doc = PDF_DOCS[b.dataset.doc];
+      if (!doc) return;
+      menu.querySelectorAll(".seg-btn[data-doc]").forEach((x) => {
+        const on = x === b;
+        x.classList.toggle("active", on);
+        x.setAttribute("aria-checked", on ? "true" : "false");
+      });
+      dl.setAttribute("href", doc.href);
+      if (hint) hint.textContent = doc.hint;
+    });
+  });
+  dl.addEventListener("click", () => close());
+}
+
+/* -------------------------
    Init
 -------------------------- */
 function init() {
@@ -680,6 +721,7 @@ function init() {
   window.addEventListener("hashchange", () => openByHash(location.hash));
   if (location.hash) requestAnimationFrame(() => openByHash(location.hash));
 
+  wirePdfDropdown();
   wireRefineDropdown();
 
   // Layout / motion

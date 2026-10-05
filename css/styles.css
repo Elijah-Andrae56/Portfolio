@@ -1095,19 +1095,18 @@ ul.clean { list-style: none; margin: 0; padding: 0; }
 }
 
 
-/* ============================================================== DOCUMENT LINKS */
-/* Resume and CV are static PDFs in docs/, built by the job-application workflow. */
-.doc-links {
+/* ============================================================== PDF DROPDOWN */
+.pdf-controls.pdf-floating {
   position: fixed;
   top: 24px;
   right: 24px;
   z-index: 90;
-  display: flex;
-  gap: 8px;
 }
-.doc-link {
+.pdf-dd { position: relative; }
+.pdf-dd-btn {
   display: inline-flex;
   align-items: center;
+  gap: 10px;
   background: var(--ink);
   color: var(--paper);
   border: 1px solid var(--ink);
@@ -1115,23 +1114,98 @@ ul.clean { list-style: none; margin: 0; padding: 0; }
   font-weight: 600;
   font-size: 0.85rem;
   padding: 10px 16px;
-  text-decoration: none;
+  cursor: pointer;
+  border-radius: 0;
   transition: background 200ms var(--ease), color 200ms var(--ease), border-color 200ms var(--ease);
 }
-.doc-link.secondary {
+.pdf-dd-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.pdf-dd-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 100;
+  width: min(360px, 92vw);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  padding: 16px;
+  box-shadow: 0 24px 50px -10px color-mix(in srgb, var(--ink) 20%, transparent);
+}
+.pdf-dd-title {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 11px;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+.pdf-control-row {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.pdf-control-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-mute);
+}
+.seg {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+}
+.seg-btn {
+  background: transparent;
+  color: var(--ink-soft);
+  border: none;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.82rem;
+  padding: 9px 8px;
+  cursor: pointer;
+  border-radius: 0;
+  transition: background 200ms var(--ease), color 200ms var(--ease);
+}
+.seg-btn + .seg-btn { border-left: 1px solid var(--rule); }
+.seg-btn:hover { color: var(--accent); }
+.seg-btn.active { background: var(--ink); color: var(--paper); }
+.seg-btn:disabled, .seg-btn.disabled { opacity: 0.4; cursor: not-allowed; }
+
+.pdf-action {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
+  width: 100%;
   background: var(--surface);
   color: var(--ink);
-  border-color: var(--rule);
+  border: 1px solid var(--rule);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 10px 14px;
+  cursor: pointer;
+  border-radius: 0;
+  transition: background 200ms var(--ease), color 200ms var(--ease);
 }
-.doc-link:hover,
-.doc-link:focus-visible {
+.pdf-action.primary {
   background: var(--accent);
   border-color: var(--accent);
   color: var(--paper);
 }
-@media (max-width: 640px) {
-  .doc-links { top: 12px; right: 12px; }
-  .doc-link { padding: 8px 12px; font-size: 0.8rem; }
+.pdf-action:hover { filter: brightness(0.96); }
+.pdf-hint {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--ink-mute);
+  font-family: var(--font-mono);
 }
 
 

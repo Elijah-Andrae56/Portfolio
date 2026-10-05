@@ -10,7 +10,7 @@ export const SITE = {
   person: {
     name: "Elijah Andrae",
     headline: "Data Scientist for Semiconductor Manufacturing | Design of experiments, metrology, cleanroom fabrication, and statistical modeling",
-    photo: "images/headshot.png",
+    photo: "images/headshot.jpg",
     photoAlt: "Eli Andrae headshot",
     domains: ["Cleanroom Fabrication", "Design of Experiments", "Metrology", "Python & R", "Simulation & ML"],
     contact: {
@@ -366,7 +366,7 @@ export const SITE = {
         "Proto-boards",
       ],
       blurb: "Twelve-area independent electronics sequence: passive components, RC and LC behavior, impedance and resonance, diodes and transistors, op-amps and instrument loading, RF design, and optoelectronic devices.",
-      details: "Completed the University of Oregon Electronics Obstacle Course, a 12-area independent laboratory sequence (Winter 2026, instructor Bryan Boggs). The emphasis is measurement discipline: build the circuit, predict what it should do, measure it, and explain the gap.\n\nHighlights from my write-up: five 100 Ω resistors all inside their ±5% tolerance; RC rise and fall times of 11.1 ms that scaled with capacitance; voltage shifting from a resistor to an inductor between 50 Hz and 1 MHz as inductive reactance grew; an LC resonance peak near 1.6 kHz compared against simulation; a voltage divider that sagged under multimeter loading, measured again through a unity-gain op-amp buffer; and photodiode, LED, and laser diode curves showing photocurrent rising with light and laser output climbing sharply above threshold. The diode section (forward and reverse knees, a diode clamp, and junction capacitance) was completed in LTspice.",
+      details: "Completed the University of Oregon Electronics Obstacle Course, a 12-area independent laboratory sequence (Winter 2026, instructor Bryan Boggs). The emphasis is measurement discipline: build the circuit, predict what it should do, measure it, and explain the gap.\n\nHighlights from my write-up: five 100 Ω resistors all inside their ±5% tolerance; RC rise and fall times of 11.1 ms that scaled with capacitance; voltage shifting from a resistor to an inductor between 50 Hz and 1 MHz as inductive reactance grew; an LC resonance peak near 1.6 kHz compared against simulation; a voltage divider that sagged under multimeter loading, measured again through a unity-gain op-amp buffer; RF tank circuits built and measured on a proto-board; and photodiode, LED, and laser diode curves showing photocurrent rising with light and laser output climbing sharply above threshold. Diode behavior was modeled first in LTspice (forward and reverse knees, a diode clamp, junction capacitance) and then measured on a Keithley source-measure unit.",
       image: "images/electronics_1.jpg",
       images: [
         "images/electronics_1.jpg",
@@ -396,10 +396,10 @@ export const SITE = {
         },
         {
           title: "Semiconductor Devices",
-          tools: ["LTspice", "Bipolar transistor (TIP31C)", "Power supplies"],
-          blurb: "Diode behavior simulated in LTspice; transistor current gain measured on the bench.",
+          tools: ["Keithley 2450", "LTspice", "Bipolar transistor (TIP31C)", "Power supplies"],
+          blurb: "Diode I-V curves modeled in LTspice and measured on a Keithley; transistor current gain measured on the bench.",
           bullets: [
-            "Simulated diode forward and reverse knees (about 0.7 V and 6 to 7 V), a diode clamp, and bias-dependent junction capacitance in LTspice.",
+            "Modeled diode forward and reverse knees (about 0.7 V and 6 to 7 V), a diode clamp, and bias-dependent junction capacitance in LTspice, then measured diode I-V curves on a Keithley source-measure unit.",
             "Measured base and collector currents on a bipolar transistor to confirm current amplification.",
           ],
         },
@@ -414,9 +414,10 @@ export const SITE = {
         },
         {
           title: "RF Behavior and Board Construction",
-          tools: ["LC filters", "Proto-board", "Ground-plane PCB"],
-          blurb: "Why components stop behaving ideally at radio frequencies, and how layout helps.",
+          tools: ["LC tank circuits", "Proto-board", "Oscilloscope"],
+          blurb: "RF tank circuits on a proto-board, and why components stop behaving ideally at radio frequencies.",
           bullets: [
+            "Built and measured RF tank circuits on a proto-board.",
             "Worked through how parasitic capacitance, lead inductance, self-resonance, and rising losses change component behavior at RF, and why compact layouts, RF-rated parts, and ground-plane boards help.",
             "Designed LC low- and high-pass filters (100 µH with 1 nF; 1 µH with 28 pF).",
           ],
@@ -557,12 +558,12 @@ export const SITE = {
       kind: "lab",
       title: "Optical Systems & Interferometry Laboratory",
       org: "Independent Laboratory Sequence, 16 stations, University of Oregon",
-      date: "2025-05-01",
+      date: "2026-06-01",
       categories: ["nanofab", "process", "physics"],
       tags: ["Optics", "Laser Alignment", "Interferometry", "Hardware Characterization"],
       tools: ["HeNe Lasers", "Oscilloscopes", "Thorlabs Optomechanics", "Photodetectors", "Waveplates", "Interferometers"],
       blurb: "Completed the 16-station UO Optics Obstacle Course: built and characterized free-space optical systems, including Michelson interferometry and a scanning confocal Fabry-Perot cavity, with Thorlabs optomechanics and HeNe lasers.",
-      details: "Completed the University of Oregon Optics Obstacle Course, a 16-station laboratory sequence in which each station (alignment, measurement, or system build) is demonstrated and signed off before moving on. The course runs from laser safety and optics handling through beam alignment and polarization control, into quantitative beam characterization, and finally into multi-element builds: telescopes, optical isolators, a Michelson interferometer, and a Fabry-Perot cavity.\n\nThe emphasis throughout is on doing alignment properly rather than approximately, and on cross-checking a measurement by a second method wherever possible: optical power by meter against a photodetector and oscilloscope, refractive index by Brewster's angle against interferometry.\n\nThe stations below group the course into its major skill areas.",
+      details: "Completed the University of Oregon Optics Obstacle Course (Spring 2026), a 16-station laboratory sequence in which each station (alignment, measurement, or system build) is demonstrated and signed off before moving on. The course runs from laser safety and optics handling through beam alignment and polarization control, into quantitative beam characterization, and finally into multi-element builds: telescopes, optical isolators, a Michelson interferometer, and a Fabry-Perot cavity.\n\nThe emphasis throughout is on doing alignment properly rather than approximately, and on cross-checking a measurement by a second method wherever possible: optical power by meter against a photodetector and oscilloscope, refractive index by Brewster's angle against interferometry.\n\nThe stations below group the course into its major skill areas.",
       image: "images/optics_4.jpg",
       images: ["images/optics_1.jpg", "images/optics_2.jpg", "images/optics_3.jpg", "images/optics_4.jpg"],
       imageAlt: "Various optical experiments",
@@ -622,18 +623,6 @@ export const SITE = {
           url: "https://newjune.uoregon.edu/mediawiki/index.php/Optics_Obstacle_Course",
         },
       ],
-    },
-    {
-      kind: "project",
-      title: "Image Classification with Convolutional Neural Networks",
-      org: "DSCI 372M Machine Learning for Data Science, University of Oregon",
-      date: "2026-02-04",
-      categories: ["ds", "cs"],
-      tags: ["Machine Learning", "Computer Vision", "PyTorch"],
-      tools: ["Python", "PyTorch", "NumPy"],
-      blurb: "A PyTorch CNN on 10-class FashionMNIST reaching 93.9% test accuracy, plus convolution and max pooling written from scratch in NumPy (coursework).",
-      details: "Three convolution blocks (64, 128, and 256 channels) trained for 60 epochs reached 93.9% test accuracy, against 91.9% for a simpler multilayer perceptron. When the training curves showed the network memorizing, I added data augmentation, and I caught a starter-code bug that built the validation set from augmented training images.\n\nIn a separate assignment I implemented padded, strided 2D convolution and max pooling from scratch in NumPy.",
-      links: [],
     },
   ],
   experience: [
@@ -748,7 +737,7 @@ export const SITE = {
     },
     {
       title: "Cathedral Preparatory School",
-      meta: "Erie, PA",
+      meta: "Erie, PA | Class of 2022",
       bullets: [],
     },
   ],
