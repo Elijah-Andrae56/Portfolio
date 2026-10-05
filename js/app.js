@@ -1,7 +1,5 @@
 // app.js
 import { SITE, CATEGORY_LABELS } from "./data.js";
-import { buildResumeHtml } from "./resume-builder.js";
-import { buildCvHtml } from "./cv-builder.js";
 
 /* -------------------------
    Helpers
@@ -68,7 +66,6 @@ const state = {
   activeCategories: new Set(["all"]),
   searchQuery: "",
   sortMode: "relevance",
-  pdfConfig: { focus: "process", doctype: "resume" },
 };
 
 /* -------------------------
@@ -327,13 +324,6 @@ function renderSocialLinks(selector) {
   if (c.linkedin)  wrap.appendChild(el("a", { class: "social-link", href: c.linkedin, target: "_blank", rel: "noreferrer", text: "LinkedIn" }));
   if (c.github)    wrap.appendChild(el("a", { class: "social-link", href: c.github, target: "_blank", rel: "noreferrer", text: "GitHub" }));
   if (c.portfolio) wrap.appendChild(el("a", { class: "social-link", href: c.portfolio, target: "_blank", rel: "noreferrer", text: "Portfolio" }));
-}
-
-function renderHighlights() {
-  const wrap = qs("#highlightsList");
-  if (!wrap || !Array.isArray(SITE.highlights)) return;
-  wrap.innerHTML = "";
-  SITE.highlights.forEach((h) => wrap.appendChild(el("li", { text: h })));
 }
 
 function buildStageArrow() {
@@ -635,101 +625,6 @@ function wireRefineDropdown() {
 }
 
 /* -------------------------
-   PDF generation
--------------------------- */
-function dispatchBuild(config) {
-  return config?.doctype === "cv" ? buildCvHtml(config) : buildResumeHtml(config);
-}
-
-function setSeg(group, value) {
-  state.pdfConfig[group] = value;
-  renderPdfControls();
-}
-
-function renderPdfControls() {
-  const cfg = state.pdfConfig;
-  const hint = qs("#pdfHint");
-  const controls = qs("#pdfDdMenu");
-  if (!controls) return;
-  const btns = controls.querySelectorAll(".seg-btn");
-  btns.forEach((b) => {
-    const g = b.getAttribute("data-group");
-    const v = b.getAttribute("data-value");
-    const active = cfg[g] === v;
-    b.classList.toggle("active", active);
-    b.setAttribute("aria-checked", active ? "true" : "false");
-  });
-  const isCV = cfg.doctype === "cv";
-  const disableGroups = isCV ? new Set(["focus"]) : new Set();
-  btns.forEach((b) => {
-    const g = b.getAttribute("data-group");
-    const shouldDisable = disableGroups.has(g);
-    b.disabled = shouldDisable;
-    b.classList.toggle("disabled", shouldDisable);
-  });
-  if (hint) {
-    if (isCV) hint.textContent = "CV mode: comprehensive output; Focus disabled.";
-    else {
-      const focusLabel = cfg.focus === "process" ? "Process Engineering" : "Data Science";
-      hint.textContent = `Resume mode: ${focusLabel}.`;
-    }
-  }
-}
-
-function wirePdfControls() {
-  const controls = qs("#pdfDdMenu");
-  if (!controls) return;
-  controls.addEventListener("click", (e) => {
-    const t = e.target;
-    if (!(t instanceof HTMLElement)) return;
-    if (t.classList.contains("seg-btn")) {
-      const g = t.getAttribute("data-group");
-      const v = t.getAttribute("data-value");
-      if (!g || !v) return;
-      if (t.disabled) return;
-      setSeg(g, v);
-    }
-  });
-
-  const dl = qs("#pdfDownloadBtn");
-  if (!dl) return;
-  dl.addEventListener("click", (e) => {
-    e.preventDefault();
-    const ddMenu = qs("#pdfDdMenu");
-    const ddBtn = qs("#pdfDdBtn");
-    if (ddMenu) ddMenu.classList.add("hidden");
-    if (ddBtn) ddBtn.setAttribute("aria-expanded", "false");
-
-    const html = dispatchBuild(state.pdfConfig);
-    const printWin = window.open(
-      "", "_blank",
-      "width=900,height=700,menubar=no,toolbar=no,location=no,scrollbars=yes,resizable=yes"
-    );
-    if (!printWin) {
-      alert("Pop-ups are blocked. Please allow pop-ups for this site and try again.");
-      return;
-    }
-    printWin.document.open();
-    printWin.document.write(html);
-    printWin.document.close();
-  });
-
-  const ddBtn = qs("#pdfDdBtn");
-  const ddMenu = qs("#pdfDdMenu");
-  const ddWrap = qs("#pdfDropdown");
-  if (ddBtn && ddMenu && ddWrap) {
-    const openMenu  = () => { ddMenu.classList.remove("hidden"); ddBtn.setAttribute("aria-expanded", "true"); };
-    const closeMenu = () => { ddMenu.classList.add("hidden");    ddBtn.setAttribute("aria-expanded", "false"); };
-    ddBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      if (ddMenu.classList.contains("hidden")) openMenu(); else closeMenu();
-    });
-    document.addEventListener("click", (e) => { if (!ddWrap.contains(e.target)) closeMenu(); });
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMenu(); });
-  }
-}
-
-/* -------------------------
    Init
 -------------------------- */
 function init() {
@@ -778,18 +673,12 @@ function init() {
       if (modal.isOpen()) modal.close({ clearHash: false });
       return;
     }
-    const card = (SITE.cards || []).find((c) => cardSlug(c) === h);
+    const card = (SITE.cards || []).find((c) => cardSlug(c) === h || (c.aliases || []).includes(h));
     if (card) openCardModal(card, null);
     else if (modal.isOpen()) modal.close({ clearHash: false });
   };
   window.addEventListener("hashchange", () => openByHash(location.hash));
   if (location.hash) requestAnimationFrame(() => openByHash(location.hash));
-
-  // PDF defaults
-  state.pdfConfig.focus = "process";
-  state.pdfConfig.doctype = "resume";
-  wirePdfControls();
-  renderPdfControls();
 
   wireRefineDropdown();
 

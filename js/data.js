@@ -1,98 +1,26 @@
-// data.js
+// data.js: everything the portfolio site displays, and nothing else.
+//
+// Resume and CV wording does not live here. Those documents are built by the job-application
+// workflow (job-search/, outside this repo) and published as static PDFs in docs/. Wording here
+// follows the same facts ledger; run job-search/tools/check.py on site/js before every push.
+// A card's "slug" is its link anchor (#slug); keep it stable because sent resumes link to it.
+// "aliases" are old anchors that still open the card.
 
 export const SITE = {
   person: {
     name: "Elijah Andrae",
-    headline: "Process Engineer & Data Scientist | Optimizing physical systems through statistical modeling, DOE, and cleanroom nanofabrication",
+    headline: "Data Scientist for Semiconductor Manufacturing | Design of experiments, metrology, cleanroom fabrication, and statistical modeling",
     photo: "images/headshot.jpg",
     photoAlt: "Eli Andrae headshot",
-    domains: ["Python & R", "Predictive Modeling", "Cleanroom Ops", "Experimental Design"],
+    domains: ["Cleanroom Fabrication", "Design of Experiments", "Metrology", "Python & R", "Simulation & ML"],
     contact: {
-      email: "Elijah.andrae56@outlook.com",
+      email: "elijah.andrae56@outlook.com",
       linkedin: "https://www.linkedin.com/in/elijah-andrae",
       github: "https://github.com/elijah-andrae56",
-      portfolio: "https://elijah-andrae56.github.io/Portfolio/"
+      portfolio: "https://elijah-andrae56.github.io/Portfolio/",
     },
-    // summary is the portfolio display / CV fallback
-    summary:
-      "A multidisciplinary data scientist with integrated experience across nanofabrication, applied mathematics, and marketing analytics. Skilled in developing predictive models, experimental designs, and end-to-end analytical pipelines that translate complex data into operational and strategic decisions. Combines statistical rigor with hands-on engineering and cleanroom experience, enabling a full stack understanding of how physical systems, data pipelines, and business objectives interact. Demonstrated strength in technical communication, cross-functional collaboration, and delivering analyses that influence stakeholders and improve organizational performance.",
-    // per-focus resume summaries
-    summaries: {
-      cv: "A multidisciplinary data scientist with integrated experience across nanofabrication, applied mathematics, and marketing analytics. Skilled in developing predictive models, experimental designs, and end-to-end analytical pipelines that translate complex data into operational and strategic decisions. Combines statistical rigor with hands-on engineering and cleanroom experience, enabling a full stack understanding of how physical systems, data pipelines, and business objectives interact. Demonstrated strength in technical communication, cross-functional collaboration, and delivering analyses that influence stakeholders and improve organizational performance.",
-      process: "Process-focused engineer with hands-on cleanroom nanofabrication experience and a formal design-of-experiments foundation. Ran five randomized factorial DOEs (2³-2⁴) and a 12-level dose-response study in a single term, 60+ designed runs across thermal oxidation, spin coating, deposition, and lithography, all designed, blocked, and analyzed in JMP. Experienced operating precision process and metrology tools, performing measurement systems analysis to separate tool effects from process effects, and documenting work to SOP standard.",
-      ds: "Data scientist with applied experience in predictive modeling, statistical inference, and end-to-end analytical pipelines across research, business, and public-sector work. Skilled in Python (pandas, scikit-learn), R, and SQL across regression, classification, PCA, and clustering. Unusually deep design-of-experiments background: five randomized factorial designs (2³-2⁴) plus a 12-level dose-response study analyzed in JMP, covering blocking, reduced-model selection, residual diagnostics, and multi-response optimization.",
-    },
+    summary: "I'm a data science graduate (University of Oregon, 2026; Mathematics and Business minors) who earned the degree doing semiconductor process work in a cleanroom. I wrote 26 cleanroom SOPs, each checked off by lab staff, ran a term of designed experiments in JMP across oxidation, spin coating, evaporation, and lithography, and spent a year designing, fabricating, and testing microfluidic electrochemical devices. The habit I bring from that work is checking the measurement before trusting the result: in one deposition experiment the tool, not the recipe, turned out to be the largest source of variation. On the data side, I build simulations and machine learning models from large, imperfect records and test them on data they never saw. I'm from Erie, Pennsylvania, a US citizen, and ready to relocate.",
   },
-
-  highlights: [
-    "Designed and analyzed five randomized factorial DOEs (2\u00b3-2\u2074) plus a 12-level dose-response study in a single term: 60+ designed runs across oxidation, deposition, spin coating, and lithography, blocked on tool, instrument, and lab section",
-    "Reduced-model analysis in JMP: main effects and interactions, response transformations, residual and normality diagnostics, and multi-response desirability optimization with 95% confidence intervals",
-    "Cleanroom microfabrication: photolithography, thermal oxidation, thin-film deposition, lift-off and wet etch, multilayer alignment, metrology (Dektak, ellipsometry, reflectometry)",
-    "Measurement systems analysis across reflectometers, ellipsometer, profilometer, and crystal monitors; isolated a tool-level block effect that dominated a deposition model",
-  ],
-
-  skills: [
-    {
-      title: "Statistical and ML Methods",
-      domains: ["ds", "marketing", "nanofab"],
-      items: [
-        "Regression (SLR/MLR, Ridge/Lasso)",
-        "Classification (logistic, KNN, random forests)",
-        "PCA and clustering",
-        "Inference (ANOVA, t-tests, chi-square, bootstrap)",
-        "A/B testing and hypothesis testing",
-        "Model evaluation and cross-validation",
-      ],
-    },
-    {
-      title: "Programming and Tools",
-      domains: ["cs", "ds", "nanofab"],
-      items: [
-        "Python (pandas, NumPy, scikit-learn)",
-        "R (tidyverse)",
-        "SQL",
-        "JMP",
-        "Excel, Tableau",
-        "Git/GitHub, Bash, LaTeX",
-      ],
-    },
-    {
-      title: "Analytics and Experimentation",
-      domains: ["ds", "nanofab", "marketing"],
-      items: [
-        "DOE: full factorial (2³/2⁴), screening, and dose-response designs in JMP",
-        "Randomization, blocking, and replication strategy",
-        "Reduced-model selection and interaction modeling",
-        "Residual diagnostics and response transformations (log, Box-Cox)",
-        "Post-hoc comparison (Tukey HSD, Fisher LSD) and equality-of-variance testing",
-        "Prediction profilers and multi-response desirability optimization",
-        "Measurement systems analysis and instrument agreement testing",
-      ],
-    },
-    {
-      title: "Communication and Leadership",
-      items: [
-        "Technical writing and SOP authorship",
-        "Stakeholder presentations",
-        "Cross-functional collaboration",
-        "Mentorship and instruction",
-      ],
-    },
-    {
-      title: "Nanofabrication and Lab Techniques",
-      domains: ["nanofab"],
-      items: [
-        "ISO cleanroom operations, solvent handling, UV-ozone clean",
-        "Photolithography (spin coat, bakes, mask alignment, direct-write, develop, dose optimization)",
-        "Photomask layout and design (CleWin, KLayout)",
-        "Thermal oxidation and thin-film deposition (thermal evaporation, e-beam, lift-off)",
-        "Wet etch and pattern transfer",
-        "Metrology (stylus profilometry, ellipsometry, reflectometry, optical microscopy)",
-        "Multilayer alignment and overlay measurement",
-      ],
-    },
-  ],
-
   pipeline: [
     {
       id: "engineering",
@@ -104,12 +32,12 @@ export const SITE = {
         {
           name: "Nanofabrication",
           items: [
-            "ISO cleanroom operations",
+            "ISO 6 and ISO 4 cleanroom operations (26 SOPs)",
             "Photolithography (spin coat, bakes, alignment, dose)",
-            "Thin-film processing (thermal evap, e-beam, lift-off, etching)",
+            "Thin-film processing (thermal evaporation, e-beam, lift-off, etching)",
+            "Thermal oxidation",
             "Multilayer alignment",
             "Substrate prep, UV-ozone cleaning",
-            "Process development, yield optimization",
           ],
         },
         {
@@ -135,11 +63,7 @@ export const SITE = {
         },
         {
           name: "Design & CAD",
-          items: [
-            "KLayout, CLEWin (mask design)",
-            "AutoCAD, Fusion 360",
-            "Process flow documentation",
-          ],
+          items: ["KLayout, CLEWin (mask design)", "AutoCAD, Fusion 360", "Process flow documentation"],
         },
       ],
     },
@@ -153,7 +77,7 @@ export const SITE = {
         {
           name: "Programming & Tooling",
           items: [
-            "Python (pandas, NumPy, scikit-learn, Matplotlib)",
+            "Python (pandas, NumPy, scikit-learn, PyTorch, Matplotlib)",
             "R (tidyverse)",
             "SQL, Bash, LaTeX",
             "Git / GitHub",
@@ -163,19 +87,19 @@ export const SITE = {
         {
           name: "Statistics & Inference",
           items: [
-            "Regression (SLR / MLR)",
-            "Logistic, Ridge / Lasso",
+            "Regression (OLS, logistic, Poisson, ridge / lasso)",
             "ANOVA, t-tests, chi-square",
             "Bootstrap, A/B testing, KS tests",
+            "Censored maximum likelihood",
             "Time-series summarization",
           ],
         },
         {
           name: "Machine Learning",
           items: [
-            "Classification (KNN, Random Forests, Gradient Boosting)",
+            "Classification (KNN, random forests, gradient boosting)",
             "PCA & clustering",
-            "Neural networks (MLP, CNN)",
+            "Neural networks (MLP, CNN) in PyTorch",
             "Hyperparameter tuning, cross-validation",
             "Feature engineering",
             "Model evaluation",
@@ -184,10 +108,11 @@ export const SITE = {
         {
           name: "Mathematical Foundations",
           items: [
-            "Linear algebra (Math 341)",
-            "Mathematical modeling (Math 343)",
+            "Stochastic processes (Math 467)",
+            "Mathematical statistics (Math 461)",
+            "Linear algebra (Math 341, 342)",
             "Cryptography (Math 458)",
-            "Markov chains, stochastic processes",
+            "Markov chains, discrete-event simulation",
           ],
         },
       ],
@@ -205,28 +130,18 @@ export const SITE = {
             "DOE (full & fractional factorials)",
             "Process optimization",
             "Interaction modeling",
-            "Instrument validation",
+            "Metrology cross-checks",
             "Multivariate analysis",
-            "Train / validation strategy",
+            "Train / test on held-out data",
           ],
         },
         {
           name: "Decision Analytics",
-          items: [
-            "Marketing & operational analytics",
-            "Sentiment analysis",
-            "Predictive modeling for decisions",
-            "A/B testing",
-          ],
+          items: ["Marketing & operational analytics", "Sentiment analysis", "Predictive modeling for decisions", "A/B testing"],
         },
         {
           name: "Analytical Tooling",
-          items: [
-            "JMP, SPSS",
-            "Excel, Tableau",
-            "Google Cloud (analytics + ETL)",
-            "Meta Business Suite",
-          ],
+          items: ["JMP, SPSS", "Excel, Tableau", "Google Cloud (analytics + ETL)", "Meta Business Suite"],
         },
         {
           name: "Communication & Leadership",
@@ -242,8 +157,6 @@ export const SITE = {
       ],
     },
   ],
-
-  // Unified portfolio surface (Research + Labs + Projects)
   cards: [
     {
       kind: "research",
@@ -266,78 +179,51 @@ export const SITE = {
         "Semiconductor probe station",
         "Optical microscopy",
         "Python",
-        "DOE"
       ],
-      descriptions: {
-        cv: [
-          "Designed the photomask sets for both device generations in CleWin, defining electrode geometry, gap spacing, interlayer alignment marks, and bond-pad routing on a 25 mm mask frame.",
-          "Designed and fabricated multilayer electrochemical microfluidic devices using patterned metal electrodes, dielectric insulation, SU-8 molds, and PDMS channel integration on glass substrates.",
-          "Developed physics-driven characterization workflows using a Keithley 2450, microscope imaging, and semiconductor probe station measurements to quantify nucleation thresholds, current response, field dependence, and trial-to-trial stochastic behavior.",
-          "Built a programmable data acquisition and analysis framework for voltage-stepped bubble experiments, including event timing, current traces, reaction-state labeling, and structured datasets for modeling nucleation probability and wait-time statistics.",
-          "Positioned the platform for multiple device directions including microbubble actuation, stochastic neuron hardware, and entropy/random-number-generation studies grounded in quantified physical variability.",
-        ],
-        resume: {
-          process: [
-            "Drew the photomask sets for both device generations in CleWin, defining electrode geometry, gap spacing, interlayer alignment marks, and bond-pad routing; the second generation addresses seven measurement channels through a shared-electrode matrix rather than one pad pair per channel.",
-            "Designed and fabricated multilayer electrochemical microdevices end to end: photolithographic patterning, thin-film metal deposition and lift-off, SU-8 mold processing, and PDMS channel integration on glass.",
-            "Built a repeatable characterization protocol on a Keithley 2450 and semiconductor probe station, mapping nucleation thresholds, current response, and field-dependent activation across device geometries.",
-            "Quantified trial-to-trial process variability across multi-trial datasets; maintained trial logs, measurement records, and reproducibility assessments that drove iterative device redesign.",
-          ],
-          ds: [
-            "Designed the photomask sets for both device generations in CleWin, including a shared-electrode routing scheme that addresses seven measurement channels from a reduced pad count.",
-            "Built a programmable acquisition framework for voltage-stepped electrochemical experiments, automating event timing, current-trace logging, and reaction-state labeling into structured datasets.",
-            "Modeled bubble nucleation as a stochastic first-event process; characterized nucleation probability and wait-time distributions as functions of applied voltage and device geometry.",
-          ],
-        },
-      },
-      blurb:
-        "Research platform centered on electrochemical microbubble generation in microfluidic devices, spanning full-stack fabrication, semiconductor-style electrical characterization, automated measurement design, and stochastic modeling for actuation, neuromorphic, and entropy-source applications.",
-      details:
-        "This project has been reframed from a single application-specific random-number generator build into a broader device-physics and characterization effort focused on electrochemical microbubble generation in microfluidic systems.\n\nPrototype fabrication is active and the project is now centered on repeatable characterization, automated data collection, physically interpretable modeling, and iterative device redesign based on measured failure modes, threshold behavior, and reproducibility limits. The subsections below cover the fabrication stack, the characterization and modeling workflow, and where the platform is headed.",
+      blurb: "Year-long independent research on electrochemical microbubble generation in microfluidic devices: photomask design, full fabrication, semiconductor-style electrical characterization, automated measurement, and stochastic modeling. Directions include microfluidic actuation, stochastic device concepts, and entropy-source studies.",
+      details: "Two device generations, designed, fabricated, and characterized end to end. I drew the photomask sets in CleWin and KLayout, built the devices in the cleanroom, and tested them on a Keithley 2450 and a semiconductor probe station with automated Python acquisition: 80+ test runs across about 20 devices on four chips. The second generation addresses seven measurement channels through a shared-electrode matrix from a reduced pad count.\n\nThe modules below cover the fabrication stack, the characterization and modeling workflow, and where the platform could go.",
       image: "images/microfluidic_electrolysis_1.jpg",
       images: [
         "images/microfluidic_electrolysis_1.jpg",
         "images/microfluidic_electrolysis_3.jpg",
         "images/microfluidic_electrolysis_4.jpg",
         "images/microfluidic_electrolysis_5.jpg",
-        "images/microfluidic_electrolysis_6.jpg"
+        "images/microfluidic_electrolysis_6.jpg",
       ],
       imageAlt: "Electrochemical microbubble microfluidic device and characterization workflow",
       modules: [
         {
           title: "Device Design and Fabrication",
-          tools: ["Photolithography", "Thin-film deposition", "Lift-off", "SU-8 molds", "PDMS soft lithography"],
+          tools: ["CleWin", "Photolithography", "Thin-film deposition", "Lift-off", "SU-8 molds", "PDMS soft lithography"],
+          blurb: "Photomasks drawn for two device generations, then a full fabrication flow from bare glass to working prototypes.",
           bullets: [
-            "Built a multilayer glass-based microfluidic device stack combining patterned aluminum electrodes, dielectric insulation, and PDMS channel structures formed from SU-8 molds.",
-            "Ran the full fabrication workflow: substrate cleaning, lithographic patterning, metal deposition and lift-off, insulating layer definition, mold fabrication, and PDMS integration.",
-            "Focused design work on electrode geometry, gap spacing, alignment strategy, insulation openings, and channel architecture so that bubble generation can be studied as a controlled physical phenomenon rather than a one-off demonstration.",
+            "Drew the photomask sets for both device generations in CleWin, defining electrode geometry, gap spacing, interlayer alignment marks, and bond-pad routing on a 25 mm mask frame.",
+            "Ran the full fabrication flow: substrate cleaning, photolithography, thin-film metal deposition and lift-off, dielectric insulation, SU-8 mold fabrication, and PDMS channel integration on glass, producing six working prototypes.",
+            "Designed electrode geometry, gap spacing, alignment, insulation openings, and channel layout so bubble generation could be studied as a controlled physical effect rather than a one-off demonstration.",
           ],
-          blurb: "Multilayer glass device stack: patterned Al electrodes, dielectric insulation, and PDMS channels from SU-8 molds.",
         },
         {
           title: "Characterization, Instrumentation, and Modeling",
-          tools: ["Keithley 2450", "Semiconductor probe station", "Optical microscopy", "Python"],
+          tools: ["Keithley 2450", "Semiconductor probe station", "Python (SCPI)", "Censored MLE"],
+          blurb: "Semiconductor-style electrical characterization, automated acquisition, and stochastic modeling of the first event.",
           bullets: [
-            "Developed characterization methods for nucleation and gas-generation behavior using a Keithley 2450, semiconductor probe station, and microscope-based video measurement.",
-            "Wrote structured trial protocols for identifying safe operating windows, threshold behavior, gap dependence, drift and conditioning effects, and optional current-controlled operation.",
-            "Logged voltage, compliance, baseline current, steady current, reaction class, and first-event time per trial, with video-linked records for reproducibility.",
-            "Modeled bubble nucleation as a stochastic first-event process, connecting current-voltage behavior to nucleation probability, wait-time distributions, and field-dependent activation behavior.",
+            "Characterized activation thresholds, current response, field and gap dependence, and trial-to-trial variability on a Keithley 2450 and semiconductor probe station.",
+            "Automated synchronized acquisition in Python (SCPI instrument control, logging, structured datasets) for repeatable test campaigns: 80+ runs across about 20 devices on four chips.",
+            "Modeled the first-event time as a stochastic process with an activation model derived from reaction kinetics, using censored maximum likelihood so trials with no event stayed in the data.",
           ],
-          blurb: "Semiconductor-style electrical characterization plus stochastic first-event modeling of nucleation.",
         },
         {
           title: "Application Directions",
           tools: ["Microfluidic actuation", "Stochastic device concepts", "Entropy characterization"],
+          blurb: "One platform, several directions: microfluidic actuation, stochastic device concepts, and entropy-source studies.",
           bullets: [
-            "The same physical platform can be reframed for multiple applications, which is what makes the characterization work worth doing carefully rather than to a single spec.",
-            "Directions under consideration include low-cost electrochemical microbubble actuation for microfluidic pumping, stochastic device concepts built on a probabilistic activation curve, and entropy-source studies where randomness is quantified statistically rather than assumed.",
+            "The same platform supports several directions, which is why the characterization was done carefully rather than to a single spec.",
+            "Directions include microfluidic actuation, stochastic device concepts, and entropy-source studies where randomness is measured rather than assumed.",
           ],
-          blurb: "One platform, several device directions - actuation, stochastic elements, and quantified entropy sources.",
         },
       ],
       links: [],
     },
-
     {
       kind: "lab",
       title: "Nanofabrication Cleanroom Labs (PHYS 495) - DOE-Driven Process Development",
@@ -351,7 +237,7 @@ export const SITE = {
         "Lindberg tube furnace",
         "Laurell spin coater",
         "Angstrom Covap thermal evaporator",
-        "S\u00fcss MJB4 mask aligner",
+        "Süss MJB4 mask aligner",
         "Microtech LaserWriter",
         "Filmetrics F20/F40 reflectometry",
         "Woollam ellipsometry",
@@ -359,36 +245,8 @@ export const SITE = {
         "UV-ozone / O2 plasma",
         "Wet etch and lift-off",
       ],
-      descriptions: {
-        cv: [
-          "DOE scale: designed, executed, and analyzed five randomized factorial experiments (two 2\u2074 and three 2\u00b3 designs) plus a 12-level dose-response design in a single term, spanning 60+ designed runs across oxidation, spin coating, evaporation, and lithography; all designs generated, randomized, blocked, and modeled in JMP.",
-          "Lab B - Thermal oxidation (2\u2074, 16 runs): varied oxidant, temperature (900/1100 \u00b0C), time (40/160 min), and N2 flow; built reduced categorical models of oxide thickness from 10-point reflectometry maps, identified oxidant and temperature as dominant effects, and predicted maximum growth of 703 nm (95% CI [489, 917] nm).",
-          "Lab B - Spin-coat resist (2\u2074, 16 runs): self-generated screening design on acceleration, final spin speed, spin time, and initial dispense coverage; modeled mean thickness, thickness standard deviation, and % coverage, applying a log10 transform to normalize variance residuals and testing instrument-block survival against pooled class data.",
-          "Lab C - Thermal evaporation (2\u00b3): varied chip location, stage rotation, and deposition rate for 100 nm Al depositions; a Y\u00b2-transformed thickness model reached R\u00b2 = 0.97 and isolated deposition rate plus two interactions. On pooled class data the evaporator block dominated the model, and the effect was traced to crystal-monitor drift on one tool.",
-          "Lab D - Lithography dose response: ran a randomized 12-level dose test (35-200 mJ/cm\u00b2) on a S\u00fcss MJB4, extracted D0, D100, and resist contrast (\u03b3 \u2248 3.3) from the contrast curve, and recommended a 115 mJ/cm\u00b2 process dose; repeated dose profiling across three LaserWriter objective lenses (50-250 mJ/cm\u00b2) and tested lens-to-lens agreement by ANOVA.",
-          "Lab E - Resolution and pattern transfer (2\u00b3, 10 response variables): mapped D-step, dose, and lens against the width and depth of 1, 2, 4, and 8 \u00b5m lines, then used multi-response desirability optimization to select D-step 12, 200 mJ/cm\u00b2, and lens 5; transferred 100 nm Al by both lift-off (96.3 \u00b1 2.3 nm) and Transene Type-A wet etch (96.8 \u00b1 1.4 nm) and compared edge fidelity between routes.",
-          "Lab F - Layer registration: built aligned multilayer Cr/Au and Al structures through a PMGI/AZ bilayer lift-off process, registering layers with both S\u00fcss MJB4 hard-mask alignment and LaserWriter A/B fiducial alignment; verified overlay accuracy by optical microscopy and Dektak marker mapping.",
-          "Measurement systems analysis: cross-validated Filmetrics F20, F40, and Woollam ellipsometer thickness readings by paired-comparison testing and multivariate correlation (best pair r = 0.9999), and checked stylus profilometry against both reflectometry (p = 0.454) and deposition crystal-monitor readings.",
-          "Lab A - Cleanroom qualification: authored and passed review on 11 SOPs covering cleanroom entry and PPE, solvent handling, wafer scribing and die storage, fume-hood verification, sonication, and O2 plasma etching to earn independent tool access.",
-          "Lab \u03b1 - DOE methods: completed a JMP-based design-of-experiments sequence covering ANOVA, Tukey HSD and Fisher LSD post-hoc comparisons, residual and normality diagnostics (Shapiro-Wilk, Anderson-Darling), and equality-of-variance testing (Levene, Brown-Forsythe, Bartlett) applied to semiconductor process data including plasma-etch uniformity and photoresist bake temperature.",
-        ],
-        resume: {
-          process: [
-            "Designed, ran, and analyzed five randomized factorial experiments (two 2⁴, three 2³) plus a 12-level dose-response study in a single term: 60+ designed runs across thermal oxidation, spin coating, thermal evaporation, and lithography, all generated, randomized, and blocked in JMP.",
-            "Built reduced categorical models with residual diagnostics and Box-Cox/log transforms (R² up to 0.99); used prediction profilers and multi-response desirability optimization to recommend factor settings against thickness, resolution, and minimum-variance targets with 95% confidence intervals.",
-            "Performed measurement systems analysis across reflectometry, ellipsometry, stylus profilometry, and deposition crystal monitors; isolated a tool-level block effect that dominated a deposition model and traced it to crystal-monitor drift on one of two evaporators.",
-            "Operated tube furnace, spin coater, thermal evaporator, Süss MJB4 mask aligner, Microtech LaserWriter, and wet etch and lift-off benches; authored 11 reviewed SOPs to qualify for independent tool access.",
-          ],
-          ds: [
-            "Designed and analyzed five randomized factorial experiments (2\u00b3-2\u2074) plus a 12-level dose-response study in JMP: 60+ runs with blocking, randomization, reduced-model selection, and residual diagnostics.",
-            "Applied response transformations (log10, Box-Cox), ANOVA with Tukey HSD post-hoc testing, and multi-response desirability optimization to recommend operating conditions with 95% confidence intervals; best-fitting models reached R\u00b2 = 0.99.",
-          ],
-        },
-      },
-      blurb:
-        "A full term of cleanroom process development run as a connected DOE program: five randomized factorial designs (2\u00b3-2\u2074) plus a 12-level dose-response study, 60+ designed runs, blocked across tools and lab sections, with reduced-model analysis and instrument cross-validation in JMP.",
-      details:
-        "PHYS 495 Nanofabrication treats the cleanroom as a statistics problem: every process module is entered as a randomized, blocked factorial design in JMP, executed on real tools, measured with 10-point metrology maps, and reduced to a model whose factors, interactions, and residuals have to survive diagnostics before any process recommendation is made.\n\nOver the term this produced five factorial designs (two 2\u2074 and three 2\u00b3), a 12-level dose-response design, and a set of lens-by-lens dose profiles - roughly 60 designed runs and several hundred point-level thickness measurements. Designs were blocked on lab section, deposition tool, and metrology instrument, and each experiment was analyzed twice: once on group data and once on pooled class data, so that block-factor survival became its own diagnostic. In Lab C that diagnostic paid off - the evaporator block dominated the pooled model, and the effect traced back to crystal-monitor drift on one of the two tools rather than to any of the designed factors.\n\nThe modules below follow the term in order, from cleanroom qualification and DOE fundamentals through oxidation, deposition, lithography, pattern transfer, and multilayer registration.",
+      blurb: "A term of cleanroom process development run as a designed-experiment program: four factorial designs (two 2⁴, two 2³) plus a 12-level exposure dose test, about 60 designed runs, with reduced-model analysis and metrology cross-checks in JMP.",
+      details: "PHYS 495 Nanofabrication treats the cleanroom as a statistics problem: each process module is set up as a designed experiment in JMP, run on real tools, measured with 10-point metrology maps, and reduced to a model whose factors, interactions, and residuals have to survive diagnostics before any process recommendation is made.\n\nOver the term I designed, ran, or analyzed four factorial designs (two 2⁴ and two 2³), a 12-level exposure dose test, and a three-lens dose profile: about 60 designed runs and several hundred point-level thickness measurements. Experiments were analyzed on group data and again on pooled class data with tool and instrument as blocks. In the evaporation experiment that second look mattered: the evaporator block was the strongest factor in the pooled model, so the tool, not the recipe, was the largest source of variation. I suspected crystal-monitor drift on one tool, reported it to lab staff, and recommended logging the in-situ monitor on every run.\n\nThe modules below follow the term in order, from cleanroom qualification and DOE fundamentals through oxidation, deposition, lithography, pattern transfer, and multilayer registration.",
       image: "images/alignment.jpg",
       images: [
         "images/alignment.jpg",
@@ -402,85 +260,86 @@ export const SITE = {
         {
           title: "Lab A - Cleanroom Qualification and SOP Development",
           date: "2025-10-02",
-          tools: ["ISO cleanroom", "Fume hood", "Sonicator", "March O2 etcher", "Solvent bench"],
+          tools: ["ISO 6 cleanroom", "Fume hood", "Sonicator", "March O2 etcher", "Solvent bench"],
           bullets: [
-            "Authored and passed instructor review on 11 Standard Operating Procedures covering cleanroom entry and PPE, glassware and tweezer cleaning, silicon die scribing, die cleaning and storage, solvent handling (acetone/IPA/methanol/DI), fume-hood airflow verification, ultrasonic cleaning, O2 plasma etching, and lab cleanup.",
-            "Qualified for independent tool access by documenting hazards, failure modes, and before/during/after checklists for each process, establishing the documentation discipline used across every later lab.",
+            "Wrote 26 standard operating procedures, each checked off by lab staff, qualifying for independent use of the tools and processes they cover in an ISO 6 (Class 1000) cleanroom; also trained to enter an ISO 4 (Class 10) cleanroom.",
+            "Topics included cleanroom entry, solvent handling, the fume hood, DI water, die scribing and cleaning, the ultrasonic cleaner, hotplate, UV-ozone, tube furnace, thermal evaporator, photoresist, spin coater, mask aligner, LaserWriter, developer, lift-off, and metal etching.",
+            "Each SOP documented hazards, the ways the instrument could be broken, and before, during, and after steps: the documentation habit used in every later lab.",
           ],
-          blurb: "Cleanroom entry qualification: 11 reviewed SOPs covering PPE, solvent handling, substrate prep, and plasma cleaning.",
+          blurb: "Cleanroom qualification: 26 SOPs, each checked off by lab staff, from cleanroom entry through deposition, lithography, and pattern transfer.",
         },
         {
-          title: "Lab \u03b1 - Design of Experiments Foundations (JMP)",
+          title: "Lab α - Design of Experiments Foundations (JMP)",
           date: "2025-10-14",
           tools: ["JMP", "ANOVA", "Tukey HSD / Fisher LSD", "Residual diagnostics"],
           bullets: [
-            "Worked through a full one-way comparative-experiment sequence in JMP: hypothesis testing, ANOVA, Tukey HSD and Fisher LSD post-hoc comparisons, and confidence-interval construction on semiconductor process datasets including C2F6 plasma-etch uniformity and photoresist bake temperature.",
+            "Worked through a full one-way comparative-experiment sequence in JMP: hypothesis testing, ANOVA, Tukey HSD and Fisher LSD post-hoc comparisons, and confidence intervals, on textbook semiconductor process datasets (Montgomery) including C2F6 plasma-etch uniformity and photoresist bake temperature.",
             "Built the diagnostic habits used for the rest of the term - normal quantile plots, Shapiro-Wilk and Anderson-Darling normality tests, residual-vs-predicted checks for heteroscedasticity, and Levene/Brown-Forsythe/Bartlett equality-of-variance testing - including recognizing when a heavy-tailed response invalidates a standard ANOVA and re-analyzing under unequal variance.",
             "Practiced experiment framing end to end: response selection, design vs constant vs nuisance factor classification, and the distinction between replication and repeated measurement.",
           ],
           blurb: "DOE and statistical-inference foundations in JMP: ANOVA, post-hoc comparison, residual diagnostics, and variance testing on process data.",
         },
         {
-          title: "Lab B - Thermal Oxidation and Spin Coating: Two 2\u2074 Factorials",
+          title: "Lab B - Thermal Oxidation and Spin Coating: Two 2⁴ Factorials",
           date: "2025-10-26",
           tools: ["Lindberg tube furnace", "Laurell spin coater", "AZ1512", "Filmetrics F20/F40", "JMP"],
           bullets: [
-            "Thermal oxidation (2\u2074, 16 runs, blocked by lab section and randomized within block): grew SiO2 while varying oxidant (O2/H2O), temperature (900/1100 \u00b0C), time (40/160 min), and N2 carrier flow (0/2 SCFH); measured thickness at 10 points along the chip diagonal on two reflectometers per chip.",
-            "Reduced the oxidation model to oxidant and temperature as dominant effects, retained an oxidant\u00d7N2 interaction on the strength of a Tukey HSD check, and reported optimal settings with intervals: maximum 703 nm (95% CI [489, 917]) at H2O/1100 \u00b0C/160 min/0 SCFH, minimum at O2/900 \u00b0C/40 min/2 SCFH.",
-            "Spin coating (2\u2074): generated an independent randomized full factorial in JMP on acceleration, final spin speed, time at speed, and initial resist coverage, with three responses - mean resist thickness, thickness standard deviation, and % die coverage estimated from chip photographs.",
-            "Found final spin speed dominant for thickness and acceleration dominant for coverage; applied a log10 transform to normalize the variance model, then re-ran the analysis on pooled class data with the Filmetrics instrument as a block factor - the block did not survive reduction, evidence that F20 and F40 readings were interchangeable (difference in means 0.1, p = 0.9991).",
+            "Thermal oxidation (2⁴, 16 runs, an instructor-designed class experiment blocked by lab section): my group ran two of the runs and I analyzed the class data, with oxidant (O2/H2O), temperature (900/1100 °C), time (40/160 min), and N2 carrier flow (0/2 SCFH) as factors and thickness measured at 10 points per chip on two reflectometers.",
+            "Reduced the oxidation model to oxidant and temperature as dominant effects, retained an oxidant×N2 interaction on the strength of a Tukey HSD check, and reported optimal settings with intervals: maximum predicted 703 nm (95% CI [489, 917]) at H2O, 1100 °C, 160 min, 0 SCFH.",
+            "Spin coating (2⁴): designed a randomized full factorial in JMP with a lab partner on acceleration, final spin speed, time at speed, and initial resist coverage, with three responses: mean resist thickness, thickness standard deviation, and die coverage estimated from chip photographs.",
+            "Found final spin speed dominant for thickness and acceleration dominant for coverage (every run exceeded the 1000 nm target, so the target sat outside the design space); with the Filmetrics instrument as a block on pooled class data, the block did not survive reduction, evidence that F20 and F40 readings were interchangeable (difference in means 0.1, p = 0.9991).",
           ],
-          blurb: "Two 2\u2074 full factorials in one lab: silicon thermal oxidation and photoresist spin coating, each modeled on group and pooled class data with instrument blocking.",
+          blurb: "Two 2⁴ full factorials in one lab: silicon thermal oxidation and photoresist spin coating, each modeled on group and pooled class data with instrument blocking.",
         },
         {
-          title: "Lab C - Physical Vapor Deposition: 2\u00b3 Factorial Thermal Evaporation",
+          title: "Lab C - Physical Vapor Deposition: 2³ Factorial Thermal Evaporation",
           date: "2025-11-02",
-          tools: ["Angstrom Covap evaporator", "Bruker Dektak", "Crystal monitor (QCM)", "JMP"],
+          tools: ["Angstrom Covap evaporators (East, West)", "Bruker Dektak", "JMP"],
           bullets: [
-            "Designed a randomized 2\u00b3 screening experiment in JMP for 100 nm Al thermal evaporation, varying chip location on the stage (center/edge), stage rotation (0/100%), and deposition rate (0.5/3 \u00c5/s), with mean thickness and thickness standard deviation as paired responses.",
-            "Masked chips with Kapton, logged chamber pump-down time to 3\u00d710\u207b\u2076 hPa as a covariate, and measured 10 profilometry points per chip; a Y\u00b2-transformed thickness model reached R\u00b2 = 0.97 with deposition rate significant plus rotation\u00d7rate and location\u00d7rate interactions.",
-            "Re-analyzed on pooled class data with evaporator (East/West Covap) as a block: the block not only survived reduction but dominated the model. Isolating center-stage chips confirmed a statistically significant tool-to-tool difference in both mean thickness and standard deviation, traced to crystal-monitor drift on the East tool.",
-            "Compared pump-down performance between tools as an equipment-health check (East 25.5 \u00b1 5.8 s.d., N = 24; West 18.1 \u00b1 3.2, N = 8) and cross-checked stylus profilometry against the in-situ crystal monitor reading.",
+            "Ran a randomized 2³ screening experiment for 100 nm Al thermal evaporation, varying chip location on the stage (center/edge), stage rotation (0/100%), and deposition rate (0.5/3 Å/s), with mean thickness and thickness standard deviation as paired responses.",
+            "Masked chips with Kapton, logged chamber pump-down time to 3×10⁻⁶ hPa as a covariate, and measured 10 profilometry points per chip; a Y²-transformed thickness model reached R² = 0.97 with deposition rate significant plus rotation×rate and location×rate interactions.",
+            "Re-analyzed on pooled class data with evaporator (East/West Covap) as a block: the block was the strongest factor in the model. Isolating center-stage chips showed the two tools differed in both mean thickness and standard deviation.",
+            "Compared pump-down times between tools (East 25.5 s, s.d. 5.8, N = 24; West 18.1 s, s.d. 3.2, N = 8). I suspected crystal-monitor drift on the East tool but could not confirm it because most groups had not logged monitor readings, so I reported it to lab staff and recommended logging the in-situ monitor on every run.",
           ],
-          blurb: "2\u00b3 factorial on thermal evaporation that surfaced a tool-level block effect dominating the deposition model, traced to crystal-monitor drift.",
+          blurb: "2³ factorial on thermal evaporation in which the deposition tool, not the recipe, turned out to be the largest source of variation.",
         },
         {
           title: "Lab D - Photolithography Dose Response and Instrument Cross-Validation",
           date: "2025-11-09",
-          tools: ["S\u00fcss MJB4", "Microtech LaserWriter", "Woollam ellipsometer", "Filmetrics F40", "Dektak"],
+          tools: ["Süss MJB4", "Microtech LaserWriter", "Woollam ellipsometer", "Filmetrics F40", "Dektak"],
           bullets: [
-            "Ran a randomized 12-level dose test (35-200 mJ/cm\u00b2 in 15 mJ steps) on a S\u00fcss MJB4: coated and soft-baked a 50 mm wafer, diced it into 16 chips, measured lamp power before each exposure to convert dose to exposure time, then exposed, post-exposure baked, developed, and hard baked to the run order.",
-            "Built the exposure-response curve from profilometry depth data after diagnosing excessive noise in the reflectometer channel, extracting D0 \u2248 109 mJ/cm\u00b2, D100 \u2248 120 mJ/cm\u00b2, and a resist contrast \u03b3 \u2248 3.3, and recommended 115 mJ/cm\u00b2 as the process dose.",
-            "Characterized dose profiles for three LaserWriter objective lenses over 50-250 mJ/cm\u00b2, recording strip count, strip width, spot size, depth of focus, and filter transmission per lens; ANOVA across lenses returned p < 0.0001, with lenses 3 and 4 statistically similar and lens 5 distinct, and the MJB4 and LaserWriter optimal doses differing significantly.",
-            "Cross-validated three thickness metrology tools on the Lab B oxide samples: matched-pairs testing showed F20 and F40 statistically equivalent while the ellipsometer differed, and multivariate correlation put every pair near r = 1 with ellipsometer-F40 highest at 0.9999; stylus depth and reflectometer \u0394t agreed (p = 0.454, mean difference 0.14 \u00b5m).",
+            "Ran a randomized 12-level dose test (35 to 200 mJ/cm² in 15 mJ steps) on a Süss MJB4: coated and soft-baked a 50 mm wafer, diced it into 16 chips, measured lamp power before each exposure to convert dose to exposure time, then exposed, post-exposure baked, developed, and hard baked in run order.",
+            "Built the exposure-response curve from profilometry depth data after a matched-pairs check showed the reflectometer channel was too noisy, finding D0 about 109 mJ/cm² and D100 about 120 mJ/cm², and recommended 115 mJ/cm² as the process dose.",
+            "Characterized dose profiles for three LaserWriter objective lenses over 50 to 250 mJ/cm², recording strip count, strip width, spot size, depth of focus, and filter transmission per lens; ANOVA across lenses returned p < 0.0001, with lenses 3 and 4 statistically similar and lens 5 distinct.",
+            "Cross-validated three thickness metrology tools on the Lab B oxide samples: matched-pairs testing showed F20 and F40 statistically equivalent while the ellipsometer differed, and multivariate correlation put every pair near r = 1 with ellipsometer-F40 highest at 0.9999; stylus depth and reflectometer Δt agreed (p = 0.454, mean difference 0.14 µm).",
           ],
-          blurb: "Resist contrast curves on two exposure tools plus a three-instrument metrology cross-validation study.",
+          blurb: "Exposure dose response on two exposure tools plus a three-instrument thickness metrology cross-check.",
           images: ["images/dose_test_1.png", "images/dose_test_2.jpg"],
           imageAlt: "Photolithography dose test chips and exposure response curves",
         },
         {
-          title: "Lab E - Resolution 2\u00b3 Factorial, Lift-Off, and Wet Etch",
+          title: "Lab E - Resolution 2³ Factorial, Lift-Off, and Wet Etch",
           date: "2025-11-23",
           tools: ["Microtech LaserWriter", "Covap evaporator", "Transene Type-A etchant", "Dektak", "JMP"],
           bullets: [
-            "Designed a randomized 2\u00b3 factorial with 10 response variables on LaserWriter resolution - D-step (1/12), dose (75/200 mJ/cm\u00b2), and lens (3/5) against the mean width and depth of 1, 2, 4, and 8 \u00b5m stitch-test lines plus measured and estimated write time - using lens as an in-block randomization factor.",
-            "Fit and reduced eight separate response models (R\u00b2 spanning 0.31 to 0.999), reporting honestly which models failed to reach significance, then ran a combined desirability optimization across all eight to land on D-step 12, 200 mJ/cm\u00b2, and lens 5 as the best overall resolution setting.",
-            "Executed a full lift-off sequence - UV-ozone dehydration, spin coat, MJB4 CPW exposure at 100 mJ/cm\u00b2, develop, 100 nm Al evaporation at 3 \u00c5/s with 50% rotation, acetone strip with sonication - yielding 96.26 nm mean Al thickness at 2.27 nm standard deviation.",
-            "Built the complementary subtractive route on Al-coated glass using Transene Type-A etchant and a diluted AZ-340 comparison etch, measuring 96.83 \u00b1 1.38 nm and 97.83 \u00b1 1.80 nm across two chips, estimating etch rate from breakthrough time, and concluding that the wet-etch route produced measurably cleaner line edges than lift-off.",
+            "Ran a randomized 2³ factorial on LaserWriter resolution, with D-step (1/12), dose (75/200 mJ/cm²), and lens (3/5) as factors and the mean width and depth of 1, 2, 4, and 8 µm stitch-test lines as eight responses.",
+            "Fit and reduced eight separate response models (R² from 0.31 to 0.999), reported which models failed to reach significance, and ran a combined desirability optimization across all eight to land on D-step 12, 200 mJ/cm², and lens 5 as the best overall resolution setting.",
+            "Executed a full lift-off sequence - UV-ozone dehydration, spin coat, MJB4 CPW exposure at 100 mJ/cm², develop, 100 nm Al evaporation at 3 Å/s with 50% rotation, acetone strip with sonication - yielding 96.26 nm mean Al thickness at 2.27 nm standard deviation.",
+            "Built the complementary subtractive route on Al-coated glass with Transene Type-A etchant and a diluted AZ-340 comparison etch, measuring 96.83 ± 1.38 nm and 97.83 ± 1.80 nm across two chips, estimating etch rate from breakthrough time; the wet-etch edges were visibly cleaner than lift-off.",
           ],
-          blurb: "A 10-response 2\u00b3 factorial on direct-write resolution, plus additive (lift-off) and subtractive (wet etch) pattern transfer compared on the same metric set.",
+          blurb: "A 2³ factorial on direct-write resolution with eight responses, plus additive (lift-off) and subtractive (wet etch) pattern transfer compared on the same metrics.",
           images: ["images/lift_off.png", "images/wet_etch.png"],
           imageAlt: "Aluminum lift-off and wet etch pattern transfer results",
         },
         {
           title: "Lab F - Layer Registration and Multilayer Alignment",
           date: "2025-12-05",
-          tools: ["S\u00fcss MJB4", "Microtech LaserWriter", "PMGI/AZ bilayer", "Remover PG", "Dektak"],
+          tools: ["Süss MJB4", "Microtech LaserWriter", "PMGI/AZ bilayer", "Remover PG", "Dektak"],
           bullets: [
             "Prepared PMGI SF2 / AZ1512 bilayer resist with a two-step spin program and TMAH-based AZ 300 MIF development to produce the undercut profile required for clean metal lift-off.",
-            "Registered a two-layer MOSFET pattern on the S\u00fcss MJB4 by iterating x-y and rotational alignment between paired hard-mask fiducials, depositing 5 nm Cr / 50 nm Au on layer one and 50 nm Al on layer two with Remover PG lift-off between layers.",
-            "Repeated the build as a three-layer direct-write process on the LaserWriter using saved A/B alignment marks and a defined focal plane from multiple reference points, then compared registration accuracy between mask-aligner and direct-write routes.",
-            "Verified overlay with optical microscopy and Dektak alignment-marker maps, confirming consistent registration across the full chip on both routes.",
+            "Registered a two-layer MOSFET pattern on the Süss MJB4 by iterating x-y and rotational alignment between paired hard-mask fiducials, depositing 5 nm Cr / 50 nm Au on layer one and 50 nm Al on layer two with Remover PG lift-off between layers.",
+            "Repeated the build as a three-layer direct-write process on the LaserWriter using saved A/B alignment marks and a focal plane defined from multiple reference points, then compared the mask-aligner and direct-write routes.",
+            "Checked overlay with optical microscopy and Dektak alignment-marker maps on both routes (a qualitative check; no numeric overlay error was measured).",
           ],
           blurb: "Multilayer Cr/Au and Al registration through a PMGI/AZ bilayer, aligned two ways - mask aligner fiducials and LaserWriter A/B marks - and verified by Dektak marker mapping.",
           images: ["images/alignment.jpg"],
@@ -489,7 +348,6 @@ export const SITE = {
       ],
       links: [],
     },
-
     {
       kind: "lab",
       title: "Electronics Laboratory",
@@ -505,25 +363,10 @@ export const SITE = {
         "Capacitance / Inductance Meters",
         "Optical Power Meter",
         "Spectrometer",
-        "Proto-boards"
+        "Proto-boards",
       ],
-      descriptions: {
-        cv: [
-          "Built and characterized resistive, capacitive, and inductive networks; implemented voltage dividers and RC filters; measured time-domain response and frequency dependence using oscilloscopes and function generators.",
-          "Analyzed impedance, reactance, and resonance in RLC systems; characterized diode I-V behavior, Zener behavior, and transistor current amplification.",
-          "Performed optoelectronic measurements including photodiode I-V characterization, LED optical power vs current, and laser diode operation using a constant-current driver with optical power and spectral measurements.",
-        ],
-        resume: {
-          process: [
-            "Built and characterized RLC networks, filters, and diode, transistor, and optoelectronic devices across a 12-station independent laboratory sequence; measured impedance, resonance, time-domain response, and I-V behavior using oscilloscopes, function generators, optical power meters, and spectrometers.",
-          ],
-          ds: null,
-        },
-      },
-      blurb:
-        "Hands-on electronics laboratory covering circuit fundamentals, instrumentation, and device characterization including RC dynamics, impedance, resonance, diode I-V behavior, transistor amplification, and optoelectronic measurements.",
-      details:
-        "Completed the University of Oregon Electronics Obstacle Course, a published 12-station laboratory sequence in which each station must be built, measured, and signed off before moving on. The course is focused on practical circuit construction and measurement discipline: built and characterized resistive, capacitive, and inductive networks; implemented voltage dividers and RC filters; measured time-domain response and frequency dependence using oscilloscopes and function generators; and analyzed impedance, reactance, and resonance in RLC systems.\n\nAdditional work included diode I-V characterization, Zener behavior, transistor current amplification (TIP31C), and operational amplifier circuits including inverting, non-inverting, and buffer configurations. Investigated instrumentation loading effects and impedance matching.\n\nOptoelectronic experiments included photodiode I-V characterization under varying illumination, LED optical power vs current measurements, and laser diode operation using a constant-current driver with optical power and spectral measurements.\n\nThe laboratory emphasized rigorous measurement workflows, circuit modeling intuition, and connections between electronic instrumentation and physical device behavior relevant to experimental physics and microdevice characterization.",
+      blurb: "Twelve-area independent electronics sequence: passive components, RC and LC behavior, impedance and resonance, diodes and transistors, op-amps and instrument loading, RF design, and optoelectronic devices.",
+      details: "Completed the University of Oregon Electronics Obstacle Course, a 12-area independent laboratory sequence (Winter 2026, instructor Bryan Boggs). The emphasis is measurement discipline: build the circuit, predict what it should do, measure it, and explain the gap.\n\nHighlights from my write-up: five 100 Ω resistors all inside their ±5% tolerance; RC rise and fall times of 11.1 ms that scaled with capacitance; voltage shifting from a resistor to an inductor between 50 Hz and 1 MHz as inductive reactance grew; an LC resonance peak near 1.6 kHz compared against simulation; a voltage divider that sagged under multimeter loading, measured again through a unity-gain op-amp buffer; and photodiode, LED, and laser diode curves showing photocurrent rising with light and laser output climbing sharply above threshold. The diode section (forward and reverse knees, a diode clamp, and junction capacitance) was completed in LTspice.",
       image: "images/electronics_1.jpg",
       images: [
         "images/electronics_1.jpg",
@@ -536,94 +379,91 @@ export const SITE = {
         {
           title: "Passive Components and RC Dynamics",
           tools: ["Fluke 179 DMM", "Capacitance meter", "Function generator", "Oscilloscope"],
+          blurb: "Resistor, capacitor, and inductor fundamentals through dividers, filters, and time-domain response.",
           bullets: [
-            "Measured resistance, capacitance, and inductance directly and verified voltage-current relationships across passive networks.",
-            "Built voltage dividers and RC filter circuits; characterized time-domain charging behavior and frequency-dependent AC response on the oscilloscope.",
+            "Measured five 100 Ω resistors, all within their ±5% tolerance, and confirmed the predicted 25 mA at 2.5 V.",
+            "Measured RC rise and fall times of 11.1 ms and showed they scale with capacitance; designed RC high- and low-pass filters with a 3 dB point near 1.06 kHz.",
           ],
-          blurb: "Resistor, capacitor, and inductor fundamentals through dividers, RC filters, and time-domain response.",
         },
         {
           title: "Impedance, Reactance, and Resonance",
           tools: ["LC networks", "Function generator", "Oscilloscope", "Circuit simulation"],
-          bullets: [
-            "Separated resistive and reactive contributions to impedance and measured how capacitive and inductive reactance vary with frequency.",
-            "Constructed LC bandpass filters and characterized resonant frequency behavior, comparing measured response against circuit simulation.",
-          ],
           blurb: "Frequency-dependent impedance and LC resonance, measured against simulated response.",
+          bullets: [
+            "Measured the voltage across a resistor and an inductor from 50 Hz to 1 MHz, showing voltage move to the inductor as its reactance grows with frequency.",
+            "Measured an LC circuit from 100 Hz to 6.2 kHz, found a resonance peak near 1.6 kHz, and compared it with simulation.",
+          ],
         },
         {
-          title: "Semiconductor Device Characterization",
-          tools: ["Diodes", "Zener diodes", "Bipolar and field-effect transistors", "Power supplies"],
+          title: "Semiconductor Devices",
+          tools: ["LTspice", "Bipolar transistor (TIP31C)", "Power supplies"],
+          blurb: "Diode behavior simulated in LTspice; transistor current gain measured on the bench.",
           bullets: [
-            "Measured forward and reverse diode I-V characteristics, located the turn-on knee, and characterized junction capacitance as a function of reverse bias.",
-            "Characterized bipolar transistor current amplification and field-effect transistor behavior from measured device curves.",
+            "Simulated diode forward and reverse knees (about 0.7 V and 6 to 7 V), a diode clamp, and bias-dependent junction capacitance in LTspice.",
+            "Measured base and collector currents on a bipolar transistor to confirm current amplification.",
           ],
-          blurb: "I-V characterization of diodes, Zeners, and transistors, including bias-dependent junction capacitance.",
         },
         {
           title: "Operational Amplifiers, Loading, and Buffering",
           tools: ["Op-amps", "Proto-boards", "Oscilloscope", "High-impedance dividers"],
+          blurb: "Op-amp gain configurations plus the instrument-loading problem a buffer solves.",
           bullets: [
-            "Built inverting and non-inverting amplifier configurations and verified gain against feedback-network predictions.",
-            "Investigated how finite instrument input impedance loads high-impedance circuits, and used unity-gain buffer stages to isolate source from measurement.",
+            "Built inverting and non-inverting amplifiers and compared gain with the feedback-resistor ratio.",
+            "Measured how a multimeter's input impedance makes a high-impedance divider sag, then measured the same divider through a unity-gain buffer.",
           ],
-          blurb: "Op-amp gain configurations plus the instrumentation-loading and buffering problem they solve.",
         },
         {
           title: "RF Behavior and Board Construction",
-          tools: ["Proto-board", "Ground-plane PCB", "Function generator", "Oscilloscope"],
+          tools: ["LC filters", "Proto-board", "Ground-plane PCB"],
+          blurb: "Why components stop behaving ideally at radio frequencies, and how layout helps.",
           bullets: [
-            "Tested how discrete components depart from ideal behavior at high frequency.",
-            "Compared signal integrity between proto-board construction and ground-plane PCB layout to quantify the cost of parasitics.",
+            "Worked through how parasitic capacitance, lead inductance, self-resonance, and rising losses change component behavior at RF, and why compact layouts, RF-rated parts, and ground-plane boards help.",
+            "Designed LC low- and high-pass filters (100 µH with 1 nF; 1 µH with 28 pF).",
           ],
-          blurb: "High-frequency component behavior and proto-board vs ground-plane PCB performance.",
         },
         {
           title: "Optoelectronic Device Measurement",
-          tools: ["Photodiodes", "LEDs", "Laser diode + constant-current driver", "Optical power meter", "Spectrometer"],
+          tools: ["Photodiodes", "LEDs", "Laser diode + constant-current driver", "Optical power meter"],
+          blurb: "Photodiode, LED, and laser diode curves with optical power measurement.",
           bullets: [
-            "Characterized photodiode I-V response under varying illumination and measured LED optical power against drive current.",
-            "Operated a laser diode from a constant-current protection driver and recorded optical power and spectral output.",
+            "Measured photodiode I-V curves in forward and reverse bias, in the dark, in ambient light, and under laser light; more light shifted the curve by adding photocurrent.",
+            "Measured LED optical power against forward voltage and a laser diode's power-current curve, driven from a constant-current protection circuit, with output rising sharply above threshold.",
           ],
-          blurb: "Photodiode, LED, and laser diode characterization with optical power and spectral measurement.",
         },
       ],
       links: [
-        { label: "Obstacle Course", url: "https://newjune.uoregon.edu/mediawiki/index.php/Electronics_Obstacle_Course" },
+        {
+          label: "Obstacle Course",
+          url: "https://newjune.uoregon.edu/mediawiki/index.php/Electronics_Obstacle_Course",
+        },
       ],
     },
-
     {
-      kind: "lab",
-      title: "CAHOOTS Applied Data Science Lab",
-      org: "Applied Data Science Lab, University of Oregon",
-      date: "2024-06-15",
+      kind: "project",
+      title: "Emergency Dispatch Capacity Simulation",
+      slug: "emergency-dispatch-capacity-simulation",
+      aliases: ["cahoots-applied-data-science-lab"],
+      org: "Independent research, extending DSCI 410L coursework",
+      date: "2026-09-01",
       categories: ["ds", "cs"],
-      tags: ["Data Science", "Program Evaluation", "Labs"],
-      tools: ["Python", "pandas", "Visualization"],
-      descriptions: {
-        cv: [
-          "Built reproducible Python/pandas pipeline for cleaning and analyzing 50,000+ police CAD dispatch records related to mental health crisis response.",
-          "Quantified temporal/spatial trends and produced stakeholder-facing visualizations supporting operational program evaluation (Eugene, OR).",
-        ],
-        resume: {
-          ds: [
-            "Built a reproducible Python/pandas pipeline to clean and analyze 50,000+ police CAD dispatch records; engineered features quantifying temporal and spatial trends in crisis-response operations.",
-            "Produced stakeholder-facing visualizations and written summaries for program evaluation, delivered to a community partner (White Bird Clinic).",
-          ],
-          process: null,
-        },
-      },
-      blurb:
-        "Built reproducible pipelines and trend analyses on crisis-response dispatch logs to support operational evaluation.",
-      details:
-        "Course-based applied lab focused on reproducible analysis and stakeholder communication. Work emphasized data cleaning, exploratory analysis, and clear presentation of findings.",
-      image: "images/cahoots_1.png",
-      images: ["images/cahoots_1.png"],
-      imageAlt: "CAHOOTS dispatch analysis plot",
+      tags: ["Data Science", "Simulation", "Public Data", "Work in Progress"],
+      tools: [
+        "Python",
+        "pandas",
+        "Discrete-event simulation",
+        "Markov chains",
+        "Censored MLE",
+        "PyTorch",
+        "Gradient-boosted trees",
+        "LaTeX",
+      ],
+      blurb: "Work in progress. A simulation built from about 1.2 million public dispatch records estimates what more crisis-van capacity would have bought Eugene's CAHOOTS program: one more van from 11 a.m. to 10 p.m. cuts the routine median wait by about half.",
+      details: "CAHOOTS sent crisis workers instead of police to mental-health and welfare calls in Eugene, Oregon. This project started as my DSCI 410L class analysis in 2024 and grew into independent research. The public dispatch record cannot answer capacity questions directly: a call closing is not a van coming free, requests that never got a van are invisible before May 2022, and the record names only a call's lead unit.\n\nSo I rebuilt what the record never logged (van shifts and van-free times, reconstructed from the sequence of dispatches) and built a discrete-event simulation from measured pieces: arrivals, job times, shifts, and diversion to police. Six behavior settings were fitted on May 2022 to 2023 and tested on 2024, a year the model never saw, with a typical miss of about 16 to 21% per measure.\n\nIn the model, one more van from 11 a.m. to 10 p.m. cuts the routine median wait by about half and requests closed without a van by about a third, across every calibration that fits. As a check, a neural network trained on the dispatch decision learned the same rule the simulator uses.\n\nA full write-up and the code are on the way.",
+      image: "images/dispatch_capacity_by_hour.png",
+      images: ["images/dispatch_capacity_by_hour.png", "images/dispatch_capacity_scenarios.png"],
+      imageAlt: "Simulated median routine wait by hour, as staffed and with one added van",
       links: [],
     },
-
     {
       kind: "project",
       title: "FishTracker App",
@@ -631,28 +471,17 @@ export const SITE = {
       categories: ["cs"],
       tags: ["CS", "App Dev"],
       tools: ["Python", "Kivy", "SQL", "ETL"],
-      descriptions: {
-        cv: [
-          "Developed offline-first mobile application (Python/Kivy + SQLite) integrating GPS route logging with environmental data ingestion for fishing performance analytics.",
-          "Implemented ETL + data model linking catches to location/time/weather conditions, enabling historical query, trend analysis, and decision support.",
-        ],
-        resume: {
-          ds: [
-            "Developed offline-first mobile application (Python/Kivy) integrating GPS route logging and real-time NOAA environmental data ingestion for fishing performance analytics.",
-            "Designed and implemented SQLite data model linking catch records to location, time, and weather conditions; enabled historical trend analysis and data-driven decision support.",
-          ],
-          process: null,
-        },
-      },
-      blurb:
-        "Developed a mobile app scraping NOAA data, logging GPS routes, and using SQL for real-time analytics.",
-      details:
-        "Engineered a robust mobile application to track fishing performance and environmental conditions. The app features an offline-first architecture using SQLite and Peewee ORM, ensuring data persistence even in remote locations without cellular service.\n\nKey Technical Implementations:\n\n- GPS Tracking Engine: singleton geolocation service using plyer to interface with Android hardware, including simulation mode for deterministic desktop testing.\n- Asynchronous Data Ingestion: threaded polling of WQDataLive API endpoints to fetch real-time wave height, wind speed, and water temperature without blocking the UI.\n- Data Correlation: links each logged catch with GPS coordinates and current weather conditions.\n- Configurable Architecture: unit conversion system enabling toggling between Imperial and Metric standards.",
+      blurb: "Offline-first mobile app in Python and Kivy that logs GPS routes and links each catch to live NOAA wave, wind, and water conditions in a SQLite data model.",
+      details: "Engineered a robust mobile application to track fishing performance and environmental conditions. The app features an offline-first architecture using SQLite and Peewee ORM, ensuring data persistence even in remote locations without cellular service.\n\nKey Technical Implementations:\n\n- GPS Tracking Engine: singleton geolocation service using plyer to interface with Android hardware, including simulation mode for deterministic desktop testing.\n- Asynchronous Data Ingestion: threaded polling of WQDataLive API endpoints to fetch real-time wave height, wind speed, and water temperature without blocking the UI.\n- Data Correlation: links each logged catch with GPS coordinates and current weather conditions.\n- Configurable Architecture: unit conversion system enabling toggling between Imperial and Metric standards.",
       image: "images/fishtracker.png",
       imageAlt: "FishTracker screenshot",
-      links: [{ label: "Code", url: "https://github.com/Elijah-Andrae56/FishingTracker" }],
+      links: [
+        {
+          label: "Code",
+          url: "https://github.com/Elijah-Andrae56/FishingTracker",
+        },
+      ],
     },
-
     {
       kind: "project",
       title: "Google Merchandise Store Analysis",
@@ -660,29 +489,18 @@ export const SITE = {
       categories: ["ds", "marketing"],
       tags: ["Data Science", "Marketing"],
       tools: ["R", "BigQuery", "tidyverse", "Logistic regression", "SQL"],
-      descriptions: {
-        cv: [
-          "Analyzed 900,000+ e-commerce sessions using SQL/BigQuery and R (tidyverse); engineered behavioral and temporal features for marketing attribution.",
-          "Built and evaluated logistic regression models to predict purchase propensity/high-value customers; translated results into campaign-timing and targeting recommendations.",
-        ],
-        resume: {
-          ds: [
-            "Analyzed 900,000+ e-commerce sessions using SQL/BigQuery and R; engineered behavioral and temporal features for marketing attribution and customer segmentation.",
-            "Built and evaluated logistic regression models to predict purchase propensity and high-value customer behavior; translated model outputs into campaign-timing and audience-targeting recommendations.",
-          ],
-          process: null,
-        },
-      },
-      blurb:
-        "Parsed 900k e-commerce sessions using R and BigQuery. Built logistic regression models to classify high-value buyers and optimize campaign scheduling.",
-      details:
-        "End-to-end analysis of 903,000+ Google Merchandise Store sessions spanning Aug 2016 to Aug 2017. Data extracted from Google Cloud using SQL, cleaned and feature-engineered in R, and merged with a global holiday dataset to quantify temporal purchasing behavior.\n\nExploratory analysis examined revenue concentration by traffic source, browser, country, and visitor behavior.\n\nLogistic regression models predicted purchase likelihood and bounce behavior to support campaign timing optimization.",
+      blurb: "Analyzed 900,000+ e-commerce sessions with SQL on BigQuery and R; logistic regression models predicted purchase likelihood to inform campaign timing.",
+      details: "End-to-end analysis of 903,000+ Google Merchandise Store sessions spanning Aug 2016 to Aug 2017. Data extracted from Google Cloud using SQL, cleaned and feature-engineered in R, and merged with a global holiday dataset to quantify temporal purchasing behavior.\n\nExploratory analysis examined revenue concentration by traffic source, browser, country, and visitor behavior.\n\nLogistic regression models predicted purchase likelihood and bounce behavior to support campaign timing optimization.",
       image: "images/google_merch_store_1.png",
       images: ["images/google_merch_store_1.png", "images/google_merch_store_2.png"],
       imageAlt: "Google merchandise store analysis visualization",
-      links: [{ label: "Code", url: "https://github.com/Elijah-Andrae56/Google_Merch_Store_Analysis_MKTG415" }],
+      links: [
+        {
+          label: "Code",
+          url: "https://github.com/Elijah-Andrae56/Google_Merch_Store_Analysis_MKTG415",
+        },
+      ],
     },
-
     {
       kind: "project",
       title: "Lake Erie Weather-Buoy Safety Model",
@@ -690,29 +508,18 @@ export const SITE = {
       categories: ["ds", "cs"],
       tags: ["Data Science", "Python"],
       tools: ["Python", "scikit-learn", "PCA", "Ridge regression"],
-      descriptions: {
-        cv: [
-          "Integrated NOAA buoy and airport datasets; engineered directional and seasonal features to model hazardous wave regimes and safe/unsafe classifications.",
-          "Built Ridge regression model with PCA-based dimensionality reduction; reduced false negatives by 23% vs baseline heuristics and produced interpretable safety workflow.",
-        ],
-        resume: {
-          ds: [
-            "Integrated multi-source NOAA buoy and airport weather datasets; engineered directional and seasonal features to model hazardous wave regimes and binary safety classifications.",
-            "Built Ridge regression model with PCA-based dimensionality reduction; reduced false negatives by 23% vs baseline heuristics and produced an interpretable go/no-go safety decision workflow.",
-          ],
-          process: null,
-        },
-      },
-      blurb:
-        "Integrated NOAA buoy and airport datasets to predict hazardous wave conditions. Applied Ridge Regression and PCA to reduce false negatives by 23% vs baseline heuristics.",
-      details:
-        "Goal: improve small-boat safety decisions on Lake Erie by modeling hazardous wave conditions using historical buoy observations and nearby airport weather records.\n\nData and preprocessing: ingested multi-year NOAA buoy measurements sampled at approximately 20-minute cadence. Cleaned missing values, standardized timestamps, engineered seasonal subsets, and created categorical direction features.\n\nInference and prediction: evaluated directional regime differences and built regularized regression models with cross-validation. Ridge regression produced stable performance and identified interaction terms as dominant predictors.\n\nOutcome: produced an interpretable workflow combining exploratory climatology, statistically grounded comparisons, and predictive modeling to support go/no-go judgments.",
+      blurb: "Merged 61,000+ Lake Erie buoy observations with Erie airport weather and predicted wave height with ridge regression and PCA (holdout RMSE about 0.29 ft).",
+      details: "Goal: understand and predict wave conditions off Presque Isle for small-boat safety.\n\nData: 61,448 buoy observations at a 20-minute cadence (2014 to 2021) merged with Erie airport daily weather. Cleaned missing values, standardized timestamps, and built seasonal subsets and wind-direction features.\n\nInference: wave conditions differed sharply by wind direction (ANOVA F = 362).\n\nPrediction: cross-validated forward feature selection with interaction terms, then ridge regression and PCA plus ridge, reaching a holdout RMSE of about 0.29 ft. Wind speed and gust interactions were the strongest predictors.",
       image: "images/wave_project_1.png",
       images: ["images/wave_project_1.png", "images/wave_project_2.png", "images/wave_project_3.png"],
       imageAlt: "Wave safety model results plot",
-      links: [{ label: "Code", url: "https://github.com/Elijah-Andrae56/Lake-Erie-Weather-Buoy-Project" }],
+      links: [
+        {
+          label: "Code",
+          url: "https://github.com/Elijah-Andrae56/Lake-Erie-Weather-Buoy-Project",
+        },
+      ],
     },
-
     {
       kind: "project",
       title: "Resident-Assistant Shift Scheduler",
@@ -720,29 +527,13 @@ export const SITE = {
       categories: ["cs", "ds"],
       tags: ["CS", "Optimization"],
       tools: ["Python", "OR-Tools", "Constraint optimization"],
-      descriptions: {
-        cv: [
-          "Built constraint optimization model (Python + OR-Tools) automating RA on-call scheduling under 8+ fairness and coverage constraints.",
-          "Produced feasible schedules for 12 teams; estimated 750+ administrative hours saved annually while maintaining policy compliance and equitable assignments.",
-        ],
-        resume: {
-          ds: [
-            "Built constraint optimization model (Python + OR-Tools) automating RA on-call scheduling across 12 teams under 8+ fairness and coverage constraints.",
-            "Generated policy-compliant, equitable schedules in seconds; estimated 750+ administrative hours saved annually through algorithmic scheduling.",
-          ],
-          process: null,
-        },
-      },
-      blurb:
-        "Developed a model to automate RA on-call scheduling under 8+ fairness constraints; designed for 12 teams with projected 750+ hours saved yearly.",
-      details:
-        "Designed and implemented a constraint optimization model to automate the scheduling of Resident Assistant (RA) on-call shifts across 12 teams. The model incorporates a comprehensive set of constraints reflecting university policies, fairness considerations, and coverage requirements, including:\n\n- Maximum shift limits per RA\n- Fair distribution of weekend and holiday shifts\n- Coverage requirements for each time slot\n- Avoidance of back-to-back shifts\n- Accommodations for known unavailability\n\nUsing Python and Google's OR-Tools, the model generates feasible schedules that satisfy all constraints while optimizing for equitable shift distribution. Initial testing indicates that the automated scheduler can produce compliant schedules in seconds, with an estimated annual time savings of 750+ administrative hours compared to manual scheduling processes.",
+      blurb: "Developed a model to automate RA on-call scheduling under 8+ fairness constraints; designed for 12 teams with projected 750+ hours saved yearly.",
+      details: "Designed and implemented a constraint optimization model to automate the scheduling of Resident Assistant (RA) on-call shifts across 12 teams. The model incorporates a comprehensive set of constraints reflecting university policies, fairness considerations, and coverage requirements, including:\n\n- Maximum shift limits per RA\n- Fair distribution of weekend and holiday shifts\n- Coverage requirements for each time slot\n- Avoidance of back-to-back shifts\n- Accommodations for known unavailability\n\nUsing Python and Google's OR-Tools, the model generates feasible schedules that satisfy all constraints while optimizing for equitable shift distribution. Initial testing indicates that the automated scheduler can produce compliant schedules in seconds, with an estimated annual time savings of 750+ administrative hours compared to manual scheduling processes.",
       image: "images/scheduler_1.png",
       images: ["images/scheduler_1.png", "images/scheduler_2.png", "images/scheduler_3.png"],
       imageAlt: "Scheduler results",
       links: [],
     },
-
     {
       kind: "project",
       title: "Superconductor Critical Temperature Modeling",
@@ -750,92 +541,28 @@ export const SITE = {
       categories: ["ds", "cs"],
       tags: ["Data Science", "Machine Learning", "Materials Data"],
       tools: ["Python", "pandas", "scikit-learn", "PCA", "Random Forest", "Matplotlib"],
-      descriptions: {
-        cv: [
-          "Analyzed a dataset of 21,000+ superconducting materials using compositional descriptors derived from elemental properties.",
-          "Applied dimensionality reduction (PCA) and K-Means clustering to identify structure in materials feature space and isolate regions containing high-temperature superconductors.",
-          "Trained Random Forest regression model to predict superconducting critical temperature (Tc), achieving strong predictive alignment between observed and predicted values.",
-          "Evaluated feature importance to identify dominant compositional predictors, highlighting thermal conductivity variation and electronic structure descriptors as key correlates of Tc.",
-        ],
-        resume: {
-          ds: [
-            "Analyzed 21,000+ superconducting compounds using PCA-based dimensionality reduction and K-Means clustering to identify compositional structure in a high-dimensional materials feature space.",
-            "Trained a Random Forest regression model to predict superconducting critical temperature (Tc); identified thermal conductivity variation and electronic structure descriptors as dominant compositional predictors via feature importance analysis.",
-          ],
-          process: [
-            "Analyzed 21,000+ superconducting compounds using compositional descriptors; applied PCA and clustering to expose structure-property relationships across a high-dimensional materials space.",
-            "Trained a Random Forest regressor for critical temperature and used feature importance to identify the dominant physical predictors, producing an interpretable result rather than a black box.",
-          ],
-        },
-      },
-      blurb:
-        "Machine learning analysis of superconducting materials using compositional descriptors to explore structure in materials space and predict critical temperature.",
-      details:
-        "This project analyzes a large superconducting materials dataset containing over 21,000 compounds with features derived from elemental properties such as thermal conductivity, atomic mass, density, and valence electron structure.\n\nThe analysis combines unsupervised and supervised learning methods to explore structure in the materials feature space and evaluate whether compositional descriptors can predict superconducting critical temperature (Tc).\n\nDimensionality reduction using Principal Component Analysis (PCA) revealed clear structure in the feature space, while K-Means clustering separated materials into distinct compositional groups. When high-temperature superconductors were highlighted, they concentrated strongly within one region of this space, suggesting that certain combinations of elemental properties are associated with elevated Tc.\n\nA Random Forest regression model was then trained to predict Tc from the compositional descriptors. Predicted temperatures closely followed observed values across the dataset, demonstrating that machine learning models can capture meaningful relationships between elemental properties and superconducting behavior.\n\nFeature importance analysis identified the range and weighted mean of thermal conductivity among constituent elements as dominant predictors, alongside descriptors related to atomic mass, density, and electronic structure. These results suggest that variations in thermal transport properties and electronic configuration are strongly associated with superconducting critical temperature within the dataset.",
+      blurb: "Random forest predicting superconducting critical temperature for 21,000+ compounds (test R² 0.93), with PCA and clustering to map the materials feature space.",
+      details: "This project analyzes a large superconducting materials dataset containing over 21,000 compounds with features derived from elemental properties such as thermal conductivity, atomic mass, density, and valence electron structure.\n\nThe analysis combines unsupervised and supervised learning methods to explore structure in the materials feature space and evaluate whether compositional descriptors can predict superconducting critical temperature (Tc).\n\nDimensionality reduction using Principal Component Analysis (PCA) revealed clear structure in the feature space, while K-Means clustering separated materials into distinct compositional groups. When high-temperature superconductors were highlighted, they concentrated strongly within one region of this space, suggesting that certain combinations of elemental properties are associated with elevated Tc.\n\nA Random Forest regression model was then trained to predict Tc from the compositional descriptors. On held-out compounds it reached R² 0.930 (RMSE 8.97 K), with 5-fold cross-validated R² of 0.926.\n\nFeature importance identified thermal-conductivity descriptors (the range and the weighted geometric mean across constituent elements) as the dominant predictors, about two thirds of total importance; electronic-structure descriptors were secondary.",
       image: "images/superconductor_ml_1.png",
-      images: [
-        "images/superconductor_ml_1.png",
-        "images/superconductor_ml_2.png",
-        "images/superconductor_ml_3.png"
-      ],
+      images: ["images/superconductor_ml_1.png", "images/superconductor_ml_2.png", "images/superconductor_ml_3.png"],
       imageAlt: "Machine learning analysis of superconducting materials and critical temperature prediction",
       links: [
-        { label: "Code", url: "https://github.com/Elijah-Andrae56/Superconductor_ML_Analysis.git" }
-      ],
-    },
-    {
-      kind: "project",
-      title: "Mathematical Rigor & Analytical Evaluation",
-      date: "2025-06-01",
-      categories: ["ds", "cs"],
-      tags: ["Applied Mathematics", "Cryptography", "Linear Algebra"],
-      tools: ["LaTeX", "Matrix Methods", "Stochastic Processes", "Proof Validation"],
-      descriptions: {
-        cv: [
-          "Evaluated advanced mathematics assignments, providing detailed analytical feedback for proof-writing, matrix methods, cryptographic reasoning, and statistical modeling.",
-          "Validated complex stochastic models, linear algebra proofs, and encryption algorithms for technical accuracy and logical soundness."
-        ],
-        resume: { // Changed back to "resume"
-          ds: null,
-          process: null,
+        {
+          label: "Code",
+          url: "https://github.com/Elijah-Andrae56/Superconductor_ML_Analysis.git",
         },
-      },
-      blurb:
-        "Evaluated advanced university mathematics coursework, demonstrating a deep foundation in the theoretical mechanics, including linear algebra and stochastic processes, that power physical modeling and data science.",
-      details:
-        "Serving as a Mathematics Paper Marker requires more than just checking answers; it requires reverse-engineering a student's logical process to find the exact point of failure in complex, multi-step proofs...",
-      links: [],
+      ],
     },
     {
       kind: "lab",
       title: "Optical Systems & Interferometry Laboratory",
       org: "Independent Laboratory Sequence, 16 stations, University of Oregon",
-      date: "2025-05-01", 
-      categories: ["nanofab", "process", "physics"], // Added "nanofab" here
+      date: "2025-05-01",
+      categories: ["nanofab", "process", "physics"],
       tags: ["Optics", "Laser Alignment", "Interferometry", "Hardware Characterization"],
       tools: ["HeNe Lasers", "Oscilloscopes", "Thorlabs Optomechanics", "Photodetectors", "Waveplates", "Interferometers"],
-      descriptions: {
-        cv: [
-          "Built and aligned complex free-space optical systems, including Michelson interferometers and Fabry-Perot cavities, to measure refractive indices, coherence length, and cavity finesse.",
-          "Characterized Gaussian laser beam profiles, polarization states, and photodiode rise times using translation stages, optical choppers, and oscilloscopes.",
-          "Constructed functional optical isolators using quarter waveplates and polarizing beamsplitters, ensuring strict beam containment and alignment."
-        ],
-        resume: { // Keeping this as "resume" matches your resume-builder object syntax perfectly
-          ds: [
-            "Analyzed optical signal data and photodiode rise times using oscilloscopes to characterize hardware response rates.",
-            "Modeled and simulated Fabry-Perot cavity properties (Finesse, Free Spectral Range) to validate physical benchtop measurements."
-          ],
-          process: [
-            "Designed, built, and aligned free-space optical systems including Michelson interferometers and Fabry-Perot cavities across a 16-station independent laboratory sequence.",
-            "Characterized Gaussian beam profiles (Rayleigh range, 1/e width), polarization states, and photodetector rise times; cross-checked results between independent measurement methods.",
-            "Executed precision optics handling, cleaning, and laser safety protocols throughout.",
-          ]
-        },
-      },
-      blurb:
-        "Completed the published 16-station UO Optics Obstacle Course: designed, built, and characterized precision free-space optical systems including Michelson interferometers and Fabry-Perot cavities, using Thorlabs optomechanics and HeNe lasers.",
-      details:
-        "Completed the University of Oregon Optics Obstacle Course, a published 16-station laboratory sequence in which each station - alignment, measurement, or system build - must be demonstrated and signed off before advancing. The course runs from laser safety and optics handling through beam alignment and polarization control, into quantitative beam characterization, and finally into multi-element system builds: telescopes, optical isolators, Michelson interferometers, and Fabry-Perot cavities.\n\nThe emphasis throughout is on doing alignment properly rather than approximately. Establishing a level, correctly polarized beam at a fixed height using irises along the optical table hole pattern is the prerequisite for every later station, and a cavity that will not reach its specified finesse is usually an alignment problem rather than a component problem. Measurements are cross-checked between methods wherever possible - optical power by meter versus photodetector-and-oscilloscope using detector responsivity, refractive index by Brewster's angle versus interferometry.\n\nThe stations below group the course into its major skill areas.",
+      blurb: "Completed the 16-station UO Optics Obstacle Course: built and characterized free-space optical systems, including Michelson interferometry and a scanning confocal Fabry-Perot cavity, with Thorlabs optomechanics and HeNe lasers.",
+      details: "Completed the University of Oregon Optics Obstacle Course, a 16-station laboratory sequence in which each station (alignment, measurement, or system build) is demonstrated and signed off before moving on. The course runs from laser safety and optics handling through beam alignment and polarization control, into quantitative beam characterization, and finally into multi-element builds: telescopes, optical isolators, a Michelson interferometer, and a Fabry-Perot cavity.\n\nThe emphasis throughout is on doing alignment properly rather than approximately, and on cross-checking a measurement by a second method wherever possible: optical power by meter against a photodetector and oscilloscope, refractive index by Brewster's angle against interferometry.\n\nThe stations below group the course into its major skill areas.",
       image: "images/optics_4.jpg",
       images: ["images/optics_1.jpg", "images/optics_2.jpg", "images/optics_3.jpg", "images/optics_4.jpg"],
       imageAlt: "Various optical experiments",
@@ -853,9 +580,9 @@ export const SITE = {
           title: "Polarization Control and Optical Isolation",
           tools: ["Polarizers", "Polarizing beamsplitter cubes", "Quarter waveplates", "Rotation stages"],
           bullets: [
-            "Characterized vertical, horizontal, and 45-degree polarization states through polarizing beamsplitter cubes, and generated circular polarization with quarter waveplates.",
-            "Built two optical isolator configurations - polarizer plus quarter waveplate, and polarizing beamsplitter plus quarter waveplate - and compared their behavior against Faraday rotator isolators.",
-            "Determined the refractive index of a glass cover slip from Brewster's angle using a rotation stage, horizontally polarized light, and power measurement.",
+            "Measured transmitted power through a rotating polarizer against Malus's law, characterized vertical, horizontal, and 45-degree states through polarizing beamsplitter cubes, and generated circular polarization with quarter waveplates.",
+            "Built two optical isolators (polarizer plus quarter waveplate, and polarizing beamsplitter plus quarter waveplate) and explained why a Faraday rotator isolator works better.",
+            "Measured Brewster's angle on a glass cover slip near 56 degrees, giving a refractive index of about 1.54.",
           ],
           blurb: "Polarization state control, isolator construction, and Brewster's-angle index measurement.",
         },
@@ -863,38 +590,52 @@ export const SITE = {
           title: "Power Measurement and Detector Response",
           tools: ["Optical power meter", "DET10A / DET110 photodiodes", "Optical chopper", "Oscilloscope", "ND filters"],
           bullets: [
-            "Cross-validated optical power measured by power meter against the photodetector-and-oscilloscope method using detector responsivity data, and verified neutral-density filter optical densities.",
-            "Compared rise times of small-area and large-area silicon photodiodes using a chopper and two-lens telescope to quantify the speed-versus-active-area tradeoff.",
+            "Measured laser power with a calibrated power meter (about 1.5 mW) and with a photodetector and oscilloscope using detector responsivity (about 1.7 mW), agreeing within 13%, and worked with neutral-density filters.",
+            "Compared rise times of small-area (DET10A) and large-area (DET110) silicon photodiodes with a chopper: the smaller detector was faster because of its lower junction capacitance.",
           ],
           blurb: "Two independent power-measurement methods cross-checked, plus photodiode rise-time characterization.",
         },
         {
           title: "Gaussian Beam Characterization and Telescopes",
-          tools: ["200 µm pinhole", "Translation stage", "Photodiode", "Newport KPX lenses"],
+          tools: ["500 µm pinhole", "Translation stage", "Photodiode", "Newport KPX lenses"],
           bullets: [
-            "Built a 1:2 beam expander from two supplied lenses and verified collimation.",
-            "Measured the 1/e beam width by scanning a 200 µm pinhole on a translation stage across the beam, then characterized spot size and Rayleigh range at the telescope focus.",
-            "Studied spherical aberration, coma, astigmatism, and chromatic aberration, and how lens orientation and positioning minimize Seidel aberrations.",
+            "Built a 1:2 beam expander from two lenses and checked collimation.",
+            "Measured the 1/e² beam width by scanning a 500 µm pinhole across the beam on a translation stage (13.5% points near 1.30 mm and 1.95 mm).",
+            "Worked through spherical aberration, coma, astigmatism, and chromatic aberration, and how lens orientation and an iris reduce spherical aberration.",
           ],
-          blurb: "Beam expander construction, pinhole-scan beam profiling, Rayleigh range, and aberration behavior.",
+          blurb: "Beam expander construction, pinhole-scan beam profiling, and aberration behavior.",
         },
         {
-          title: "Interferometry and Fabry-Perot Cavities",
-          tools: ["Michelson interferometer", "Non-polarizing beamsplitter", "Plane and spherical mirror cavities", "Fiber-coupled spectrometer"],
+          title: "Interferometry and Fabry-Perot Cavity",
+          tools: ["Michelson interferometer", "Non-polarizing beamsplitter", "Confocal spherical-mirror cavity"],
           bullets: [
-            "Built a Michelson interferometer with a non-polarizing beamsplitter and used it to measure laser wavelength and the refractive indices of a glass slide and an unknown sample.",
-            "Measured laser coherence length on the same interferometer, and characterized the source center wavelength and linewidth with a fiber-coupled spectrometer.",
-            "Constructed plane-mirror and spherical-mirror Fabry-Perot cavities to specification - finesse of 20 or better with free spectral range in the 500 MHz to 1 GHz band - and explored the practical limits on resolution and achievable finesse.",
+            "Built a Michelson interferometer and measured refractive index by fringe counting: 34 fringes for a glass slide against 29 predicted, and an index of about 2.4 for an unknown sample.",
+            "Measured the laser's coherence length at about 15 cm.",
+            "Built a scanning confocal Fabry-Perot cavity from 10 cm focal-length mirrors (L = 20 cm, free spectral range 375 MHz), calculated a theoretical resolution of 12.6 MHz, and worked through what limits the finesse of a real cavity.",
           ],
-          blurb: "Michelson interferometry for wavelength, index, and coherence length, plus Fabry-Perot cavities built to a finesse and FSR spec.",
+          blurb: "Michelson interferometry for refractive index and coherence length, plus a scanning confocal Fabry-Perot cavity.",
         },
       ],
       links: [
-        { label: "Obstacle Course", url: "https://newjune.uoregon.edu/mediawiki/index.php/Optics_Obstacle_Course" },
+        {
+          label: "Obstacle Course",
+          url: "https://newjune.uoregon.edu/mediawiki/index.php/Optics_Obstacle_Course",
+        },
       ],
     },
+    {
+      kind: "project",
+      title: "Image Classification with Convolutional Neural Networks",
+      org: "DSCI 372M Machine Learning for Data Science, University of Oregon",
+      date: "2026-02-04",
+      categories: ["ds", "cs"],
+      tags: ["Machine Learning", "Computer Vision", "PyTorch"],
+      tools: ["Python", "PyTorch", "NumPy"],
+      blurb: "A PyTorch CNN on 10-class FashionMNIST reaching 93.9% test accuracy, plus convolution and max pooling written from scratch in NumPy (coursework).",
+      details: "Three convolution blocks (64, 128, and 256 channels) trained for 60 epochs reached 93.9% test accuracy, against 91.9% for a simpler multilayer perceptron. When the training curves showed the network memorizing, I added data augmentation, and I caught a starter-code bug that built the validation set from augmented training images.\n\nIn a separate assignment I implemented padded, strided 2D convolution and max pooling from scratch in NumPy.",
+      links: [],
+    },
   ],
-
   experience: [
     {
       title: "Resident Assistant",
@@ -906,16 +647,6 @@ export const SITE = {
         "Conducted safety inspections, policy education, and incident documentation to ensure adherence to university standards.",
         "Led community programming focused on engagement, well-being, and resource accessibility.",
       ],
-      resumeBullets: {
-        ds: [
-          "Managed operations for 180+ person residential community; documented incidents and maintained accurate records in coordination with professional staff.",
-          "Collaborated cross-functionally with housing, facilities, and emergency services to resolve operational issues and implement community programs.",
-        ],
-        process: [
-          "Enforced safety protocols and conducted routine inspections across a 180+ resident facility; documented incidents and coordinated corrective action with professional staff and emergency services.",
-          "Served as on-call first response for medical, safety, and facilities incidents across a three-year appointment; escalated appropriately and maintained accurate records.",
-        ],
-      },
     },
     {
       title: "Learning Assistant - Applied Data Science for Social Justice",
@@ -927,15 +658,6 @@ export const SITE = {
         "Coached analytical storytelling and partner-facing presentations for community stakeholders (White Bird Clinic).",
         "Provided individualized technical support in Python/pandas workflows for reproducible, impact-oriented insights.",
       ],
-      resumeBullets: {
-        ds: [
-          "Facilitated lab sessions and office hours guiding students through Python/pandas data cleaning, visualization, and statistical analysis workflows.",
-          "Coached analytical storytelling and technical communication for stakeholder presentations; provided individualized mentorship in reproducible data science.",
-        ],
-        process: [
-          "Guided students through technical data analysis workflows; provided individualized mentorship and supported clear documentation of analytical methods and results.",
-        ],
-      },
     },
     {
       title: "Social Media Analytics and Marketing Intern",
@@ -946,13 +668,6 @@ export const SITE = {
         "Increased organic reach by 117% within three weeks by analyzing engagement metrics and optimizing cadence in Meta Business Suite.",
         "Conducted competitive content analysis and audience segmentation to refine messaging strategy and improve engagement consistency.",
       ],
-      resumeBullets: {
-        ds: [
-          "Increased organic social reach by 117% in three weeks by analyzing engagement metrics and optimizing posting cadence in Meta Business Suite.",
-          "Conducted competitive content analysis and audience segmentation to refine messaging strategy and improve engagement consistency.",
-        ],
-        process: null,
-      },
     },
     {
       title: "Mathematics Paper Marker",
@@ -963,60 +678,58 @@ export const SITE = {
         "Evaluated assignments and provided detailed feedback to support proof-writing, matrix methods, cryptographic reasoning, and statistical modeling.",
         "Collaborated with instructors to maintain grading accuracy, rubric adherence, and timely feedback delivery.",
       ],
-      resumeBullets: {
-        ds: [
-          "Evaluated proof writing, matrix methods, cryptographic reasoning, and statistical modeling across Linear Algebra, Mathematical Cryptography, and statistics coursework; provided detailed feedback to support student learning.",
-        ],
-        process: [
-          "Graded and gave written feedback on Linear Algebra, Mathematical Cryptography, and statistics coursework, covering proof writing, matrix methods, cryptographic reasoning, and model validation; collaborated with instructors on rubric adherence and grading consistency.",
-        ],
-      },
     },
   ],
-
   coursework: [
     {
       title: "Data Science and Computing",
       meta: "",
       bullets: [
-        "Foundations of Data Science I and II",
-        "Principles and Techniques of Data Science",
+        "Machine Learning for Data Science",
         "Probability and Statistics for Data Science",
-        "Data Structures and Algorithms in Python",
+        "Principles and Techniques of Data Science",
+        "Data Structures in Python",
         "Data Science for Social Justice",
+        "Foundations of Data Science I and II",
         "Computer Science I and II",
       ],
     },
     {
-      title: "Mathematics",
+      title: "Mathematics and Statistics",
       meta: "",
       bullets: [
-        "Calculus I to III",
-        "Linear Algebra I and II",
-        "Introduction to Proofs",
-        "Mathematical Cryptography",
-        "Differential Equations",
-        "Multivariable Calculus I and II",
-        "Statistical Methods",
-        "Statistics for Data Science",
         "Stochastic Processes",
+        "Mathematical Methods of Statistics",
+        "Elementary Linear Algebra I and II",
+        "Several-Variable Calculus I and II",
+        "Calculus I to III",
+        "Introduction to Differential Equations",
+        "Introduction to Mathematical Cryptography",
+        "Introduction to Proof",
+      ],
+    },
+    {
+      title: "Nanofabrication and Engineering",
+      meta: "",
+      bullets: [
+        "Nanofabrication (PHYS 495)",
+        "Research: Quantum & Nanotech (PHYS 401)",
+        "Electronics Obstacle Course",
+        "Optics Obstacle Course",
+        "Microfluidic Device Research",
       ],
     },
     {
       title: "Business and Marketing Analytics",
       meta: "",
       bullets: [
-        "Marketing Research",
         "Marketing Analytics",
-        "Language of Business Decisions",
-        "Value Creation for Customers",
-        "Micro/Macro Economics",
+        "Marketing Research",
+        "Finance: Creating Value through Capital",
+        "Accounting: Language of Business Decisions",
+        "Spreadsheet Analysis (Excel)",
+        "Micro and Macro Economics",
       ],
-    },
-    {
-      title: "Nanofabrication and Engineering",
-      meta: "",
-      bullets: ["Nanofabrication", "Analog Electronics Independent Study", "Optics Independent Study", "Microfluidics Research"],
     },
     {
       title: "Ethics and Analytical Reasoning",
@@ -1024,15 +737,19 @@ export const SITE = {
       bullets: ["Data Ethics", "Critical Reasoning"],
     },
   ],
-
   education: [
     {
       title: "University of Oregon",
       meta: "B.S. Data Science (Marketing Analytics concentration) - Minors: Mathematics, Business Administration",
       bullets: [
         "Graduated June 2026. Dean's List: Spring 2025, Fall 2025",
-        "Relevant coursework: Machine Learning, Probability and Statistics, Linear Algebra, Differential Equations, Nanofabrication, Stochastic Processes",
+        "Relevant coursework: Nanofabrication, Machine Learning, Probability and Statistics, Stochastic Processes, Linear Algebra, Differential Equations",
       ],
+    },
+    {
+      title: "Cathedral Preparatory School",
+      meta: "Erie, PA",
+      bullets: [],
     },
   ],
 };
