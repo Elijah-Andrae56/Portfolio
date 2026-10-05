@@ -10,7 +10,7 @@ export const SITE = {
   person: {
     name: "Elijah Andrae",
     headline: "Data Scientist for Semiconductor Manufacturing | Design of experiments, metrology, cleanroom fabrication, and statistical modeling",
-    photo: "images/headshot.jpg",
+    photo: "images/headshot.png",
     photoAlt: "Eli Andrae headshot",
     domains: ["Cleanroom Fabrication", "Design of Experiments", "Metrology", "Python & R", "Simulation & ML"],
     contact: {
