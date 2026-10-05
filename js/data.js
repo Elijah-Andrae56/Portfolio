@@ -10,6 +10,7 @@ export const SITE = {
     contact: {
       email: "Elijah.andrae56@outlook.com",
       linkedin: "https://www.linkedin.com/in/elijah-andrae",
+      github: "https://github.com/elijah-andrae56",
       portfolio: "https://elijah-andrae56.github.io/Portfolio/"
     },
     // summary is the portfolio display / CV fallback
@@ -83,6 +84,7 @@ export const SITE = {
       items: [
         "ISO cleanroom operations, solvent handling, UV-ozone clean",
         "Photolithography (spin coat, bakes, mask alignment, direct-write, develop, dose optimization)",
+        "Photomask layout and design (CleWin, KLayout)",
         "Thermal oxidation and thin-film deposition (thermal evaporation, e-beam, lift-off)",
         "Wet etch and pattern transfer",
         "Metrology (stylus profilometry, ellipsometry, reflectometry, optical microscopy)",
@@ -252,6 +254,9 @@ export const SITE = {
       categories: ["nanofab", "ds", "cs"],
       tags: ["Nanofab", "Microfluidics", "Device Physics", "Instrumentation", "Research"],
       tools: [
+        "CleWin",
+        "KLayout",
+        "Photomask design",
         "Photolithography",
         "LaserWriter",
         "Thin-film deposition",
@@ -265,6 +270,7 @@ export const SITE = {
       ],
       descriptions: {
         cv: [
+          "Designed the photomask sets for both device generations in CleWin, defining electrode geometry, gap spacing, interlayer alignment marks, and bond-pad routing on a 25 mm mask frame.",
           "Designed and fabricated multilayer electrochemical microfluidic devices using patterned metal electrodes, dielectric insulation, SU-8 molds, and PDMS channel integration on glass substrates.",
           "Developed physics-driven characterization workflows using a Keithley 2450, microscope imaging, and semiconductor probe station measurements to quantify nucleation thresholds, current response, field dependence, and trial-to-trial stochastic behavior.",
           "Built a programmable data acquisition and analysis framework for voltage-stepped bubble experiments, including event timing, current traces, reaction-state labeling, and structured datasets for modeling nucleation probability and wait-time statistics.",
@@ -272,11 +278,13 @@ export const SITE = {
         ],
         resume: {
           process: [
+            "Drew the photomask sets for both device generations in CleWin, defining electrode geometry, gap spacing, interlayer alignment marks, and bond-pad routing; the second generation addresses seven measurement channels through a shared-electrode matrix rather than one pad pair per channel.",
             "Designed and fabricated multilayer electrochemical microdevices end to end: photolithographic patterning, thin-film metal deposition and lift-off, SU-8 mold processing, and PDMS channel integration on glass.",
             "Built a repeatable characterization protocol on a Keithley 2450 and semiconductor probe station, mapping nucleation thresholds, current response, and field-dependent activation across device geometries.",
             "Quantified trial-to-trial process variability across multi-trial datasets; maintained trial logs, measurement records, and reproducibility assessments that drove iterative device redesign.",
           ],
           ds: [
+            "Designed the photomask sets for both device generations in CleWin, including a shared-electrode routing scheme that addresses seven measurement channels from a reduced pad count.",
             "Built a programmable acquisition framework for voltage-stepped electrochemical experiments, automating event timing, current-trace logging, and reaction-state labeling into structured datasets.",
             "Modeled bubble nucleation as a stochastic first-event process; characterized nucleation probability and wait-time distributions as functions of applied voltage and device geometry.",
           ],
@@ -784,7 +792,7 @@ export const SITE = {
       tools: ["LaTeX", "Matrix Methods", "Stochastic Processes", "Proof Validation"],
       descriptions: {
         cv: [
-          "Evaluated advanced mathematics assignments, providing detailed analytical feedback for proof-writing, matrix methods, and cryptographic reasoning.",
+          "Evaluated advanced mathematics assignments, providing detailed analytical feedback for proof-writing, matrix methods, cryptographic reasoning, and statistical modeling.",
           "Validated complex stochastic models, linear algebra proofs, and encryption algorithms for technical accuracy and logical soundness."
         ],
         resume: { // Changed back to "resume"
@@ -952,14 +960,16 @@ export const SITE = {
       domains: ["ds", "cs", "nanofab"],
       meta: "University of Oregon - Eugene, OR | Mar 2025 to June 2026",
       bullets: [
-        "Evaluated assignments and provided detailed feedback to support proof-writing, matrix methods, and cryptographic reasoning.",
+        "Evaluated assignments and provided detailed feedback to support proof-writing, matrix methods, cryptographic reasoning, and statistical modeling.",
         "Collaborated with instructors to maintain grading accuracy, rubric adherence, and timely feedback delivery.",
       ],
       resumeBullets: {
         ds: [
-          "Evaluated proof-writing, matrix methods, and cryptographic reasoning in Linear Algebra and Mathematical Cryptography; provided detailed feedback to support student learning.",
+          "Evaluated proof writing, matrix methods, cryptographic reasoning, and statistical modeling across Linear Algebra, Mathematical Cryptography, and statistics coursework; provided detailed feedback to support student learning.",
         ],
-        process: null,
+        process: [
+          "Graded and gave written feedback on Linear Algebra, Mathematical Cryptography, and statistics coursework, covering proof writing, matrix methods, cryptographic reasoning, and model validation; collaborated with instructors on rubric adherence and grading consistency.",
+        ],
       },
     },
   ],
