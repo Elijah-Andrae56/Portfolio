@@ -725,10 +725,9 @@ export const SITE = {
       meta: "",
       bullets: [
         "Nanofabrication (PHYS 495)",
-        "Research: Quantum & Nanotech (PHYS 401)",
+        "Research: Quantum & Nanotech (PHYS 401), microfluidic device research",
         "Electronics Obstacle Course",
         "Optics Obstacle Course",
-        "Microfluidic Device Research",
       ],
     },
     {
