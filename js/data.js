@@ -249,13 +249,14 @@ export const SITE = {
       details: "PHYS 495 Nanofabrication treats the cleanroom as a statistics problem: each process module is set up as a designed experiment in JMP, run on real tools, measured with 10-point metrology maps, and reduced to a model whose factors, interactions, and residuals have to survive diagnostics before any process recommendation is made.\n\nOver the term I designed, ran, or analyzed four factorial designs (two 2⁴ and two 2³), a 12-level exposure dose test, and a three-lens dose profile: about 60 designed runs and several hundred point-level thickness measurements. Experiments were analyzed on group data and again on pooled class data with tool and instrument as blocks. In the evaporation experiment that second look mattered: the evaporator block was the strongest factor in the pooled model, so the tool, not the recipe, was the largest source of variation. I suspected crystal-monitor drift on one tool, reported it to lab staff, and recommended logging the in-situ monitor on every run.\n\nThe modules below follow the term in order, from cleanroom qualification and DOE fundamentals through oxidation, deposition, lithography, pattern transfer, and multilayer registration.",
       image: "images/alignment.jpg",
       images: [
+        "images/cleanroom_gowned.jpg",
         "images/alignment.jpg",
         "images/dose_test_1.png",
         "images/dose_test_2.jpg",
         "images/lift_off.png",
         "images/wet_etch.png",
       ],
-      imageAlt: "Nanofabrication cleanroom process development and metrology",
+      imageAlt: "Eli gowned in the ISO 6 cleanroom, and results from the PHYS 495 labs",
       modules: [
         {
           title: "Lab A - Cleanroom Qualification and SOP Development",
