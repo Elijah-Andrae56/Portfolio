@@ -751,15 +751,15 @@ export const SITE = {
   education: [
     {
       title: "University of Oregon",
-      meta: "B.S. Data Science (Marketing Analytics concentration) - Minors: Mathematics, Business Administration",
+      meta: "B.S. Data Science (Marketing Analytics concentration) - Minors: Mathematics, Business Administration | 2022 to 2026",
       bullets: [
-        "Graduated June 2026. Dean's List: Spring 2025, Fall 2025",
+        "Dean's List: Spring 2025, Fall 2025",
         "Relevant coursework: Nanofabrication, Machine Learning, Probability and Statistics, Stochastic Processes, Linear Algebra, Differential Equations",
       ],
     },
     {
       title: "Cathedral Preparatory School",
-      meta: "Erie, PA | Class of 2022",
+      meta: "High school - Erie, PA | 2018 to 2022",
       bullets: [],
     },
   ],
